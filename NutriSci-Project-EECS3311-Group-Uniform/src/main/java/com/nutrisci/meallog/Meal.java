@@ -42,6 +42,10 @@ public abstract class Meal {
         }
     }
 
+    public List<FoodItem> getFoodItems() {
+        return foodItems;
+    }
+
     /**
      * Update the quantity of a food item in the foodItems list
      * @param item The food item to update
@@ -83,9 +87,15 @@ public abstract class Meal {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        // TODO Auto-generated method stub
-        return super.clone();
+    public Meal clone() throws CloneNotSupportedException {
+        Meal clonedMeal = (Meal) super.clone();
+        clonedMeal.foodItems = new ArrayList<>(foodItems);
+        clonedMeal.notes = notes;
+        clonedMeal.createdAt = createdAt;
+        clonedMeal.updatedAt = updatedAt;
+        clonedMeal.id = id;
+        clonedMeal.date = date;
+        return clonedMeal;
     }
 
     /**
