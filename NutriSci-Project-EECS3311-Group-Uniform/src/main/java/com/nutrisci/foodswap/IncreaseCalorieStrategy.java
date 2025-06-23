@@ -64,11 +64,4 @@ public class IncreaseCalorieStrategy implements FoodSwapStrategy {
 
         return broccoli;
     }
-
-    // public boolean canSwap(Meal meal, Goal goal) {
-    //     double currentCalories = meal.getTotalCalories();
-    //     double targetCalories = goal.getCalories();
-    //     return currentCalories < targetCalories;
-    // }
-    
 }

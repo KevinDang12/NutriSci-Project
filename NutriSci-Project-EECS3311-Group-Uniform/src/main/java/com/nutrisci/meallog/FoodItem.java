@@ -72,7 +72,6 @@ public class FoodItem {
      * @return A new FoodItem with the same properties but with the quantity adjusted
      */
     public FoodItem adjustForQuantity(double quantity) {
-        // TODO: Implement
         FoodItem newFoodItem = new FoodItem(this.name, this.description, this.macroNutrients, this.vitamins, this.minerals, this.foodGroup, this.servingSize * quantity, this.unit);
         return newFoodItem;
     }

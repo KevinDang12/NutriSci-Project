@@ -9,7 +9,6 @@ public abstract class Meal {
     long id;
     LocalDate date;
     List<FoodItem> foodItems = new ArrayList<>();
-    // NutritionalData totalNutrition; // In Another Module
     String notes;
     LocalDateTime createdAt, updatedAt;
     
@@ -53,18 +52,18 @@ public abstract class Meal {
      * @return True if the quantity is > 0, false otherwise
      */
     public boolean updateFoodItemQuantity(FoodItem item, double newQuantity) {
-        // TODO: Implement
-        return newQuantity > 0;
+        if (newQuantity <= 0) {
+            return false;
+        }
+        // Check if the food item is in the meal
+        for (FoodItem foodItem : foodItems) {
+            if (foodItem.equals(item)) {
+                foodItem.adjustForQuantity(newQuantity);
+                return true;
+            }
+        }
+        return false;
     }
-
-    /**
-     * Calculate the total nutrition of the meal
-     * @return The total nutrition of the meal
-     */
-    // public NutritionalData calculateTotalNutrition() {
-    //     // TODO: Implement
-    //     return null;
-    // }
 
     /**
      * Get the total calories of the meal without the full nutrition calculation
