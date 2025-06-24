@@ -1,10 +1,9 @@
-package com.nutrisci.foodswap;
+package com.nutrisci.swap;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import com.nutrisci.meallog.FoodItem;
-import com.nutrisci.meallog.Meal;
+import com.nutrisci.meal.FoodItem;
+import com.nutrisci.meal.Meal;
 
 public class SwapResult {
     Meal originalMeal;

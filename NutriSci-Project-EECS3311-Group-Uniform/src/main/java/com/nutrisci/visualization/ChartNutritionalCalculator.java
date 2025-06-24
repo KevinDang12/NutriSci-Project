@@ -1,11 +1,11 @@
 package com.nutrisci.visualization;
 
-import com.nutrisci.meallog.Meal;
-import com.nutrisci.meallog.FoodItem;
+import com.nutrisci.meal.Meal;
+import com.nutrisci.meal.FoodItem;
 
 import java.util.List;
 
-public class NutritionalCalculator {
+public class ChartNutritionalCalculator {
     public double[] calculateMacros(List<Meal> meals) {
         double protein = 0, carbs = 0, fat = 0;
 

@@ -1,4 +1,4 @@
-package com.nutrisci.meallog;
+package com.nutrisci.meal;
 
 import java.util.HashMap;
 import java.util.Map;
