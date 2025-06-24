@@ -1,12 +1,12 @@
-package com.nutrisci.swap;
+package com.nutrisci.foodswap;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import com.nutrisci.meal.FoodItem;
-import com.nutrisci.meal.Meal;
-import com.nutrisci.meal.MealBuilder;
-import com.nutrisci.meal.MealType;
+
+import com.nutrisci.meallog.FoodItem;
+import com.nutrisci.meallog.Meal;
+import com.nutrisci.meallog.MealBuilder;
+import com.nutrisci.meallog.MealType;
 
 public class FoodSwapper {
     public static void main(String[] args) {

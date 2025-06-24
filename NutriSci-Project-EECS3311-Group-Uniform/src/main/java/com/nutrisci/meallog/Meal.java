@@ -1,4 +1,4 @@
-package com.nutrisci.meal;
+package com.nutrisci.meallog;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

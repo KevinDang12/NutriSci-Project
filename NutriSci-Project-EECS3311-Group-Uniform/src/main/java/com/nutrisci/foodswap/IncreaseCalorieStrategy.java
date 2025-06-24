@@ -1,15 +1,13 @@
-package com.nutrisci.swap;
+package com.nutrisci.foodswap;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-import java.util.Random;
 
-import com.nutrisci.meal.FoodItem;
-import com.nutrisci.meal.Meal;
-import com.nutrisci.meal.MealBuilder;
+import com.nutrisci.meallog.FoodItem;
+import com.nutrisci.meallog.Meal;
+import com.nutrisci.meallog.MealBuilder;
 
 public class IncreaseCalorieStrategy implements FoodSwapStrategy {
 

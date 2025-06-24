@@ -1,4 +1,4 @@
-package com.nutrisci.meal;
+package com.nutrisci.meallog;
 
 public enum MealType {
     BREAKFAST,

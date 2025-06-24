@@ -2,20 +2,6 @@
 serviceAccount.json
 CSV/
 
-{
-  "type": "service_account",
-  "project_id": "nutrisci-project-9ccbf",
-  "private_key_id": "32b20bed00eab0a88678f056b39edaf54860a152",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5cJCtySVk509Q\ntGMY75JQMDiTvGOdTDlzJjBb7vwUFhmtkM/UF4VbjRSn5UU1R8wKszNzJpoxRH1U\nVrcCU52enroSKS+PNTpgatfDDAYaMxKIrd8OPv8uiRqUJi0G9CxLStWUc17Mj1st\nMJc6M06R7BkpFZTQAY1WM3pl3zbeNSdWlJ6D21JlsyV1NOvU9i1vuC3cvl1V/8yP\ngefyQnscnEdGOq3VO69ZoPZMVTyQnfx66oxd+Ru578dGI59d4AdePrP5aAS6TGYt\nNVJsO5u2UcCLuBRWV8j1K73bmsomIWhkmkPai6kQDIixnbjCC4JcjTVSEp4a6pix\nZJPuj3OtAgMBAAECggEAA1mlQ35+znPfWvXnVGv/mLNGUmT058KYxxvJg9+tbi94\nB0q2dn52SlEiLmZV+cByTz8tjscDwiAao4ttgv0/u73iXrGfylaL13IWs89jzNVf\nYFjDzt4UfiK7+DE4XwfKRRH1CdmLvOZaH1bhZIvIv5okWjmplphwlT4Y1/5QX3NO\nfUPpFi4GyKA/tuF3hZIFlCXNegbiJqebSjx1Trima2a9qH4hF8yR/ga7jFtqDmE8\nrR31FVEb3vYSYscJ43IiGsV9aIagLOzYovqdCioXhbHDDwRC1bLh/ofPT2wa0Q5F\ncdKiQz7fochnpRbqW6+/BU8zYkO0ZIbII3kS6chRgQKBgQDrSxHXU4xkiwEC0Wun\neBgq48IvpA0qOjCAvRXQYOlCADjj42XjzsoD54h3kXWKAaq3UMd1faNQkNEGMpln\n2C7vYDpoidtP7EtZzXJlTUGwKqwFYTRAQHNyhnR7NP3VG6gw2rZBKf1RsLOYZc21\nMnomsqWWZ7JDUn5AnsAj2rrY4wKBgQDJwlfkJGRXqL4regRsWs3C8UirOzV8SiHn\nGWVFlT/lNTfqeH+whvMDGbkE+xkfJLmHQA3bW4ltvXTzDgrwEO4p9XSwMGg69LO8\n2CPJfkyVGu/yWV1fxRaQ8A42tXE62BN8tR3wHwNXOwPfimTj3PNeB7HZaNf/Dqfg\nO+TJZ+N2LwKBgFL965ETuxVLolOoIlyzk3KtWzUKnEoktC70gtk5FY1eHrLi5nFv\n4vl1lUD3YYoIBHscVv4uDojAS7nv5wQl0IhGXNO6rEyIgBtwx8TLdzv4ESzkmFWB\nZjcjDbrXeiDM3Io+2sIpWVyTAwXiAqjC4Sr9IELo2Iu+cSHB3OvIntcZAoGBAKZ/\nVc605YWdgEoaqHnOuYzNVz3PX8UQ3Ed9IqC4mQEK2PkKtb00sGh3msLsgH+968kc\naBMEyDWiqldF2GriXdiMcd5QJEO62nTWHTpTmtlVYHwrmS3GVGgJYoFtXGLGG9bH\nFEyrGzOqRPj9mWKdXMzVJsSWi+E08/7NDnHS5NgLAoGBAM+L4EHg5rIWWAHyP17i\nARkwWbCGHLfbP2rjBR3hwuN0A0VP/ygAXUG7r9m6Lkw3JGooNkyhlfLH1MDhxI5s\nzf0RQmVCYfU8c4+UlSKOoWEm0k/zi6vudWSPzkZKzZbaauamlLwgwZCfYSDFmDLt\nAyENPVuBVFwz+W7QLtORnWiF\n-----END PRIVATE KEY-----\n",
-  "client_email": "firebase-adminsdk-fbsvc@nutrisci-project-9ccbf.iam.gserviceaccount.com",
-  "client_id": "103916406506119993274",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40nutrisci-project-9ccbf.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-}
-
 # Maven build artifacts
 target/
 *.class

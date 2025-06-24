@@ -1,9 +1,9 @@
-package com.nutrisci.swap;
+package com.nutrisci.foodswap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import com.nutrisci.meal.Meal;
+
+import com.nutrisci.meallog.Meal;
 
 public class FoodSwapContext {
     FoodSwapStrategy currentStrategy;

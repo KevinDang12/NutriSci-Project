@@ -1,6 +1,6 @@
-package com.nutrisci.swap;
+package com.nutrisci.foodswap;
 
-import com.nutrisci.meal.Meal;
+import com.nutrisci.meallog.Meal;
 
 public interface FoodSwapStrategy {
     public SwapResult executeSwap(Meal meal);

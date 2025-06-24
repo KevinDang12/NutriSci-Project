@@ -1,4 +1,4 @@
-package com.nutrisci.database;
+package com.nutrisci.firebase;
 
 import java.util.HashMap;
 import java.util.List;

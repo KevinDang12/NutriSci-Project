@@ -1,7 +1,7 @@
-package com.nutrisci.calculator;
+package com.nutriSci.calculator;
 
 import java.util.List;
-//import com.nutrisci.meal.FoodItem;
+//import com.nutriSci.calculator.FoodItem;
 
 public class NutritionalCalculator {
     
