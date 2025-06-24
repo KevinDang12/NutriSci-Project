@@ -10,15 +10,19 @@ import org.jfree.data.general.PieDataset;
 import java.time.LocalDate;
 import java.util.*;
 
+// Displays a daily nutrition pie chart using JFreeChart
 public class DailyNutritionChart implements ChartDisplayStrategy {
     private final NutritionalCalculator calculator = new NutritionalCalculator();
     private final ColorScheme nutritionColors = new ColorScheme();
 
+    // Gets the meals for a specific date (placeholder for real data)
     private List<Meal> getMealsForDate(LocalDate date) {
-        // Placeholder - integrate your real MealManager or DB query here
+        // helped by AI - would connect to MealManager or DB in real app
         return new ArrayList<>();
     }
 
+    // Generates a nutrition pie chart for a given date
+    // helped by AI
     @Override
     public JFreeChart generateChart(LocalDate date) {
         List<Meal> dailyMeals = getMealsForDate(date);
@@ -32,16 +36,19 @@ public class DailyNutritionChart implements ChartDisplayStrategy {
         PieDataset dataset = calculateMacronutrientData(macros[0], macros[1], macros[2], totalCalories);
         JFreeChart chart = ChartFactoryUtil.createNutritionPieChart(dataset, date, nutritionColors);
 
-        // Optional: Add goal indicators or additional styling
+        // Optionally add goal indicators or extra styling here
         return chart;
     }
 
+    // Updates the chart for a new date (placeholder)
     @Override
     public void updateChart(LocalDate date) {
-        // Placeholder for partial update if chart is cached
+        // helped by AI - would update cached chart in real app
         generateChart(date);
     }
 
+    // Creates the pie chart dataset for macronutrients
+    // helped by AI
     private PieDataset calculateMacronutrientData(double protein, double carbs, double fat, double totalCalories) {
         DefaultPieDataset dataset = new DefaultPieDataset();
 
@@ -54,6 +61,7 @@ public class DailyNutritionChart implements ChartDisplayStrategy {
         return dataset;
     }
 
+    // Formats the labels for the pie chart
     private Map<String, String> formatNutritionLabels(double protein, double carbs, double fat, double totalCalories) {
         Map<String, String> labelMap = new HashMap<>();
 
@@ -66,6 +74,8 @@ public class DailyNutritionChart implements ChartDisplayStrategy {
         return labelMap;
     }
 
+    // Handles the case where no meals are logged for the day
+    // helped by AI
     private JFreeChart handleEmptyDay(LocalDate date) {
         DefaultPieDataset dataset = new DefaultPieDataset();
         dataset.setValue("No meals logged", 1);

@@ -11,12 +11,15 @@ import com.nutrisci.meal.FoodItem;
 import com.nutrisci.meal.Meal;
 import com.nutrisci.meal.MealBuilder;
 
+// Strategy for increasing calories in a meal by swapping food items
 public class IncreaseCalorieStrategy implements FoodSwapStrategy {
 
     double calorieTargetIncrease;
     double maxProteinVariation = 0.05;
     double maxCarbsVariation = 0.10;
 
+    // Executes the calorie increase swap on a meal
+    // helped by AI
     @Override
     public SwapResult executeSwap(Meal meal) {
         SwapResult result = new SwapResult();
@@ -30,6 +33,7 @@ public class IncreaseCalorieStrategy implements FoodSwapStrategy {
 
         result.individualSwaps = new ArrayList<>();
 
+        // Swap out low-calorie items for higher-calorie replacements
         for (FoodItem foodItem : meal.getFoodItems()) {
             double currentCalories = foodItem.getNutrientValue("calories");
             if (currentCalories < 200) {
@@ -44,6 +48,7 @@ public class IncreaseCalorieStrategy implements FoodSwapStrategy {
         return result;
     }
 
+    // Returns a replacement food item (mocked for now)
     public FoodItem getReplacementFoodItem(FoodItem foodItem) {
         // Should be a food item from the database
         Map<String, Double> macroNutrients = new HashMap<>();

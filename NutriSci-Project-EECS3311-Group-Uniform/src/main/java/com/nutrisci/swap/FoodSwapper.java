@@ -8,8 +8,10 @@ import com.nutrisci.meal.Meal;
 import com.nutrisci.meal.MealBuilder;
 import com.nutrisci.meal.MealType;
 
+// food swap system
 public class FoodSwapper {
     public static void main(String[] args) {
+        // helped by AI -  food swap context and strategy
         FoodSwapContext context = new FoodSwapContext();
         context.currentStrategy = new IncreaseCalorieStrategy();
 
@@ -17,6 +19,7 @@ public class FoodSwapper {
         builder.setMealType(MealType.SNACK);
         Map<String, Double> macroNutrients = new HashMap<>();
 
+        // Set up macronutrients
         macroNutrients.put("calories", 100.0);
         macroNutrients.put("protein", 50.0);
         macroNutrients.put("carbs", 20.0);
@@ -32,11 +35,13 @@ public class FoodSwapper {
         minerals.put("phosphorus", 40.0);
         minerals.put("potassium", 50.0);
 
+        // Create a food item and add it to the meal
         FoodItem apple = new FoodItem("Apple", "A delicious fruit", macroNutrients, vitamins, minerals, "Fruit", 2, "g");
-
         builder.addFoodItem(apple, 1);
         Meal meal = builder.buildPreview();
         SwapResult result = context.executeSwap(meal);
+
+        // Print original meal
         System.out.println("Original meal: ");
         for (FoodItem foodItem : meal.getFoodItems()) {
             System.out.println(foodItem.getDisplayName());
@@ -45,6 +50,7 @@ public class FoodSwapper {
 
         System.out.println("================================================");
 
+        // Print swapped meal
         System.out.println("Swapped meal: ");
         for (FoodItem foodItem : result.swappedMeal.getFoodItems()) {
             System.out.println(foodItem.getDisplayName());

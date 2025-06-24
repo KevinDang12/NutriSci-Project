@@ -1,11 +1,6 @@
 package com.nutrisci.model;
 
-/**
- * Enum representing measurement unit preferences for user profiles.
- * 
- * @author NutriSci Team
- * @version 1.0
- */
+// Enum for measurement unit preferences
 public enum Units {
     METRIC,   // Centimeters, kilograms
     IMPERIAL  // Inches, pounds

@@ -16,28 +16,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Singleton class for Firebase Firestore operations.
- * Provides thread-safe access to Firestore database with comprehensive CRUD operations.
- */
+// helped by AI
+
+// Singleton for Firebase Firestore operations
 public class FirestoreSingleton {
     private static final Logger logger = LoggerFactory.getLogger(FirestoreSingleton.class);
-    
-    // Singleton instance
     private static volatile FirestoreSingleton instance;
-    
-    // Firestore instance
     private Firestore firestore;
-    
-    // Private constructor to prevent instantiation
+
+    // Private constructor initializes Firestore
     private FirestoreSingleton() {
         initializeFirestore();
     }
-    
-    /**
-     * Get the singleton instance (thread-safe)
-     * @return FirestoreSingleton instance
-     */
+
+    // Returns the singleton instance (thread-safe)
+    // helped by AI
     public static FirestoreSingleton getInstance() {
         if (instance == null) {
             synchronized (FirestoreSingleton.class) {
@@ -48,87 +41,63 @@ public class FirestoreSingleton {
         }
         return instance;
     }
-    
-    /**
-     * Initialize Firebase and Firestore connection
-     */
+
+    // Initializes Firebase and Firestore connection
+    // helped by AI
     private void initializeFirestore() {
         try {
-            // Check if Firebase is already initialized
             if (FirebaseApp.getApps().isEmpty()) {
-
-                // Load service account key file
                 InputStream serviceAccount = new FileInputStream("./serviceAccount.json");
-                
                 FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .setDatabaseUrl("https://nutrisci-project-9ccbf.com")
                     .build();
-                
                 FirebaseApp.initializeApp(options);
                 logger.info("Firebase initialized successfully");
             }
-            
-            // Get Firestore instance
             this.firestore = FirestoreClient.getFirestore();
             logger.info("Firestore connection established");
-            
         } catch (IOException e) {
             logger.error("Failed to initialize Firebase: " + e.getMessage(), e);
             throw new RuntimeException("Firebase initialization failed", e);
         }
     }
-    
-    /**
-     * Add a document to a collection
-     * @param collectionName Name of the collection
-     * @param data Data to store as Map
-     * @return Document ID of the created document
-     */
+
+    // Adds a document to a collection and returns its ID
+    // helped by AI
     public String addDocument(String collectionName, Map<String, Object> data) {
         try {
             DocumentReference docRef = firestore.collection(collectionName).document();
             ApiFuture<WriteResult> result = docRef.set(data);
-            result.get(); // Wait for the write to complete
-            // logger.info("Document added to collection '{}' with ID: {}", collectionName, docRef.getId());
+            result.get();
             return docRef.getId();
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Failed to add document to collection '{}': {}", collectionName, e.getMessage(), e);
             throw new RuntimeException("Failed to add document", e);
         }
     }
-    
-    /**
-     * Add a document to a collection with a specific ID
-     * @param collectionName Name of the collection
-     * @param documentId Specific document ID
-     * @param data Data to store as Map
-     */
+
+    // Adds a document with a specific ID
+    // helped by AI
     public void addDocumentWithId(String collectionName, String documentId, Map<String, Object> data) {
         try {
             DocumentReference docRef = firestore.collection(collectionName).document(documentId);
             ApiFuture<WriteResult> result = docRef.set(data);
-            result.get(); // Wait for the write to complete
-            // logger.info("Document added to collection '{}' with ID: {}", collectionName, documentId);
+            result.get();
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Failed to add document to collection '{}' with ID '{}': {}", 
                         collectionName, documentId, e.getMessage(), e);
             throw new RuntimeException("Failed to add document", e);
         }
     }
-    
-    /**
-     * Get a document by ID
-     * @param collectionName Name of the collection
-     * @param documentId Document ID
-     * @return Document data as Map, or null if not found
-     */
+
+    // Gets a document by ID
+    // helped by AI
     public Map<String, Object> getDocument(String collectionName, String documentId) {
         try {
             DocumentReference docRef = firestore.collection(collectionName).document(documentId);
             ApiFuture<DocumentSnapshot> future = docRef.get();
             DocumentSnapshot document = future.get();
-            
             if (document.exists()) {
                 logger.info("Document retrieved from collection '{}' with ID: {}", collectionName, documentId);
                 return document.getData();
@@ -142,18 +111,14 @@ public class FirestoreSingleton {
             throw new RuntimeException("Failed to get document", e);
         }
     }
-    
-    /**
-     * Update a document
-     * @param collectionName Name of the collection
-     * @param documentId Document ID
-     * @param data Data to update as Map
-     */
+
+    // Updates a document
+    // helped by AI
     public void updateDocument(String collectionName, String documentId, Map<String, Object> data) {
         try {
             DocumentReference docRef = firestore.collection(collectionName).document(documentId);
             ApiFuture<WriteResult> result = docRef.update(data);
-            result.get(); // Wait for the update to complete
+            result.get();
             logger.info("Document updated in collection '{}' with ID: {}", collectionName, documentId);
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Failed to update document in collection '{}' with ID '{}': {}", 
@@ -161,17 +126,13 @@ public class FirestoreSingleton {
             throw new RuntimeException("Failed to update document", e);
         }
     }
-    
-    /**
-     * Delete a document
-     * @param collectionName Name of the collection
-     * @param documentId Document ID
-     */
+
+    // Deletes a document
     public void deleteDocument(String collectionName, String documentId) {
         try {
             DocumentReference docRef = firestore.collection(collectionName).document(documentId);
             ApiFuture<WriteResult> result = docRef.delete();
-            result.get(); // Wait for the delete to complete
+            result.get();
             logger.info("Document deleted from collection '{}' with ID: {}", collectionName, documentId);
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Failed to delete document from collection '{}' with ID '{}': {}", 
@@ -179,24 +140,19 @@ public class FirestoreSingleton {
             throw new RuntimeException("Failed to delete document", e);
         }
     }
-    
-    /**
-     * Get all documents from a collection
-     * @param collectionName Name of the collection
-     * @return List of document data as Maps
-     */
+
+    // Gets all documents from a collection
+    // helped by AI
     public List<Map<String, Object>> getAllDocuments(String collectionName) {
         try {
             ApiFuture<QuerySnapshot> future = firestore.collection(collectionName).get();
             QuerySnapshot documents = future.get();
-            
             List<Map<String, Object>> result = new java.util.ArrayList<>();
             for (QueryDocumentSnapshot document : documents) {
                 Map<String, Object> data = document.getData();
-                data.put("id", document.getId()); // Include document ID
+                data.put("id", document.getId());
                 result.add(data);
             }
-            
             logger.info("Retrieved {} documents from collection '{}'", result.size(), collectionName);
             return result;
         } catch (InterruptedException | ExecutionException e) {
@@ -204,28 +160,21 @@ public class FirestoreSingleton {
             throw new RuntimeException("Failed to get documents", e);
         }
     }
-    
-    /**
-     * Query documents with a specific field value
-     * @param collectionName Name of the collection
-     * @param fieldName Field name to query
-     * @param fieldValue Field value to match
-     * @return List of matching documents
-     */
+
+    // Queries documents with a specific field value
+    // helped by AI
     public List<Map<String, Object>> queryDocuments(String collectionName, String fieldName, Object fieldValue) {
         try {
             ApiFuture<QuerySnapshot> future = firestore.collection(collectionName)
                 .whereEqualTo(fieldName, fieldValue)
                 .get();
             QuerySnapshot documents = future.get();
-            
             List<Map<String, Object>> result = new java.util.ArrayList<>();
             for (QueryDocumentSnapshot document : documents) {
                 Map<String, Object> data = document.getData();
-                data.put("id", document.getId()); // Include document ID
+                data.put("id", document.getId());
                 result.add(data);
             }
-            
             logger.info("Retrieved {} documents from collection '{}' where {} = {}", 
                        result.size(), collectionName, fieldName, fieldValue);
             return result;
@@ -234,18 +183,13 @@ public class FirestoreSingleton {
             throw new RuntimeException("Failed to query documents", e);
         }
     }
-    
-    /**
-     * Get Firestore instance (for advanced operations)
-     * @return Firestore instance
-     */
+
+    // Returns the Firestore instance
     public Firestore getFirestore() {
         return this.firestore;
     }
-    
-    /**
-     * Close Firestore connection
-     */
+
+    // Closes the Firestore connection
     public void close() {
         try {
             if (firestore != null) {

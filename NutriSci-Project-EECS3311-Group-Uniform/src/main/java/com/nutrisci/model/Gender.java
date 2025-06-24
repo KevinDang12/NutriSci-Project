@@ -1,13 +1,8 @@
 package com.nutrisci.model;
 
-/**
- * Enum representing user gender options for profile information.
- * 
- * @author NutriSci Team
- * @version 1.0
- */
+// Enum for user gender options
 public enum Gender {
-    MALE,
-    FEMALE,
-    OTHER
+    MALE,   // Male gender
+    FEMALE, // Female gender
+    OTHER   // Other/non-binary gender
 } 

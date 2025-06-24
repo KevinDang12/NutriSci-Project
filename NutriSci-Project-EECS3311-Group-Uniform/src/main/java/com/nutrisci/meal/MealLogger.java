@@ -3,13 +3,15 @@ package com.nutrisci.meal;
 import java.util.HashMap;
 import java.util.Map;
 
+// This class demonstrates how to build and log a meal using MealBuilder and FoodItem
 public class MealLogger {
-    
     public static void main(String[] args) {
+        //meal building and logging
         MealBuilder builder = new MealBuilder();
         builder.setMealType(MealType.SNACK);
         Map<String, Double> macroNutrients = new HashMap<>();
 
+        // Set up macronutrients
         macroNutrients.put("calories", 100.0);
         macroNutrients.put("protein", 50.0);
         macroNutrients.put("carbs", 20.0);
@@ -25,10 +27,12 @@ public class MealLogger {
         minerals.put("phosphorus", 40.0);
         minerals.put("potassium", 50.0);
 
+        // Create a food item and add it to the meal
         FoodItem apple = new FoodItem("Apple", "A delicious fruit", macroNutrients, vitamins, minerals, "Fruit", 2, "g");
-
         builder.addFoodItem(apple, 1);
         Meal meal = builder.buildPreview();
+
+        // Print meal details
         System.out.println("Meal type: " + meal.getMealType());
         System.out.println("Total calories: " + meal.getTotalCalories());
         System.out.println("Food item count: " + meal.getFoodItemCount());

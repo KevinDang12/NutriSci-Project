@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+// Abstract class for a Meal (breakfast, lunch, dinner, snack)
 public abstract class Meal {
     long id;
     LocalDate date;
@@ -12,26 +13,22 @@ public abstract class Meal {
     String notes;
     LocalDateTime createdAt, updatedAt;
     
+    // Checks if this meal can be added to a given date (business rules)
     public abstract boolean canAddToDate(LocalDate date);
 
+    // Returns the meal type (breakfast, lunch, etc.)
     public abstract MealType getMealType();
 
+    // Returns the max allowed of this meal type per day
     public abstract int getMaxAllowedPerDay();
 
-    /**
-     * Add a food item to the foodItems list
-     * @param item The food item to add
-     * @param quantity The quantity of the food item to add
-     */
+    // Adds a food item to the meal
     public void addFoodItem(FoodItem item, double quantity) {
         item.adjustForQuantity(quantity);
         foodItems.add(item);
     }
 
-    /**
-     * Remove a food item from the foodItems list
-     * @param item The food item to remove
-     */
+    // Removes a food item from the meal
     public void removeFoodItem(FoodItem item) {
         for (FoodItem foodItem : foodItems) {
             if (foodItem.equals(item)) {
@@ -41,16 +38,13 @@ public abstract class Meal {
         }
     }
 
+    // Returns the list of food items in the meal
     public List<FoodItem> getFoodItems() {
         return foodItems;
     }
 
-    /**
-     * Update the quantity of a food item in the foodItems list
-     * @param item The food item to update
-     * @param newQuantity The new quantity of the food item
-     * @return True if the quantity is > 0, false otherwise
-     */
+    // Updates the quantity of a food item in the meal
+    // helped by AI
     public boolean updateFoodItemQuantity(FoodItem item, double newQuantity) {
         if (newQuantity <= 0) {
             return false;
@@ -65,10 +59,7 @@ public abstract class Meal {
         return false;
     }
 
-    /**
-     * Get the total calories of the meal without the full nutrition calculation
-     * @return The total calories of the meal
-     */
+    // Returns the total calories of the meal
     public double getTotalCalories() {
         double totalCalories = 0;
         for (FoodItem foodItem : foodItems) {
@@ -77,14 +68,13 @@ public abstract class Meal {
         return totalCalories;
     }
 
-    /**
-     * Get the number of distinct food items in the meal
-     * @return The number of food items in the meal
-     */
+    // Returns the number of food items in the meal
     public int getFoodItemCount() {
         return foodItems.size();
     }
 
+    // Clones the meal (deep copy)
+    // helped by AI
     @Override
     public Meal clone() throws CloneNotSupportedException {
         Meal clonedMeal = (Meal) super.clone();
@@ -97,14 +87,4 @@ public abstract class Meal {
         return clonedMeal;
     }
 
-    /**
-     * Compares two meals for identical content (same foods, quantities, date)
-     * @param obj The object to compare to
-     * @return True if the meals are identical, false otherwise
-     */
-    @Override
-    public boolean equals(Object obj) {
-        // TODO: Implement
-        return false;
-    }
 }
