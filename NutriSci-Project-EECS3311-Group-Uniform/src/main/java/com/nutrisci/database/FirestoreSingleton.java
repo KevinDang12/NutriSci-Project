@@ -1,4 +1,4 @@
-package com.nutrisci.firebase;
+package com.nutrisci.database;
 
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;

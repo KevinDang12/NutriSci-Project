@@ -1,7 +1,7 @@
 package com.nutrisci.visualization;
 
-import com.nutrisci.meallog.Meal;
-import com.nutrisci.meallog.FoodItem;
+import com.nutrisci.meal.Meal;
+import com.nutrisci.meal.FoodItem;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;

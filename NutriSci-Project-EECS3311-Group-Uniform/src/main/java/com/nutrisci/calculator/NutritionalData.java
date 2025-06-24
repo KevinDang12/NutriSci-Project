@@ -1,4 +1,4 @@
-package com.nutriSci.calculator;
+package com.nutrisci.calculator;
 
 public class NutritionalData {
     private double calories;
