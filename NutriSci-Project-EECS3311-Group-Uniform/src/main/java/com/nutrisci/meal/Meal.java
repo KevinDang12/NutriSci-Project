@@ -5,11 +5,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nutrisci.calculator.NutritionalData;
+
 // Abstract class for a Meal (breakfast, lunch, dinner, snack)
 public abstract class Meal {
     long id;
     LocalDate date;
     List<FoodItem> foodItems = new ArrayList<>();
+    NutritionalData nutritionalData;
     String notes;
     LocalDateTime createdAt, updatedAt;
     
