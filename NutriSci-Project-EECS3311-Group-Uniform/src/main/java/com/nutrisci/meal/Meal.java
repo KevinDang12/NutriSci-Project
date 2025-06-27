@@ -8,7 +8,7 @@ import java.util.List;
 import com.nutrisci.calculator.NutritionalData;
 
 // Abstract class for a Meal (breakfast, lunch, dinner, snack)
-public abstract class Meal {
+public abstract class Meal implements Cloneable {
     long id;
     LocalDate date;
     List<FoodItem> foodItems = new ArrayList<>();
@@ -62,6 +62,27 @@ public abstract class Meal {
         return false;
     }
 
+    /**
+     * Calculates the total nutrition of the meal
+     * @return the total nutrition of the meal
+     */
+    public NutritionalData calculateTotalNutrition() {
+        double totalCalories = 0;
+        double totalProtein = 0;
+        double totalCarbs = 0;
+        double totalFat = 0;
+        double totalFiber = 0;
+
+        for (FoodItem foodItem : foodItems) {
+            totalCalories += foodItem.getNutrientValue("calories");
+            totalProtein += foodItem.getNutrientValue("protein");
+            totalCarbs += foodItem.getNutrientValue("carbs");
+            totalFat += foodItem.getNutrientValue("fat");
+            totalFiber += foodItem.getNutrientValue("fiber");
+        }
+        return new NutritionalData(totalCalories, totalProtein, totalCarbs, totalFat, totalFiber);
+    }
+
     // Returns the total calories of the meal
     public double getTotalCalories() {
         double totalCalories = 0;
@@ -76,10 +97,13 @@ public abstract class Meal {
         return foodItems.size();
     }
 
-    // Clones the meal (deep copy)
-    // helped by AI
-    @Override
-    public Meal clone() throws CloneNotSupportedException {
+    /**
+     * Creates deep copy of meal with all food items
+     * helped by AI
+     * @return the cloned meal
+     * @throws CloneNotSupportedException if the meal cannot be cloned
+     */
+    public Object clone() throws CloneNotSupportedException {
         Meal clonedMeal = (Meal) super.clone();
         clonedMeal.foodItems = new ArrayList<>(foodItems);
         clonedMeal.notes = notes;
@@ -89,5 +113,21 @@ public abstract class Meal {
         clonedMeal.date = date;
         return clonedMeal;
     }
-
+    /**
+     * Compares two meals for identical content (same foods, quantities, date)
+     * @param obj the object to compare to
+     * @return true if the meals are equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Meal meal = (Meal) obj;
+        return foodItems.equals(meal.foodItems) &&
+               notes.equals(meal.notes) &&
+               createdAt.equals(meal.createdAt) &&
+               updatedAt.equals(meal.updatedAt) &&
+               id == meal.id &&
+               date.equals(meal.date);
+    }
 }

@@ -26,6 +26,7 @@ public class FoodItem {
         this.servingSize = servingSize;
         this.unit = unit;
     }
+
     // Returns a map of macronutrients with their values
     private Map<String, Double> getMacronutrients() {
         Map<String, Double> macros = new HashMap<>();
@@ -80,5 +81,16 @@ public class FoodItem {
     // Returns the name, description, and serving size of the food item
     public String getDisplayName() {
         return this.name + "\n" + this.description + "\n" + this.servingSize + " " + this.unit;
+    }
+
+    /**
+     * Calculates the nutrition density of a food item
+     * @param nutrientName the nutrient to calculate the density for
+     * @return the nutrition density of the food item
+     */
+    public double getNutritionDensity(String nutrientName) {
+        double nutrientValue = getNutrientValue(nutrientName);
+        double calories = getNutrientValue("calories");
+        return nutrientValue / calories * 100;
     }
 }

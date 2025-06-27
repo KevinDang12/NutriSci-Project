@@ -33,6 +33,11 @@ public class MealBuilder {
     // Returns a preview of the meal being built
     // helped by AI
     public Meal buildPreview() {
-        return MealFactory.duplicateMeal(mealBeingBuilt, LocalDate.now());
+        try {
+            return MealFactory.duplicateMeal(mealBeingBuilt, LocalDate.now());
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
