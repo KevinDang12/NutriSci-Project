@@ -7,8 +7,8 @@ import java.util.Map;
 public class MealLogger {
     public static void main(String[] args) {
         //meal building and logging
-        MealBuilder builder = new MealBuilder();
-        builder.setMealType(MealType.SNACK);
+        MealBuilder builder = new SnackBuilder();
+        builder.setMealType();
         Map<String, Double> macroNutrients = new HashMap<>();
 
         // Set up macronutrients
