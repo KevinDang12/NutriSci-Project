@@ -42,4 +42,9 @@ public abstract class MealBuilder {
             return null;
         }
     }
+
+    // Allow setting the internal meal (for copying between builders)
+    public void setMeal(Meal meal) {
+        this.mealBeingBuilt = meal;
+    }
 }
