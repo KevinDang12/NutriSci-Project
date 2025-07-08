@@ -3,35 +3,33 @@ package com.nutrisci.meal;
 import java.time.LocalDate;
 
 // Factory for creating and duplicating Meal objects
-public abstract class MealFactory {
+public class MealFactory {
 
     // Creates a meal of the given type for the given date
-    // public static Meal createMeal(MealType type, LocalDate date) {
-    //     Meal meal = null;
-    //     switch (type) {
-    //         case SNACK:
-    //             meal = new Snack();
-    //             break;
-    //         case LUNCH:
-    //             meal = new Lunch();
-    //             break;
-    //         case DINNER:
-    //             meal = new Dinner();
-    //             break;
-    //         case BREAKFAST:
-    //             meal = new Breakfast();
-    //             break;
-    //         default:
-    //             throw new IllegalArgumentException("Invalid meal type: " + type);
-    //     }
+    public static Meal createMeal(MealType type, LocalDate date) {
+        Meal meal = null;
+        switch (type) {
+            case SNACK:
+                meal = new Snack();
+                break;
+            case LUNCH:
+                meal = new Lunch();
+                break;
+            case DINNER:
+                meal = new Dinner();
+                break;
+            case BREAKFAST:
+                meal = new Breakfast();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid meal type: " + type);
+        }
 
-    //     if (meal.canAddToDate(date)) {
-    //         return meal;
-    //     }
-    //     return null;
-    // }
-
-    public abstract Meal createMeal(LocalDate date);
+        if (meal.canAddToDate(date)) {
+            return meal;
+        }
+        return null;
+    }
 
     // public static Meal createMeal(MealType type, LocalDate date, User user) {
         

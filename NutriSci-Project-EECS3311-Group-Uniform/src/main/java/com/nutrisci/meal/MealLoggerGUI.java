@@ -39,19 +39,18 @@ public class MealLoggerGUI extends JPanel {
         topPanel.add(new JLabel("Meal Type:"));
         mealTypeComboBox = new JComboBox<>(MealType.values());
         mealTypeComboBox.getModel().setSelectedItem(MealType.SNACK);
-        meal = new SnackBuilder();
+        meal = new MealBuilder();
 
         // Add listener for meal type changes
         mealTypeComboBox.addItemListener(e -> {
             if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
                 MealType selectedType = (MealType) e.getItem();
-                MealBuilder newBuilder = selectedType.createBuilder();
-                // Copy contents from old builder to new builder
-                try {
-                    Meal copiedMeal = MealFactory.duplicateMeal(meal.mealBeingBuilt, java.time.LocalDate.now());
-                    newBuilder.setMeal(copiedMeal);
-                } catch (Exception ex) {
-                    // If copy fails, just use a fresh builder
+                MealBuilder newBuilder = new MealBuilder().setMealType(selectedType);
+                if (meal.mealBeingBuilt != null) {
+                    for (FoodItem item : meal.mealBeingBuilt.getFoodItems()) {
+                        // Use the current servingSize as the quantity
+                        newBuilder.addFoodItem(item, item.servingSize);
+                    }
                 }
                 meal = newBuilder;
             }

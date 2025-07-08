@@ -4,21 +4,19 @@ import java.time.LocalDate;
 import java.util.List;
 
 // Builder for constructing Meal objects step by step
-public abstract class MealBuilder {
+public class MealBuilder {
     Meal mealBeingBuilt;
     boolean mealTypeSet, dataSet;
     List<String> buildErrors;
     
     // Sets the meal type and initializes the meal
     // helped by AI
-    // public abstract MealBuilder setMealType(MealType type) {
-    //     LocalDate date = LocalDate.now();
-    //     mealBeingBuilt = MealFactory.createMeal(type, date);
-    //     mealTypeSet = true;
-    //     return this;
-    // }
-
-    public abstract MealBuilder setMealType();
+    public MealBuilder setMealType(MealType type) {
+        LocalDate date = LocalDate.now();
+        mealBeingBuilt = MealFactory.createMeal(type, date);
+        mealTypeSet = true;
+        return this;
+    }
 
     // Adds a food item to the meal
     public MealBuilder addFoodItem(FoodItem item, double quantity) {
@@ -41,10 +39,5 @@ public abstract class MealBuilder {
             e.printStackTrace();
             return null;
         }
-    }
-
-    // Allow setting the internal meal (for copying between builders)
-    public void setMeal(Meal meal) {
-        this.mealBeingBuilt = meal;
     }
 }
