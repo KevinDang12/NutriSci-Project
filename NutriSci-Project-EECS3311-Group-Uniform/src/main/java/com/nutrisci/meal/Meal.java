@@ -26,8 +26,8 @@ public abstract class Meal implements Cloneable {
     public abstract int getMaxAllowedPerDay();
 
     // Adds a food item to the meal
-    public void addFoodItem(FoodItem item, double quantity) {
-        item.adjustForQuantity(quantity);
+    public void addFoodItem(FoodItem item) {
+        // item.adjustForQuantity(quantity);
         foodItems.add(item);
     }
 

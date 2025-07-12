@@ -1,64 +1,44 @@
 package com.nutrisci.meal;
 
 import java.util.Map;
-import java.util.HashMap;
 
 // Represents a food item with nutrients, vitamins, minerals, and serving info
 public class FoodItem {
     long id;
-    String name;
     String description;
-    Map<String, Double> macroNutrients = getMacronutrients();
-    Map<String, Double> vitamins;
-    Map<String, Double> minerals;
+    Map<String, Double> nutrients;
     String foodGroup;
-    double servingSize;
-    String unit;
 
     // Constructor for FoodItem
-    public FoodItem(String name, String description, Map<String, Double> macroNutrients, Map<String, Double> vitamins, Map<String, Double> minerals, String foodGroup, double servingSize, String unit) {
-        this.name = name;
+    public FoodItem(String description, Map<String, Double> nutrients, String foodGroup) {
         this.description = description;
-        this.macroNutrients = macroNutrients;
-        this.vitamins = vitamins;
-        this.minerals = minerals;
+        this.nutrients = nutrients;
         this.foodGroup = foodGroup;
-        this.servingSize = servingSize;
-        this.unit = unit;
     }
 
     // Returns a map of macronutrients with their values
-    private Map<String, Double> getMacronutrients() {
-        Map<String, Double> macros = new HashMap<>();
-        macros.put("calories", 0.0);
-        macros.put("protein", 0.0);
-        macros.put("carbs", 0.0);
-        macros.put("fat", 0.0);
-        macros.put("fiber", 0.0);
-        return macros;
-    }
+    // private Map<String, Double> getMacronutrients() {
+    //     Map<String, Double> macros = new HashMap<>();
+    //     macros.put("calories", 0.0);
+    //     macros.put("protein", 0.0);
+    //     macros.put("carbs", 0.0);
+    //     macros.put("fat", 0.0);
+    //     macros.put("fiber", 0.0);
+    //     return macros;
+    // }
 
     // Returns the value of a nutrient (macro, vitamin, or mineral)
     public double getNutrientValue(String nutrientName) {        
-        // Check macros first
-        if (macroNutrients.containsKey(nutrientName)) {
-            return macroNutrients.get(nutrientName);
+        if (nutrients.containsKey(nutrientName)) {
+            return nutrients.get(nutrientName);
         }
-        // Then check vitamins
-        if (vitamins != null && vitamins.containsKey(nutrientName)) {
-            return vitamins.get(nutrientName);
-        }
-        // Finally check minerals
-        if (minerals != null && minerals.containsKey(nutrientName)) {
-            return minerals.get(nutrientName);
-        }
-        // Return 0 if nutrient not found
-        return 0;
+        // Return -1 if nutrient not found
+        return -1;
     }
 
     // Returns a new FoodItem with the same properties but with the quantity adjusted
     public FoodItem adjustForQuantity(double quantity) {
-        FoodItem newFoodItem = new FoodItem(this.name, this.description, this.macroNutrients, this.vitamins, this.minerals, this.foodGroup, this.servingSize * quantity, this.unit);
+        FoodItem newFoodItem = new FoodItem(this.description, this.nutrients, this.foodGroup);
         return newFoodItem;
     }
 
@@ -72,15 +52,15 @@ public class FoodItem {
 
     // Calculates the calories from the macronutrients
     public double calculateCaloriesFromMacros() {
-        double protein = getNutrientValue("protein");
-        double carbs = getNutrientValue("carbs");
-        double fat = getNutrientValue("fat");
-        return (protein * 4) + (carbs * 4) + (fat * 9);
+        double protein = getNutrientValue("PROTEIN");
+        double carbs = getNutrientValue("CARBOHYDRATE, TOTAL (BY DIFFERENCE)");
+        double fat = getNutrientValue("FAT (TOTAL LIPIDS)");
+        return Math.round(((protein * 4) + (carbs * 4) + (fat * 9)) * 100.0) / 100.0;
     }
 
     // Returns the name, description, and serving size of the food item
     public String getDisplayName() {
-        return this.name + "\n" + this.description + "\n" + this.servingSize + " " + this.unit;
+        return this.description + "\n" + this.foodGroup + "\n";
     }
 
     /**

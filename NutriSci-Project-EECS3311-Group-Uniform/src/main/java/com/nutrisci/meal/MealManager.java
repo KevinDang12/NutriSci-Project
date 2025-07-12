@@ -4,13 +4,13 @@ import java.time.LocalDate;
 import java.util.*;
 
 import com.nutrisci.calculator.NutritionalCalculator;
-import com.nutrisci.database.FirestoreSingleton;
+// import com.nutrisci.database.FirestoreSingleton;
 import com.nutrisci.util.UserSessionManager;
 import com.nutrisci.model.User;
 
 public class MealManager {
     private List<MealObserver> observers = new ArrayList<>();
-    private FirestoreSingleton firestore = FirestoreSingleton.getInstance();
+    // private FirestoreSingleton firestore = FirestoreSingleton.getInstance();
     private UserSessionManager userSessionManager = UserSessionManager.getInstance();
     private NutritionalCalculator nutritionalCalculator = new NutritionalCalculator();
     private Map<LocalDate, List<Meal>> mealCache = new HashMap<>();
@@ -25,7 +25,7 @@ public class MealManager {
         // Save to Firestore
         try {
             Map<String, Object> mealData = mealToMap(meal, user.getEmail());
-            String mealId = firestore.addDocument("meals", mealData);
+            // String mealId = firestore.addDocument("meals", mealData);
             // Optionally set meal.id = mealId;
             // Update cache
             LocalDate date = meal.date;
@@ -48,7 +48,7 @@ public class MealManager {
         try {
             Map<String, Object> mealData = mealToMap(meal, user.getEmail());
             // Assume meal.id is set and used as documentId
-            firestore.updateDocument("meals", String.valueOf(meal.id), mealData);
+            // firestore.updateDocument("meals", String.valueOf(meal.id), mealData);
             // Update cache
             LocalDate date = meal.date;
             List<Meal> meals = mealCache.get(date);
@@ -78,7 +78,7 @@ public class MealManager {
         }
         if (mealToDelete == null) return false;
         try {
-            firestore.deleteDocument("meals", String.valueOf(mealId));
+            // firestore.deleteDocument("meals", String.valueOf(mealId));
             // Remove from cache
             List<Meal> meals = mealCache.get(mealToDelete.date);
             if (meals != null) {
@@ -101,13 +101,13 @@ public class MealManager {
         // Query Firestore for meals for this date and user
         User user = userSessionManager.getCurrentUser();
         if (user == null) return Collections.emptyList();
-        List<Map<String, Object>> docs = firestore.queryDocuments("meals", "date", date.toString());
+        // List<Map<String, Object>> docs = firestore.queryDocuments("meals", "date", date.toString());
         List<Meal> meals = new ArrayList<>();
-        for (Map<String, Object> doc : docs) {
-            if (user.getEmail().equals(doc.get("userId"))) {
-                meals.add(mapToMeal(doc));
-            }
-        }
+        // for (Map<String, Object> doc : docs) {
+        //     if (user.getEmail().equals(doc.get("userId"))) {
+        //         meals.add(mapToMeal(doc));
+        //     }
+        // }
         // Sort by meal type and creation time if available
         meals.sort(Comparator.comparing((Meal m) -> m.getMealType().ordinal()));
         mealCache.put(date, meals);
@@ -119,14 +119,14 @@ public class MealManager {
         if (user == null) return Collections.emptyList();
         // Query Firestore for meals in date range
         // (Assume queryDocuments can be extended for range, or filter after fetch)
-        List<Map<String, Object>> docs = firestore.getAllDocuments("meals");
+        // List<Map<String, Object>> docs = firestore.getAllDocuments("meals");
         List<Meal> meals = new ArrayList<>();
-        for (Map<String, Object> doc : docs) {
-            LocalDate mealDate = LocalDate.parse((String) doc.get("date"));
-            if (!mealDate.isBefore(start) && !mealDate.isAfter(end) && user.getEmail().equals(doc.get("userId"))) {
-                meals.add(mapToMeal(doc));
-            }
-        }
+        // for (Map<String, Object> doc : docs) {
+        //     LocalDate mealDate = LocalDate.parse((String) doc.get("date"));
+        //     if (!mealDate.isBefore(start) && !mealDate.isAfter(end) && user.getEmail().equals(doc.get("userId"))) {
+        //         meals.add(mapToMeal(doc));
+        //     }
+        // }
         // No caching for range queries
         meals.sort(Comparator.comparing((Meal m) -> m.date));
         return meals;
@@ -159,7 +159,7 @@ public class MealManager {
         }
         if (meal == null) return false;
         meal.removeFoodItem(original);
-        meal.addFoodItem(replacement, 1); // TODO: Adjust quantity as needed
+        // meal.addFoodItem(replacement, 1); // TODO: Adjust quantity as needed
         // Recalculate nutrition if needed
         return updateMeal(meal);
     }
@@ -199,15 +199,15 @@ public class MealManager {
     public Map<LocalDate, List<Meal>> getMealHistory(int dayCount) {
         User user = userSessionManager.getCurrentUser();
         if (user == null) return Collections.emptyMap();
-        List<Map<String, Object>> docs = firestore.getAllDocuments("meals");
+        // List<Map<String, Object>> docs = firestore.getAllDocuments("meals");
         Map<LocalDate, List<Meal>> history = new HashMap<>();
         LocalDate today = LocalDate.now();
-        for (Map<String, Object> doc : docs) {
-            LocalDate mealDate = LocalDate.parse((String) doc.get("date"));
-            if (!mealDate.isBefore(today.minusDays(dayCount)) && user.getEmail().equals(doc.get("userId"))) {
-                history.computeIfAbsent(mealDate, k -> new ArrayList<>()).add(mapToMeal(doc));
-            }
-        }
+        // for (Map<String, Object> doc : docs) {
+        //     LocalDate mealDate = LocalDate.parse((String) doc.get("date"));
+        //     if (!mealDate.isBefore(today.minusDays(dayCount)) && user.getEmail().equals(doc.get("userId"))) {
+        //         history.computeIfAbsent(mealDate, k -> new ArrayList<>()).add(mapToMeal(doc));
+        //     }
+        // }
         return history;
     }
 

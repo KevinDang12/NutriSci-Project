@@ -19,8 +19,8 @@ public class MealBuilder {
     }
 
     // Adds a food item to the meal
-    public MealBuilder addFoodItem(FoodItem item, double quantity) {
-        mealBeingBuilt.addFoodItem(item, quantity);
+    public MealBuilder addFoodItem(FoodItem item) {
+        mealBeingBuilt.addFoodItem(item);
         return this;
     }
 

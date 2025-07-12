@@ -49,7 +49,7 @@ public class MealLoggerGUI extends JPanel {
                 if (meal.mealBeingBuilt != null) {
                     for (FoodItem item : meal.mealBeingBuilt.getFoodItems()) {
                         // Use the current servingSize as the quantity
-                        newBuilder.addFoodItem(item, item.servingSize);
+                        newBuilder.addFoodItem(item);
                     }
                 }
                 meal = newBuilder;
