@@ -97,6 +97,14 @@ public abstract class Meal implements Cloneable {
         return foodItems.size();
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
+    }
+
     /**
      * Creates deep copy of meal with all food items
      * helped by AI

@@ -3,21 +3,19 @@ package com.nutrisci.swap;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 
 import com.nutrisci.meal.FoodItem;
 import com.nutrisci.meal.Meal;
 import com.nutrisci.meal.MealBuilder;
 import com.nutrisci.model.Goal;
 
-// Strategy for increasing calories in a meal by swapping food items
-public class IncreaseCalorieStrategy implements FoodSwapStrategy {
-
+public class IncreaseProteinStrategy implements FoodSwapStrategy {
+    
     double calorieTargetIncrease;
-    double maxProteinVariation = 0.05;
-    double maxCarbsVariation = 0.10;
+    double maxProteinVariation = 0.1;
+    double maxCarbsVariation = 0.05;
 
     // Executes the calorie increase swap on a meal
     // helped by AI

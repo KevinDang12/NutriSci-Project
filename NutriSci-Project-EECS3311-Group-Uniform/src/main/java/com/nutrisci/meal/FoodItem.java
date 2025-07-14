@@ -16,6 +16,10 @@ public class FoodItem {
         this.foodGroup = foodGroup;
     }
 
+    public long getId() {
+        return id;
+    }
+
     // Returns a map of macronutrients with their values
     // private Map<String, Double> getMacronutrients() {
     //     Map<String, Double> macros = new HashMap<>();

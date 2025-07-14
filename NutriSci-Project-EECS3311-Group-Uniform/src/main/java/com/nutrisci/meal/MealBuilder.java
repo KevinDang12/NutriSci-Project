@@ -13,7 +13,8 @@ public class MealBuilder {
     // helped by AI
     public MealBuilder setMealType(MealType type) {
         LocalDate date = LocalDate.now();
-        mealBeingBuilt = MealFactory.createMeal(type, date);
+        long mealID = java.time.Instant.now().getEpochSecond();
+        mealBeingBuilt = MealFactory.createMeal(type, date, mealID);
         mealTypeSet = true;
         return this;
     }

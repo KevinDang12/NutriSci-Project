@@ -81,14 +81,59 @@ public class DatabaseManager {
      * @param meal Meal to save
      * @return true if successful, false if error (with rollback)
      */
+    // public boolean saveMeal(Meal meal) {
+    //     // Begin transaction
+    //     try {
+    //         connection.setAutoCommit(false);
+    //         // Insert meal record (date, type, user_id, notes)
+    //         // Insert food_items for each item in meal
+    //         // Insert nutritional_data record
+    //         // Commit transaction
+    //         connection.commit();
+    //         return true;
+    //     } catch (SQLException e) {
+    //         try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+    //         e.printStackTrace();
+    //         return false;
+    //     } finally {
+    //         try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+    //     }
+    // }
+
     public boolean saveMeal(Meal meal) {
-        // Begin transaction
+        // Generate a unique mealID (using epoch seconds for simplicity)
+        long mealID = meal.getId();
+
+        // TODO: Replace 'userId' with the actual user ID as needed
+        String insertMealLogSQL = "INSERT INTO Meal_Log (UserID, MealID, MealType, EntryDate) VALUES (1, " + mealID + ", '" + meal.getMealType() + "', '" + LocalDate.now() + "')";
+
+        // Build a single SQL statement for all food items
+        StringBuilder insertMealFoodSQL = new StringBuilder("INSERT INTO Meal_Food (MealID, FoodID) VALUES ");
+        List<FoodItem> foodItems = meal.getFoodItems();
+        for (int i = 0; i < foodItems.size(); i++) {
+            FoodItem item = foodItems.get(i);
+            insertMealFoodSQL.append("(").append(mealID).append(", ").append(item.getId()).append(")");
+            if (i < foodItems.size() - 1) {
+                insertMealFoodSQL.append(", ");
+            }
+        }
+        insertMealFoodSQL.append(";");
+
         try {
             connection.setAutoCommit(false);
-            // Insert meal record (date, type, user_id, notes)
-            // Insert food_items for each item in meal
-            // Insert nutritional_data record
-            // Commit transaction
+
+            // Execute Meal_Log insert
+            try (Statement stmt = connection.createStatement()) {
+                stmt.executeUpdate(insertMealLogSQL);
+            }
+
+            // Execute Meal_Food insert if there are food items
+            if (!foodItems.isEmpty()) {
+                try (Statement stmt = connection.createStatement()) {
+                    stmt.executeUpdate(insertMealFoodSQL.toString());
+                }
+            }
+
             connection.commit();
             return true;
         } catch (SQLException e) {
@@ -107,13 +152,36 @@ public class DatabaseManager {
      * @return true if successful, false if error (with rollback)
      */
     public boolean updateMeal(Meal meal) {
+        long mealID = meal.getId(); // use getter for id
+        List<FoodItem> foodItems = meal.getFoodItems();
+
+        // Build a single SQL statement for all food items
+        StringBuilder insertMealFoodSQL = new StringBuilder("INSERT INTO Meal_Food (MealID, FoodID) VALUES ");
+        for (int i = 0; i < foodItems.size(); i++) {
+            FoodItem item = foodItems.get(i);
+            insertMealFoodSQL.append("(").append(mealID).append(", ").append(item.getId()).append(")");
+            if (i < foodItems.size() - 1) {
+                insertMealFoodSQL.append(", ");
+            }
+        }
+        insertMealFoodSQL.append(";");
+
         try {
             connection.setAutoCommit(false);
-            // Update meal basic info
-            // Delete existing food_items for meal
-            // Insert new food_items
-            // Update nutritional_data record
-            // Update last_modified timestamp
+
+            // Delete existing Meal_Food entries for this mealID
+            String deleteSQL = "DELETE FROM Meal_Food WHERE MealID = " + mealID;
+            try (Statement stmt = connection.createStatement()) {
+                stmt.executeUpdate(deleteSQL);
+            }
+
+            // Insert new Meal_Food entries if there are food items
+            if (!foodItems.isEmpty()) {
+                try (Statement stmt = connection.createStatement()) {
+                    stmt.executeUpdate(insertMealFoodSQL.toString());
+                }
+            }
+
             connection.commit();
             return true;
         } catch (SQLException e) {
@@ -133,10 +201,19 @@ public class DatabaseManager {
     public boolean deleteMeal(Long mealId) {
         try {
             connection.setAutoCommit(false);
-            // Delete food_items (cascade)
-            // Delete nutritional_data
-            // Delete meal record
-            // Optionally log deletion
+
+            // Delete from Meal_Food first (to avoid FK constraint issues)
+            String deleteMealFoodSQL = "DELETE FROM Meal_Food WHERE MealID = " + mealId;
+            try (Statement stmt = connection.createStatement()) {
+                stmt.executeUpdate(deleteMealFoodSQL);
+            }
+
+            // Delete from Meal_Log
+            String deleteMealLogSQL = "DELETE FROM Meal_Log WHERE MealID = " + mealId;
+            try (Statement stmt = connection.createStatement()) {
+                stmt.executeUpdate(deleteMealLogSQL);
+            }
+
             connection.commit();
             return true;
         } catch (SQLException e) {
@@ -155,12 +232,26 @@ public class DatabaseManager {
      * @param endDate End date
      * @return List of Meal objects
      */
-    public List<Meal> getMealsForUser(String userId, LocalDate startDate, LocalDate endDate) {
-        List<Meal> meals = new ArrayList<>();
-        // Query meals table for user and date range
-        // For each meal, load food items and reconstruct objects
-        // Use batch loading and efficient joins
-        return meals;
+    // public List<Meal> getMealsForUser(String userId, LocalDate startDate, LocalDate endDate) {
+    //     List<Meal> meals = new ArrayList<>();
+    //     // Query meals table for user and date range
+    //     // For each meal, load food items and reconstruct objects
+    //     // Use batch loading and efficient joins
+    //     return meals;
+    // }
+
+    public List<Long> getMealIdsForUserBetweenDates(String userId, LocalDate startDate, LocalDate endDate) {
+        List<Long> mealIds = new ArrayList<>();
+        String sql = "SELECT MealID FROM Meal_Log WHERE UserID = " + userId +" AND EntryDate BETWEEN " + startDate + " AND " + endDate;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                mealIds.add(rs.getLong("MealID"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return mealIds;
     }
 
     /**
@@ -171,8 +262,8 @@ public class DatabaseManager {
     public FoodItem loadFoodItem(Long foodId) {
         Map<String, Double> nutrients = new HashMap<>();
         String sqlNutrientString = "select NutrientName, NutrientValue from Nutrient_Name NN "
-                    + "inner join Nutrient_Amount NA on NN.NutrientID=NA.NutrientID "
-                    + "where NA.FoodID=" + foodId;
+                                + "inner join Nutrient_Amount NA on NN.NutrientID=NA.NutrientID "
+                                + "where NA.FoodID=" + foodId;
         try (PreparedStatement ps = connection.prepareStatement(sqlNutrientString)) {
 
             ResultSet rs = ps.executeQuery();
@@ -186,8 +277,8 @@ public class DatabaseManager {
         }
 
         String sqlFoodGroupString = "select FoodGroupName from FOOD_GROUP FG "
-                                    + "inner join FOOD_NAME FA on FA.FoodGroupID=FG.FoodGroupID "
-                                    + "where FA.FoodID=" + foodId;
+                                + "inner join FOOD_NAME FA on FA.FoodGroupID=FG.FoodGroupID "
+                                + "where FA.FoodID=" + foodId;
 
         String foodGroup = "";
         

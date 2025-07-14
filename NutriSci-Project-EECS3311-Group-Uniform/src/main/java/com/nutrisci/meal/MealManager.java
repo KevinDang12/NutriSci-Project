@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import com.nutrisci.calculator.NutritionalCalculator;
+import com.nutrisci.calculator.NutritionalData;
 // import com.nutrisci.database.FirestoreSingleton;
 import com.nutrisci.util.UserSessionManager;
 import com.nutrisci.model.User;

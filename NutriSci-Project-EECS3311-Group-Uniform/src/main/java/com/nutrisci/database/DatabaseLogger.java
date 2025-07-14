@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.nutrisci.meal.FoodItem;
 
-public class FirestoreExample {
+public class DatabaseLogger {
 
     public static void main(String[] args) {
         DatabaseManager db = DatabaseManager.getInstance();

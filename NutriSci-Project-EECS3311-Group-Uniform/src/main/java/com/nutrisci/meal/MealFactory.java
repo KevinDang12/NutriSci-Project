@@ -6,7 +6,7 @@ import java.time.LocalDate;
 public class MealFactory {
 
     // Creates a meal of the given type for the given date
-    public static Meal createMeal(MealType type, LocalDate date) {
+    public static Meal createMeal(MealType type, LocalDate date, long id) {
         Meal meal = null;
         switch (type) {
             case SNACK:
@@ -26,6 +26,7 @@ public class MealFactory {
         }
 
         if (meal.canAddToDate(date)) {
+            meal.setId(id);
             return meal;
         }
         return null;
