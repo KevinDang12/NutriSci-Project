@@ -10,6 +10,8 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.io.InputStream;
 import java.io.IOException;
+import com.nutrisci.meal.MealType;
+import com.nutrisci.meal.MealFactory;
 
 /**
  * DatabaseManager handles all database operations for meals, users, and food items.
@@ -193,6 +195,34 @@ public class DatabaseManager {
         }
     }
 
+    public boolean swapFoodInMeal(Long mealId, FoodItem original, FoodItem replacement) {
+        long originalId = original.getId();
+        long replacementId = replacement.getId();
+
+        // SQL: Get the list of food items in Meal_Food by meal ID, update the original food with new food item.
+
+        // Build a single SQL statement for all food items
+        String sql = "UPDATE Meal_Food SET FoodID=" + replacementId + " where MealID=" + mealId + " and FoodID=" + originalId;
+
+        try {
+            connection.setAutoCommit(false);
+
+            // Insert new Meal_Food entries if there are food items
+            try (Statement stmt = connection.createStatement()) {
+                stmt.executeUpdate(sql);
+            }
+
+            connection.commit();
+            return true;
+        } catch (SQLException e) {
+            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+        }
+    }
+
     /**
      * Removes a meal and all associated data from the database.
      * @param mealId ID of meal to delete
@@ -232,27 +262,49 @@ public class DatabaseManager {
      * @param endDate End date
      * @return List of Meal objects
      */
-    // public List<Meal> getMealsForUser(String userId, LocalDate startDate, LocalDate endDate) {
-    //     List<Meal> meals = new ArrayList<>();
-    //     // Query meals table for user and date range
-    //     // For each meal, load food items and reconstruct objects
-    //     // Use batch loading and efficient joins
-    //     return meals;
-    // }
-
-    public List<Long> getMealIdsForUserBetweenDates(String userId, LocalDate startDate, LocalDate endDate) {
-        List<Long> mealIds = new ArrayList<>();
+    public List<Meal> getMealsForUser(String userId, LocalDate startDate, LocalDate endDate) {
+        List<Meal> meals = new ArrayList<>();
         String sql = "SELECT MealID FROM Meal_Log WHERE UserID = " + userId +" AND EntryDate BETWEEN " + startDate + " AND " + endDate;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                mealIds.add(rs.getLong("MealID"));
+                long mealId = rs.getLong("MealID");
+                String mealTypeStr = rs.getString("MealType");
+                LocalDate entryDate = rs.getDate("EntryDate").toLocalDate();
+                MealType mealType = MealType.valueOf(mealTypeStr);
+                Meal meal = com.nutrisci.meal.MealFactory.createMeal(mealType, entryDate, mealId);
+                if (meal == null) continue;
+                // Load food items for this meal
+                String foodSql = "SELECT FoodID FROM Meal_Food WHERE MealID = " + mealId;
+                try (PreparedStatement foodPs = connection.prepareStatement(foodSql)) {
+                    ResultSet foodRs = foodPs.executeQuery();
+                    while (foodRs.next()) {
+                        long foodId = foodRs.getLong("FoodID");
+                        FoodItem item = loadFoodItem(foodId);
+                        meal.addFoodItem(item);
+                    }
+                }
+                meals.add(meal);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return mealIds;
+        return meals;
     }
+
+    // public List<Long> getMealIdsForUserBetweenDates(String userId, LocalDate startDate, LocalDate endDate) {
+    //     List<Long> mealIds = new ArrayList<>();
+    //     String sql = "SELECT MealID FROM Meal_Log WHERE UserID = " + userId +" AND EntryDate BETWEEN " + startDate + " AND " + endDate;
+    //     try (PreparedStatement ps = connection.prepareStatement(sql)) {
+    //         ResultSet rs = ps.executeQuery();
+    //         while (rs.next()) {
+    //             mealIds.add(rs.getLong("MealID"));
+    //         }
+    //     } catch (SQLException e) {
+    //         e.printStackTrace();
+    //     }
+    //     return mealIds;
+    // }
 
     /**
      * Loads a single FoodItem by ID with full nutritional data
