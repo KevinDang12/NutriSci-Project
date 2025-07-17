@@ -1,6 +1,10 @@
 package com.nutrisci.meal;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.nutrisci.database.DatabaseManager;
 
 /**
  * Represents a Snack meal (unlimited per day)
@@ -14,7 +18,17 @@ public class Snack extends Meal {
      */
     @Override
     public boolean canAddToDate(LocalDate date) {
-        return true;
+        DatabaseManager db = DatabaseManager.getInstance();
+        // Get user id
+        List<MealType> result = db.getAvailableMealTypes(id, date);
+
+        for (MealType mealType : result) {
+            if (mealType.name().equals("SNACK")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -41,5 +55,11 @@ public class Snack extends Meal {
      */
     public double getRecommendedCaloriesPercentage() {
         return 0.1;
+    }
+
+    public List<String> suggestHealthyOptions() {
+        List<String> healthyOptions = new ArrayList<>();
+
+        return healthyOptions;
     }
 }

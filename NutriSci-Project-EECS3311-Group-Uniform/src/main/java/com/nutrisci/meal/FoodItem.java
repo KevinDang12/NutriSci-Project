@@ -20,17 +20,6 @@ public class FoodItem {
         return id;
     }
 
-    // Returns a map of macronutrients with their values
-    // private Map<String, Double> getMacronutrients() {
-    //     Map<String, Double> macros = new HashMap<>();
-    //     macros.put("calories", 0.0);
-    //     macros.put("protein", 0.0);
-    //     macros.put("carbs", 0.0);
-    //     macros.put("fat", 0.0);
-    //     macros.put("fiber", 0.0);
-    //     return macros;
-    // }
-
     // Returns the value of a nutrient (macro, vitamin, or mineral)
     public double getNutrientValue(String nutrientName) {        
         if (nutrients.containsKey(nutrientName)) {
@@ -48,7 +37,7 @@ public class FoodItem {
 
     // Checks if the food item is in the same food group as another food item
     public boolean isSameFoodGroup(FoodItem other) {
-        if (this.foodGroup == other.foodGroup) {
+        if (this.foodGroup.equals(other.foodGroup)) {
             return true;
         }
         return false;
@@ -74,7 +63,21 @@ public class FoodItem {
      */
     public double getNutritionDensity(String nutrientName) {
         double nutrientValue = getNutrientValue(nutrientName);
-        double calories = getNutrientValue("calories");
+        double calories = calculateCaloriesFromMacros();
         return nutrientValue / calories * 100;
     }
+
+    public boolean isHighIn(String nutrient) {
+        // if statement to check is high in certain nutrient
+        return true;
+    }
+
+    // does not contain
+    // public int getGlycemicIndex() {
+
+    // }
+
+    // public Set<String> getAllergenInfo() {
+
+    // }
 }

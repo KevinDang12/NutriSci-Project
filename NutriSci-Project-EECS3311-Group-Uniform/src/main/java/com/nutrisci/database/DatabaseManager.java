@@ -11,7 +11,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.io.InputStream;
 import java.io.IOException;
 import com.nutrisci.meal.MealType;
-import com.nutrisci.meal.MealFactory;
 
 /**
  * DatabaseManager handles all database operations for meals, users, and food items.
@@ -192,6 +191,65 @@ public class DatabaseManager {
             return false;
         } finally {
             try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+        }
+    }
+
+    public boolean canAddMealType(long userId, MealType type, LocalDate date) {
+        String checkForMeal = "Select MealType from Meal_Log where UserID=" + userId + " and EntryDate=" + date;
+
+        try (PreparedStatement ps = connection.prepareStatement(checkForMeal)) {
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String mealType = rs.getString("MealType");
+                
+                if (mealType.equals(type.name())) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public int getMealCountForType(long userId, MealType type, LocalDate date) {
+        String mealCountString = "Select Count(MealType) as amount from Meal_Log where UserID=" + userId + " and MealType = " + type + " and EntryDate=" + date;
+
+        try (PreparedStatement ps = connection.prepareStatement(mealCountString)) {
+
+            ResultSet rs = ps.executeQuery();
+            int amount = 0;
+            if (rs.next()) {
+                amount = rs.getInt("amount");
+            }
+            return amount;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public List<MealType> getAvailableMealTypes(long userId, LocalDate date) {
+        String mealCountString = "Select MealType from Meal_Log where UserID=" + userId + " and EntryDate=" + date;
+
+        List<MealType> availabMealTypes = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(mealCountString)) {
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String type = rs.getString("MealType");
+                MealType mealCategory = MealType.valueOf(type);
+                availabMealTypes.add(mealCategory);
+            }
+            
+            return availabMealTypes;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

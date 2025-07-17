@@ -6,13 +6,11 @@ import java.util.*;
 import com.nutrisci.calculator.NutritionalCalculator;
 import com.nutrisci.calculator.NutritionalData;
 import com.nutrisci.database.DatabaseManager;
-// import com.nutrisci.database.FirestoreSingleton;
 import com.nutrisci.util.UserSessionManager;
 import com.nutrisci.model.User;
 
 public class MealManager {
     private List<MealObserver> observers = new ArrayList<>();
-    // private FirestoreSingleton firestore = FirestoreSingleton.getInstance();
     private UserSessionManager userSessionManager = UserSessionManager.getInstance();
     private NutritionalCalculator nutritionalCalculator = new NutritionalCalculator();
     private Map<LocalDate, List<Meal>> mealCache = new HashMap<>();
@@ -75,12 +73,14 @@ public class MealManager {
 
     public List<Meal> getMealsForDate(LocalDate date) {
         db = DatabaseManager.getInstance();
+        // Get ID
         List<Meal> meals = db.getMealsForUser(null, date, date);
         return meals;
     }
 
     public List<Meal> getMealsForDateRange(LocalDate start, LocalDate end) {
         db = DatabaseManager.getInstance();
+        // Get ID
         List<Meal> meals = db.getMealsForUser(null, start, end);
         return meals;
     }
@@ -123,7 +123,6 @@ public class MealManager {
             }
         }
     }
-
 
     /**
      * Need to uncomment food items

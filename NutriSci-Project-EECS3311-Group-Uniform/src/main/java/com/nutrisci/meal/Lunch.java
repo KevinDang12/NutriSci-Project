@@ -1,6 +1,9 @@
 package com.nutrisci.meal;
 
 import java.time.LocalDate;
+import java.util.List;
+
+import com.nutrisci.database.DatabaseManager;
 
 /**
  * Represents a Lunch meal
@@ -14,10 +17,17 @@ public class Lunch extends Meal {
      */
     @Override
     public boolean canAddToDate(LocalDate date) {
-        // TODO: Implement this method
-        // Call the DB to check if lunch is allowed on this date for the user
-        // Return true if allowed, false otherwise
-        return true;
+        DatabaseManager db = DatabaseManager.getInstance();
+        // Get user id
+        List<MealType> result = db.getAvailableMealTypes(id, date);
+
+        for (MealType mealType : result) {
+            if (mealType.name().equals("LUNCH")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
