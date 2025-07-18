@@ -494,7 +494,7 @@ public class DatabaseManager {
         return items;
     }
 
-    public HashMap<Long, String> getFoodItemsByGroup() {
+    public HashMap<Long, String> getFoodItems() {
         HashMap<Long, String> foodHashMap = new HashMap<Long, String>();
         String sql = "select foodDescription, foodId from FOOD_NAME";
 
