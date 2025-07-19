@@ -2,12 +2,23 @@ package com.nutrisci.database;
 
 import com.nutrisci.meal.Meal;
 import com.nutrisci.meal.FoodItem;
+import com.nutrisci.model.Gender;
+import com.nutrisci.model.Goal;
+import com.nutrisci.model.GoalFactory;
+import com.nutrisci.model.GoalType;
+import com.nutrisci.model.Units;
 import com.nutrisci.model.User;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.time.Instant;
+
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.io.InputStream;
 import java.io.IOException;
 import com.nutrisci.meal.MealType;
@@ -18,7 +29,6 @@ import com.nutrisci.meal.MealType;
  */
 public class DatabaseManager {
     private static volatile DatabaseManager instance;
-    private static final ReentrantLock lock = new ReentrantLock();
     private Connection connection;
     private Properties dbProperties;
 
@@ -33,14 +43,7 @@ public class DatabaseManager {
      */
     public static DatabaseManager getInstance() {
         if (instance == null) {
-            lock.lock();
-            try {
-                if (instance == null) {
-                    instance = new DatabaseManager();
-                }
-            } finally {
-                lock.unlock();
-            }
+            instance = new DatabaseManager();
         }
         return instance;
     }
@@ -82,31 +85,11 @@ public class DatabaseManager {
      * @param meal Meal to save
      * @return true if successful, false if error (with rollback)
      */
-    // public boolean saveMeal(Meal meal) {
-    //     // Begin transaction
-    //     try {
-    //         connection.setAutoCommit(false);
-    //         // Insert meal record (date, type, user_id, notes)
-    //         // Insert food_items for each item in meal
-    //         // Insert nutritional_data record
-    //         // Commit transaction
-    //         connection.commit();
-    //         return true;
-    //     } catch (SQLException e) {
-    //         try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-    //         e.printStackTrace();
-    //         return false;
-    //     } finally {
-    //         try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
-    //     }
-    // }
-
-    public boolean saveMeal(Meal meal) {
+    public boolean saveMeal(Meal meal, long userId) {
         // Generate a unique mealID (using epoch seconds for simplicity)
         long mealID = meal.getId();
 
-        // TODO: Replace 'userId' with the actual user ID as needed
-        String insertMealLogSQL = "INSERT INTO Meal_Log (UserID, MealID, MealType, EntryDate) VALUES (1, " + mealID + ", '" + meal.getMealType() + "', '" + LocalDate.now() + "')";
+        String insertMealLogSQL = "INSERT INTO Meal_Log (UserID, MealID, MealType, EntryDate) VALUES (" + userId + ", " + mealID + ", '" + meal.getMealType() + "', '" + LocalDate.now() + "')";
 
         // Build a single SQL statement for all food items
         StringBuilder insertMealFoodSQL = new StringBuilder("INSERT INTO Meal_Food (MealID, FoodID) VALUES ");
@@ -350,20 +333,6 @@ public class DatabaseManager {
         return meals;
     }
 
-    // public List<Long> getMealIdsForUserBetweenDates(String userId, LocalDate startDate, LocalDate endDate) {
-    //     List<Long> mealIds = new ArrayList<>();
-    //     String sql = "SELECT MealID FROM Meal_Log WHERE UserID = " + userId +" AND EntryDate BETWEEN " + startDate + " AND " + endDate;
-    //     try (PreparedStatement ps = connection.prepareStatement(sql)) {
-    //         ResultSet rs = ps.executeQuery();
-    //         while (rs.next()) {
-    //             mealIds.add(rs.getLong("MealID"));
-    //         }
-    //     } catch (SQLException e) {
-    //         e.printStackTrace();
-    //     }
-    //     return mealIds;
-    // }
-
     /**
      * Loads a single FoodItem by ID with full nutritional data
      * @param foodId Food item ID
@@ -452,11 +421,6 @@ public class DatabaseManager {
 
         List<FoodItem> items = new ArrayList<FoodItem>();
 
-        // return foodId and name instead
-        // for (long id : foodIDs) {
-        //     items.add(loadFoodItem(id));
-        // }
-
         return items;
     }
 
@@ -486,11 +450,6 @@ public class DatabaseManager {
 
         List<FoodItem> items = new ArrayList<FoodItem>();
 
-        // return foodId and name instead
-        // for (long id : foodIDs) {
-        //     items.add(loadFoodItem(id));
-        // }
-
         return items;
     }
 
@@ -519,10 +478,38 @@ public class DatabaseManager {
      * @return true if successful, false if error
      */
     public boolean saveUser(User user) {
-        // Hash password with bcrypt
-        // Insert user record, goal, preferences
-        // Never store plain text password
-        return true;
+        String password = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        long userID = Instant.now().getEpochSecond();
+
+        String saveUserSQL = "INSERT INTO Meal_User VALUES (" +
+        userID + ", " +
+        user.getName() + ", " + 
+        user.getEmail() + ", " +
+        password + ", " +
+        user.getGender().name() + ", " +
+        user.getDateOfBirth() + " , " +
+        user.getHeight() + ", " +
+        user.getWeight() + ", " +
+        user.getUnits() + ", " +
+        user.getUserGoal().getGoalType().name() + ", " +
+        user.getUserGoal().getGoalDescription() + ")";
+
+        try (PreparedStatement ps = connection.prepareStatement(saveUserSQL)) {
+
+            ps.executeUpdate();
+            connection.commit();
+            return true;
+        } catch (SQLException e) {
+            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try { 
+                connection.setAutoCommit(true); 
+            } catch (SQLException e) {
+                e.printStackTrace(); 
+            }
+        }
     }
 
     /**
@@ -531,9 +518,32 @@ public class DatabaseManager {
      * @return true if successful, false if error
      */
     public boolean updateUserProfile(User user) {
-        // Update user info, goal, preferences
-        // Log changes for audit
-        return true;
+        String password = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        // Get user from User object
+        long userID = user.getAge();
+
+        String updateUserSQL = "UPDATE User_Meal SET" +
+        "UserPassword=" +  password +
+        ", Gender=" + user.getGender().name() +
+        ", DoB=" + user.getDateOfBirth() + 
+        ", Height=" + user.getHeight() + 
+        ", Weight=" + user.getWeight() + 
+        ", Units=" + user.getUnits() + 
+        ", GoalType=" + user.getUserGoal().getGoalType().name() +
+        ", GoalDescription=" + user.getUserGoal().getGoalDescription() +
+        " WHERE UserID=" + userID;
+
+        try (PreparedStatement ps = connection.prepareStatement(updateUserSQL)) {
+            ps.executeUpdate();
+            connection.commit();
+            return true;
+        } catch (SQLException e) {
+            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+        }
     }
 
     /**
@@ -542,11 +552,45 @@ public class DatabaseManager {
      * @param password Plain text password
      * @return User object if valid, null if not
      */
-    public User authenticateUser(String email, String password) {
-        // Query user by email
-        // Compare password with bcrypt hash
-        // If valid, load full profile and update last_login
-        return null;
+    public User authenticateUser(String userId, String password) {
+        String hashPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+        String checkForMeal = "Select * from Meal_User where UserID=" + userId + " and UserPassword=" + hashPassword;
+
+        try (PreparedStatement ps = connection.prepareStatement(checkForMeal)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            User user = new User();
+            // user.setId(); // Set User ID
+            user.setName(rs.getString("Username"));
+            user.setEmail(rs.getString("Email"));
+            user.setPassword(password);
+            user.setGender(Gender.valueOf(rs.getString("Gender")));
+            user.setDateOfBirth(rs.getDate("DoB").toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            user.setHeight(rs.getDouble("Height"));
+            user.setWeight(rs.getDouble("Weight"));
+            user.setUnits(Units.valueOf(rs.getString("Units")));
+
+            /**
+             * Need a better way to create Goal
+             */
+            Matcher matcher = Pattern.compile("\\d+").matcher(rs.getString("GoalDescription"));
+            int value = 0;
+
+            if (matcher.find()) {
+                value = Integer.parseInt(matcher.group());
+            }
+
+            // Cannot set description as of now, it must use regex to get the number
+            Goal userGoal = GoalFactory.createGoal(GoalType.valueOf(rs.getString("GoalType")), value);
+            user.setUserGoal(userGoal);
+
+            return user;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**

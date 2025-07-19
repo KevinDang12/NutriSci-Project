@@ -19,9 +19,6 @@ public class MealLoggerGUI extends JPanel {
 
     private DatabaseManager db;
 
-    // private List<String> foodNames;
-    // private List<String> selectedFoodNames;
-
     private Map<Long, String> foodNames;
     private Map<Long, String> selectedFoodNames;
 
@@ -102,6 +99,8 @@ public class MealLoggerGUI extends JPanel {
      * Compare food items
      * Swap food items
      * DB for user
+     * User DB
+     * Authenticate user
      */
     private void logMeal() {
         // TODO Auto-generated method stub
