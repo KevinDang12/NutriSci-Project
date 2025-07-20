@@ -91,6 +91,7 @@ public class FoodSearchDialog extends JDialog {
         if (selectedFood == null) return null;
         for (Map.Entry<Long, String> entry : foodNames.entrySet()) {
             if (entry.getValue().equals(selectedFood)) {
+                System.out.println(entry.getKey());
                 return entry.getKey();
             }
         }

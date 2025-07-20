@@ -8,7 +8,7 @@ import java.util.List;
 import com.nutrisci.calculator.NutritionalData;
 
 // Abstract class for a Meal (breakfast, lunch, dinner, snack)
-public abstract class Meal implements Cloneable {
+public abstract class Meal {
     long id;
     LocalDate date;
     List<FoodItem> foodItems = new ArrayList<>();
@@ -34,7 +34,7 @@ public abstract class Meal implements Cloneable {
     // Removes a food item from the meal
     public void removeFoodItem(FoodItem item) {
         for (FoodItem foodItem : foodItems) {
-            if (foodItem.equals(item)) {
+            if (foodItem.description.equals(item.description)) {
                 foodItems.remove(foodItem);
                 break;
             }
@@ -109,17 +109,18 @@ public abstract class Meal implements Cloneable {
      * Creates deep copy of meal with all food items
      * helped by AI
      * @return the cloned meal
-     * @throws CloneNotSupportedException if the meal cannot be cloned
      */
-    public Object clone() throws CloneNotSupportedException {
-        Meal clonedMeal = (Meal) super.clone();
-        clonedMeal.foodItems = new ArrayList<>(foodItems);
-        clonedMeal.notes = notes;
-        clonedMeal.createdAt = createdAt;
-        clonedMeal.updatedAt = updatedAt;
-        clonedMeal.id = id;
-        clonedMeal.date = date;
-        return clonedMeal;
+    public Meal copyMeal() {
+        MealBuilder clonedMeal = new MealBuilder().setMealType(getMealType());
+
+        for (FoodItem item : foodItems) {
+            clonedMeal.addFoodItem(item);
+        }
+
+        clonedMeal.addNotes(notes);
+        clonedMeal.mealBeingBuilt.setId(id);
+
+        return clonedMeal.build();
     }
     /**
      * Compares two meals for identical content (same foods, quantities, date)

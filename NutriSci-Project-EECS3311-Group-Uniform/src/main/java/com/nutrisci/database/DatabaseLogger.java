@@ -8,13 +8,13 @@ import com.nutrisci.meal.FoodItem;
 public class DatabaseLogger {
 
     public static void main(String[] args) {
-        DatabaseManager db = DatabaseManager.getInstance();
+        // DatabaseManager db = DatabaseManager.getInstance();
 
-        HashMap<Long, String> foodNames = db.getFoodItemsByGroup();
+        // HashMap<Long, String> foodNames = db.getFoodItemsByGroup("");
 
-        for (Long key : foodNames.keySet()) {
-            System.out.println(foodNames.get(key));
-        }
+        // for (Long key : foodNames.keySet()) {
+        //     System.out.println(foodNames.get(key));
+        // }
 
         // List<FoodItem> res1 = db.searchFoodItems("Cheese");
 

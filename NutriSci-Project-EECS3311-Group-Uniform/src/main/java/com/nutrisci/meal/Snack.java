@@ -18,17 +18,7 @@ public class Snack extends Meal {
      */
     @Override
     public boolean canAddToDate(LocalDate date) {
-        DatabaseManager db = DatabaseManager.getInstance();
-        // Get user id
-        List<MealType> result = db.getAvailableMealTypes(id, date);
-
-        for (MealType mealType : result) {
-            if (mealType.name().equals("SNACK")) {
-                return true;
-            }
-        }
-
-        return false;
+        return true;
     }
 
     /**

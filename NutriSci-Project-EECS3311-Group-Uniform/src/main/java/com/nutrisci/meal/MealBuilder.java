@@ -18,6 +18,7 @@ public class MealBuilder {
         long mealID = java.time.Instant.now().getEpochSecond();
         mealBeingBuilt = MealFactory.createMeal(type, date, mealID);
         mealTypeSet = true;
+        System.out.println(mealBeingBuilt.foodItems);
         return this;
     }
 
@@ -30,6 +31,11 @@ public class MealBuilder {
     // Removes a food item from the meal
     public MealBuilder removeFoodItem(FoodItem item) {
         mealBeingBuilt.removeFoodItem(item);
+        return this;
+    }
+
+    public MealBuilder clearFoodItems() {
+        mealBeingBuilt.foodItems.clear();
         return this;
     }
 
@@ -60,11 +66,6 @@ public class MealBuilder {
     // Returns a preview of the meal being built
     // helped by AI
     public Meal buildPreview() {
-        try {
-            return MealFactory.duplicateMeal(mealBeingBuilt, LocalDate.now());
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return MealFactory.duplicateMeal(mealBeingBuilt, LocalDate.now());
     }
 }

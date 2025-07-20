@@ -23,11 +23,11 @@ public class Lunch extends Meal {
 
         for (MealType mealType : result) {
             if (mealType.name().equals("LUNCH")) {
-                return true;
+                return false;
             }
         }
 
-        return false;
+        return true;
     }
 
     /**

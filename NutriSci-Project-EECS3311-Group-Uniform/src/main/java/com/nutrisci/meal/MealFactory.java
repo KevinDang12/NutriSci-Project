@@ -71,8 +71,8 @@ public class MealFactory {
     }
 
     // Duplicates a meal for a new date
-    public static Meal duplicateMeal(Meal originMeal, LocalDate newDate) throws CloneNotSupportedException {
-        Meal newMeal = (Meal) originMeal.clone();
+    public static Meal duplicateMeal(Meal originMeal, LocalDate newDate) {
+        Meal newMeal = originMeal.copyMeal();
         newMeal.date = newDate;
         return newMeal;
     }

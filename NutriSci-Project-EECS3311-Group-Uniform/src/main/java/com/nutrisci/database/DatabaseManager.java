@@ -89,7 +89,8 @@ public class DatabaseManager {
         // Generate a unique mealID (using epoch seconds for simplicity)
         long mealID = meal.getId();
 
-        String insertMealLogSQL = "INSERT INTO Meal_Log (UserID, MealID, MealType, EntryDate) VALUES (" + userId + ", " + mealID + ", '" + meal.getMealType() + "', '" + LocalDate.now() + "')";
+        // String insertMealLogSQL = "INSERT INTO Meal_Log (UserID, MealID, MealType, EntryDate) VALUES (" + userId + ", " + mealID + ", '" + meal.getMealType() + "', '" + LocalDate.now() + "')";
+        String insertMealLogSQL = "INSERT INTO Meal_Log (UserID, MealID, MealType, EntryDate) VALUES (?, ?, ?, ?)";
 
         // Build a single SQL statement for all food items
         StringBuilder insertMealFoodSQL = new StringBuilder("INSERT INTO Meal_Food (MealID, FoodID) VALUES ");
@@ -107,8 +108,17 @@ public class DatabaseManager {
             connection.setAutoCommit(false);
 
             // Execute Meal_Log insert
-            try (Statement stmt = connection.createStatement()) {
-                stmt.executeUpdate(insertMealLogSQL);
+            try (PreparedStatement ps = connection.prepareStatement(insertMealLogSQL)) {
+                
+                ps.setLong(1, userId);
+                ps.setLong(2, mealID);
+                ps.setString(3, meal.getMealType().name());
+
+                LocalDate localDate = LocalDate.now();
+                java.sql.Date date = java.sql.Date.valueOf(localDate);
+                ps.setDate(4, date);
+
+                ps.executeUpdate();
             }
 
             // Execute Meal_Food insert if there are food items
@@ -119,6 +129,7 @@ public class DatabaseManager {
             }
 
             connection.commit();
+
             return true;
         } catch (SQLException e) {
             try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
@@ -216,14 +227,18 @@ public class DatabaseManager {
     }
 
     public List<MealType> getAvailableMealTypes(long userId, LocalDate date) {
-        String mealCountString = "Select MealType from Meal_Log where UserID=" + userId + " and EntryDate=" + date;
+        String mealTypeString = "SELECT MealType FROM Meal_Log WHERE UserID = ? AND EntryDate = ? GROUP BY MealType";
 
         List<MealType> availabMealTypes = new ArrayList<>();
 
-        try (PreparedStatement ps = connection.prepareStatement(mealCountString)) {
+        try (PreparedStatement ps = connection.prepareStatement(mealTypeString)) {
+
+            ps.setLong(1, userId);
+            ps.setDate(2, java.sql.Date.valueOf(date));
 
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
+            System.out.println();
+            while (rs.next()) {
                 String type = rs.getString("MealType");
                 MealType mealCategory = MealType.valueOf(type);
                 availabMealTypes.add(mealCategory);
@@ -389,7 +404,7 @@ public class DatabaseManager {
             e.printStackTrace();
         }
 
-        FoodItem item = new FoodItem(foodDesc, nutrients, foodGroup);
+        FoodItem item = new FoodItem(foodId, foodDesc, nutrients, foodGroup);
         return item;
     }
 
@@ -520,7 +535,8 @@ public class DatabaseManager {
     public boolean updateUserProfile(User user) {
         String password = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
         // Get user from User object
-        long userID = user.getAge();
+        // long userID = user.getId();
+        long userID = 0;
 
         String updateUserSQL = "UPDATE User_Meal SET" +
         "UserPassword=" +  password +
@@ -560,6 +576,10 @@ public class DatabaseManager {
         try (PreparedStatement ps = connection.prepareStatement(checkForMeal)) {
 
             ResultSet rs = ps.executeQuery();
+
+            if (!rs.next()) {
+                return null; // No matching user
+            }
 
             User user = new User();
             // user.setId(); // Set User ID

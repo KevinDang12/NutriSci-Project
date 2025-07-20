@@ -4,8 +4,10 @@ import com.nutrisci.database.DatabaseManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 public class MealLoggerGUI extends JPanel {
     private JComboBox<MealType> mealTypeComboBox;
@@ -20,11 +22,11 @@ public class MealLoggerGUI extends JPanel {
     private DatabaseManager db;
 
     private Map<Long, String> foodNames;
-    private Map<Long, String> selectedFoodNames;
+    private Map<Long, FoodItem> selectedFoodNames;
 
     // Add right panel state
     private Map<Long, String> comparedFoodNames;
-    private Map<Long, String> comparedSelectedFoodNames;
+    private Map<Long, FoodItem> comparedSelectedFoodNames;
 
     private JPanel bottomPanel;
     private JScrollPane scrollPane;
@@ -40,19 +42,32 @@ public class MealLoggerGUI extends JPanel {
         // Top panel for meal type
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.add(new JLabel("Meal Type:"));
-        mealTypeComboBox = new JComboBox<>(MealType.values());
+        List<MealType> exitingMealTypes = db.getAvailableMealTypes(0, LocalDate.now());
+
+        mealTypeComboBox = new JComboBox<>();
+
+        for (MealType type : MealType.values()) {
+            if (!exitingMealTypes.contains(type) || type.equals(MealType.SNACK)) {
+                mealTypeComboBox.addItem(type);
+            }
+        }
+        
         mealTypeComboBox.getModel().setSelectedItem(MealType.SNACK);
-        meal = new MealBuilder();
+        meal = new MealBuilder().setMealType(MealType.SNACK);
+
+        db = DatabaseManager.getInstance();
 
         // Add listener for meal type changes
         mealTypeComboBox.addItemListener(e -> {
             if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
-                MealType selectedType = (MealType) e.getItem();
-                MealBuilder newBuilder = new MealBuilder().setMealType(selectedType);
+                MealType type = (MealType) e.getItem();
+                MealBuilder newBuilder = new MealBuilder().setMealType(type);
+
                 if (meal.mealBeingBuilt != null) {
                     for (FoodItem item : meal.mealBeingBuilt.getFoodItems()) {
                         // Use the current servingSize as the quantity
-                        newBuilder.addFoodItem(item);
+                        FoodItem newItem = new FoodItem(item.getId(), item.description, item.nutrients, item.foodGroup);
+                        newBuilder.addFoodItem(newItem);
                     }
                 }
                 meal = newBuilder;
@@ -94,18 +109,140 @@ public class MealLoggerGUI extends JPanel {
 
     /**
      * TODO
-     * Log Meal:
+     * Log Meal
      * Log meal when comparing
      * Compare food items
      * Swap food items
-     * DB for user
-     * User DB
-     * Authenticate user
+     * DB for user ^
+     * User DB ^
+     * Authenticate user^
      */
     private void logMeal() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'logMeal'");
+        if (comparedSelectedFoodNames.size() <= 0 && selectedFoodNames.size() <= 0) {
+            JDialog dialog = new JDialog((Frame) null, "Unable to add Meal", true);
+            dialog.setSize(300, 100);
+            dialog.setLocationRelativeTo(null);
+            dialog.setLayout(new BorderLayout());
+            
+            JLabel label = new JLabel("You need to add at least 1 food item", SwingConstants.CENTER);
+            dialog.add(label, BorderLayout.NORTH);
+            dialog.setVisible(true);
+
+            return;
+
+        } else if (comparedSelectedFoodNames.size() <= 0) {
+            for (FoodItem item : selectedFoodNames.values()) {
+                meal.addFoodItem(item);
+            }
+            db.saveMeal(meal.build(), 0);
+
+        } else if (selectedFoodNames.size() <= 0) {
+            for (FoodItem item : comparedSelectedFoodNames.values()) {
+                meal.addFoodItem(item);
+            }
+            db.saveMeal(meal.build(), 0);
+
+        } else {
+            openMealSelectionDialog();
+        }
+        
+        resetPanel();
     }
+
+    private void resetPanel() {
+        meal = new MealBuilder().setMealType(MealType.SNACK);
+        meal.clearFoodItems();
+
+        for (long key : selectedFoodNames.keySet()) {
+            String descString = selectedFoodNames.get(key).description;
+            foodNames.put(key, descString);
+        }
+
+        selectedFoodNames.clear();
+
+        for (long key : comparedSelectedFoodNames.keySet()) {
+            String descString = comparedSelectedFoodNames.get(key).description;
+            comparedFoodNames.put(key, descString);
+        }
+
+        comparedSelectedFoodNames.clear();
+
+        this.removeAll(); // Remove all current components
+
+        List<MealType> exitingMealTypes = db.getAvailableMealTypes(0, LocalDate.now());
+
+        mealTypeComboBox = new JComboBox<>();
+
+        for (MealType type : MealType.values()) {
+            if (!exitingMealTypes.contains(type) || type.equals(MealType.SNACK)) {
+                mealTypeComboBox.addItem(type);
+            }
+        }
+
+        mealTypeComboBox.getModel().setSelectedItem(MealType.SNACK);
+
+        // Rebuild top panel
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topPanel.add(new JLabel("Meal Type:"));
+        topPanel.add(mealTypeComboBox);
+        this.add(topPanel, BorderLayout.NORTH);
+
+        // Reset center panel
+        foodItemsPanel = new JPanel();
+        foodItemsPanel.setLayout(new BoxLayout(foodItemsPanel, BoxLayout.Y_AXIS));
+        scrollPane = new JScrollPane(foodItemsPanel);
+        this.add(scrollPane, BorderLayout.CENTER);
+
+        // Reset bottom panel
+        bottomPanel.removeAll();
+        bottomPanel.add(addFoodItemButton);
+        bottomPanel.add(calculateButton);
+        bottomPanel.add(compareMealButton);
+        bottomPanel.add(swapMealButton);
+        bottomPanel.add(logMealButton);
+        this.add(bottomPanel, BorderLayout.SOUTH);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    private void openMealSelectionDialog() {
+        JDialog dialog = new JDialog((Frame) null, "Select Meal", true);
+        dialog.setSize(300, 150);
+        dialog.setLocationRelativeTo(null);
+        dialog.setLayout(new BorderLayout());
+    
+        JLabel label = new JLabel("Which meal do you want to save?", SwingConstants.CENTER);
+        dialog.add(label, BorderLayout.NORTH);
+    
+        JButton meal1Button = new JButton("Meal 1");
+        JButton meal2Button = new JButton("Meal 2");
+    
+        meal1Button.addActionListener(e -> {
+            for (long key : selectedFoodNames.keySet()) {
+                meal.addFoodItem(db.loadFoodItem(key));
+            }
+            db.saveMeal(meal.build(), 0);
+            dialog.dispose();
+        });
+    
+        meal2Button.addActionListener(e -> {
+            for (long key : comparedSelectedFoodNames.keySet()) {
+                meal.addFoodItem(db.loadFoodItem(key));
+            }
+            db.saveMeal(meal.build(), 0);
+            dialog.dispose();
+        });
+    
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.add(meal1Button);
+        buttonPanel.add(meal2Button);
+    
+        dialog.add(buttonPanel, BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+    
 
     private Map<Long, String> fetchFoodNames() {
         Map<Long, String> foodNames = new HashMap<>();
@@ -152,7 +289,8 @@ public class MealLoggerGUI extends JPanel {
         JButton editButton = new JButton("Edit");
         JButton removeButton = new JButton("X");
 
-        selectedFoodNames.put(id, foodName);
+        FoodItem newItem = db.loadFoodItem(id);
+        selectedFoodNames.put(id, newItem);
         foodNames.remove(id);
 
         editButton.addActionListener(e -> {
@@ -166,11 +304,11 @@ public class MealLoggerGUI extends JPanel {
                 selectedFoodNames.remove(oldId);
                 foodNames.put(oldId, oldFood);
 
-                selectedFoodNames.put(newId, newFood);
+                FoodItem newFoodItem = db.loadFoodItem(newId);
+                selectedFoodNames.put(newId, newFoodItem);
                 foodNames.remove(newId);
 
                 foodLabel.setText(newFood);
-                // foodNames.sort(String::compareToIgnoreCase); // Ensure foodNames is always sorted
             }
         });
 
@@ -179,7 +317,6 @@ public class MealLoggerGUI extends JPanel {
             Long oldId = Long.parseLong(foodLabel.getName());
             selectedFoodNames.remove(oldId);
             foodNames.put(oldId, foodItem);
-            // foodNames.sort(String::compareToIgnoreCase); // Ensure foodNames is always sorted
             foodItemsPanel.remove(itemPanel);
             foodItemsPanel.revalidate();
             foodItemsPanel.repaint();
@@ -188,7 +325,7 @@ public class MealLoggerGUI extends JPanel {
         // Panel for right-aligned buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         buttonPanel.add(editButton);
-        buttonPanel.add(Box.createRigidArea(new Dimension(8, 2))); // Add spacing between buttons
+        buttonPanel.add(Box.createRigidArea(new Dimension(8, 2)));
         buttonPanel.add(removeButton);
 
         itemPanel.add(foodLabel, BorderLayout.WEST);
@@ -216,6 +353,7 @@ public class MealLoggerGUI extends JPanel {
         JPanel leftContainer = new JPanel();
         leftContainer.setLayout(new BorderLayout());
         JScrollPane leftScroll = new JScrollPane(foodItemsPanel);
+        foodItemsPanel.setName("Meal 1");
         leftContainer.add(createPanelButtonBar(foodItemsPanel, true, foodNames, selectedFoodNames), BorderLayout.NORTH);
         leftContainer.add(leftScroll, BorderLayout.CENTER);
 
@@ -226,6 +364,7 @@ public class MealLoggerGUI extends JPanel {
         JPanel rightContainer = new JPanel();
         rightContainer.setLayout(new BorderLayout());
         JScrollPane rightScroll = new JScrollPane(rightPanel);
+        rightPanel.setName("Meal 2");
         rightContainer.add(createPanelButtonBar(rightPanel, false, comparedFoodNames, comparedSelectedFoodNames), BorderLayout.NORTH);
         rightContainer.add(rightScroll, BorderLayout.CENTER);
 
@@ -238,7 +377,7 @@ public class MealLoggerGUI extends JPanel {
         this.repaint();
     }
 
-    private JPanel createPanelButtonBar(JPanel panelRef, boolean isLeft, Map<Long, String> foodNamesForPanel, Map<Long, String> selectedFoodNamesForPanel) {
+    private JPanel createPanelButtonBar(JPanel panelRef, boolean isLeft, Map<Long, String> foodNamesForPanel, Map<Long, FoodItem> selectedFoodNamesForPanel) {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton addBtn = new JButton("Add Food Item");
         JButton swapBtn = new JButton("Swap Meal");
@@ -255,26 +394,28 @@ public class MealLoggerGUI extends JPanel {
     }
 
     // // Helper for right panel: open FoodSearchDialog and add food item to the given panel
-    private void addFoodItemSelectorToPanel(JPanel panel, Map<Long, String> foodNamesForPanel, Map<Long, String> selectedFoodNamesForPanel) {
+    private void addFoodItemSelectorToPanel(JPanel panel, Map<Long, String> foodNamesForPanel, Map<Long, FoodItem> selectedFoodNamesForPanel) {
         FoodSearchDialog dialog = new FoodSearchDialog((Frame) SwingUtilities.getWindowAncestor(this), foodNamesForPanel);
         Long id = dialog.showDialog();
         String selectedFood = foodNamesForPanel.get(id);
         if (id != null) {
             addFoodItemLabelToPanel(panel, id, selectedFood, foodNamesForPanel, selectedFoodNamesForPanel);
             foodNamesForPanel.remove(id);
-            selectedFoodNamesForPanel.put(id, selectedFood);
+            FoodItem selectedFoodItem = db.loadFoodItem(id);
+            selectedFoodNamesForPanel.put(id, selectedFoodItem);
         }
     }
 
     // Helper for both panels: add a food item label to a given panel, with full edit/remove support
-    private void addFoodItemLabelToPanel(JPanel panel, Long id, String foodName, Map<Long, String> foodNamesForPanel, Map<Long, String> selectedFoodNamesForPanel) {
+    private void addFoodItemLabelToPanel(JPanel panel, Long id, String foodName, Map<Long, String> foodNamesForPanel, Map<Long, FoodItem> selectedFoodNamesForPanel) {
         JPanel itemPanel = new JPanel(new BorderLayout());
         JLabel foodLabel = new JLabel(foodName);
         foodLabel.setName(id.toString());
         JButton editButton = new JButton("Edit");
         JButton removeButton = new JButton("X");
 
-        selectedFoodNamesForPanel.put(id, foodName);
+        FoodItem selectedFoodItem = db.loadFoodItem(id);
+        selectedFoodNamesForPanel.put(id, selectedFoodItem);
         foodNamesForPanel.remove(id);
 
         editButton.addActionListener(e -> {
@@ -289,7 +430,8 @@ public class MealLoggerGUI extends JPanel {
                 selectedFoodNamesForPanel.remove(oldId);
                 foodNamesForPanel.put(oldId, oldFood);
 
-                selectedFoodNamesForPanel.put(newId, newFood);
+                FoodItem newFoodItem = db.loadFoodItem(id);
+                selectedFoodNamesForPanel.put(newId, newFoodItem);
                 foodNamesForPanel.remove(newId);
 
                 foodLabel.setText(newFood);

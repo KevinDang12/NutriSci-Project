@@ -10,7 +10,8 @@ public class FoodItem {
     String foodGroup;
 
     // Constructor for FoodItem
-    public FoodItem(String description, Map<String, Double> nutrients, String foodGroup) {
+    public FoodItem(long id, String description, Map<String, Double> nutrients, String foodGroup) {
+        this.id = id;
         this.description = description;
         this.nutrients = nutrients;
         this.foodGroup = foodGroup;
@@ -18,6 +19,10 @@ public class FoodItem {
 
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     // Returns the value of a nutrient (macro, vitamin, or mineral)
@@ -31,7 +36,7 @@ public class FoodItem {
 
     // Returns a new FoodItem with the same properties but with the quantity adjusted
     public FoodItem adjustForQuantity(double quantity) {
-        FoodItem newFoodItem = new FoodItem(this.description, this.nutrients, this.foodGroup);
+        FoodItem newFoodItem = new FoodItem(this.id, this.description, this.nutrients, this.foodGroup);
         return newFoodItem;
     }
 

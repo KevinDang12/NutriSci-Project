@@ -26,7 +26,7 @@ public class MealManager {
         // Save to Firestore
         try {
             db = DatabaseManager.getInstance();
-            db.saveMeal(meal);
+            db.saveMeal(meal, 0);
             notifyObservers(MealEvent.MEAL_ADDED, meal);
             // TODO: Trigger goal progress update
             return true;
@@ -88,15 +88,10 @@ public class MealManager {
     public boolean importMeal(Meal sourceMeal, LocalDate targetDate) {
         // Validate target date allows this meal type
         if (!sourceMeal.canAddToDate(targetDate)) return false;
-        try {
-            Meal newMeal = (Meal) sourceMeal.clone();
-            newMeal.date = targetDate;
-            // Optionally link to original meal (add field if needed)
-            return addMeal(newMeal);
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            return false;
-        }
+        Meal newMeal = (Meal) sourceMeal.copyMeal();
+        newMeal.date = targetDate;
+        // Optionally link to original meal (add field if needed)
+        return addMeal(newMeal);
     }
 
     public boolean swapFoodInMeal(Long mealId, FoodItem original, FoodItem replacement) {
