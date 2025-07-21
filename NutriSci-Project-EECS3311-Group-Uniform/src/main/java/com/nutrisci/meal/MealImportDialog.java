@@ -20,8 +20,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
-import com.nutrisci.database.DatabaseManager;
-
 public class MealImportDialog extends JDialog {
     private String selectedMeal;
     private JTextField searchField;
@@ -32,10 +30,11 @@ public class MealImportDialog extends JDialog {
     Map<Long, String> meals;
     private long userId = 0;
 
-    DatabaseManager db = DatabaseManager.getInstance();
+    private MealManager mealManager;
 
     public MealImportDialog(Frame owner) {
         super(owner, "Import Meal", true);
+        mealManager = new MealManager();
 
         setLayout(new BorderLayout(10, 10));
         setSize(450, 400);
@@ -44,7 +43,7 @@ public class MealImportDialog extends JDialog {
         searchField = new JTextField();
         listModel = new DefaultListModel<>();
 
-        meals = db.importMeals(userId);
+        meals = mealManager.importMeals();
 
         this.allMealValues = new ArrayList<>(meals.values());
 

@@ -3,14 +3,12 @@ package com.nutrisci.meal;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.nutrisci.database.DatabaseManager;
-
 /**
  * Represents a Lunch meal
  */
 public class Lunch extends Meal {
 
-    private long userId = 0;
+    private MealManager mealManager;
 
     /**
      * Checks if lunch can be added to the date
@@ -19,9 +17,9 @@ public class Lunch extends Meal {
      */
     @Override
     public boolean canAddToDate(LocalDate date) {
-        DatabaseManager db = DatabaseManager.getInstance();
+        mealManager = new MealManager();
         // Get user id
-        List<MealType> result = db.getAvailableMealTypes(userId, date);
+        List<MealType> result = mealManager.getAvailableMealTypes(date);
 
         for (MealType mealType : result) {
             if (mealType.name().equals("LUNCH")) {

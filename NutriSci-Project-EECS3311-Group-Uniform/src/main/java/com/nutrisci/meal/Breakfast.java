@@ -3,12 +3,12 @@ package com.nutrisci.meal;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.nutrisci.database.DatabaseManager;
-
 /**
  * Represents a Breakfast meal
  */
 public class Breakfast extends Meal {
+
+    private MealManager mealManager;
 
     /**
      * Checks if breakfast can be added to the date
@@ -17,9 +17,9 @@ public class Breakfast extends Meal {
      */
     @Override
     public boolean canAddToDate(LocalDate date) {
-        DatabaseManager db = DatabaseManager.getInstance();
-        // Get user id
-        List<MealType> result = db.getAvailableMealTypes(id, date);
+        mealManager = new MealManager();
+        
+        List<MealType> result = mealManager.getAvailableMealTypes(date);
 
         for (MealType mealType : result) {
             if (mealType.name().equals("BREAKFAST")) {

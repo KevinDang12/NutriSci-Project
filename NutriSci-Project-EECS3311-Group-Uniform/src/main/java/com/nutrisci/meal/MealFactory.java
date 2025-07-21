@@ -4,14 +4,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import com.nutrisci.database.DatabaseManager;
 import com.nutrisci.model.User;
 
 // Factory for creating and duplicating Meal objects
 public class MealFactory {
-
-    DatabaseManager db = DatabaseManager.getInstance();
-    private long userId = 0;
+    private MealManager mealManager;
 
     private final Map<MealType, Meal> registry = Map.of(
         MealType.BREAKFAST, new Breakfast(),
@@ -23,6 +20,7 @@ public class MealFactory {
     // Creates a meal of the given type for the given date
     public Meal createMeal(MealType type, LocalDate date, long id) {
         Meal meal = registry.get(type);
+        mealManager = new MealManager();
         if (meal.canAddToDate(date)) {
             meal.setId(id);
             return meal;
@@ -43,27 +41,27 @@ public class MealFactory {
     
     public List<Meal> getMealsForDate(LocalDate date) {
         // Get User ID
-        return db.getMealsForUser(userId, date, date);
+        return mealManager.getMealsForDate(date);
     }
 
     public List<Meal> getMealsForDateRange(LocalDate startDate, LocalDate endDate) {
         // Get User ID
-        return db.getMealsForUser(userId, startDate, endDate);
+        return mealManager.getMealsForDateRange(startDate, endDate);
     }
 
     public boolean canAddMealType(MealType type, LocalDate date) {
         // Get User ID
-        return db.canAddMealType(userId, type, date);
+        return mealManager.canAddMealType(type, date);
     }
 
     public int getMealCountForType(MealType type, LocalDate date) {
         // Get User ID
-        return db.getMealCountForType(userId, type, date);
+        return mealManager.getMealCountForType(type, date);
     }
 
     public List<MealType> getAvailableMealTypes(LocalDate date) {
         // Get User ID
-        return db.getAvailableMealTypes(userId, date);
+        return mealManager.getAvailableMealTypes(date);
     }
 
     // Duplicates a meal for a new date

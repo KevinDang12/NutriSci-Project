@@ -142,6 +142,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Import a list of food IDs to the meal logging page
+     * @param mealId The meal id for importing the meal
+     * @return The list of food IDs
+     */
     public List<Long> importMeal(long mealId) {
         
         String importMealSQL = "SELECT FoodID FROM Meal_Food WHERE MealID=" + mealId;
@@ -171,6 +176,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Retrieve a list of meals from the user ID
+     * @param userId The user ID to retrieve the meal
+     * @return A Map of the meal IDs and their description
+     */
     public Map<Long, String> importMeals(long userId) {
         
         String importMealSQL = "SELECT MealID, MealType FROM Meal_Log WHERE UserID=" + userId;
@@ -450,8 +460,6 @@ public class DatabaseManager {
                 Meal meal = mealBuilder.buildPreview();
                 meal.setId(mealId);
                 meals.add(meal);
-
-                // mealBuilder.clearFoodItems();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -579,9 +587,13 @@ public class DatabaseManager {
         return items;
     }
 
-    public HashMap<Long, String> getFoodItems() {
-        HashMap<Long, String> foodHashMap = new HashMap<Long, String>();
-        String sql = "select foodDescription, foodId from FOOD_NAME";
+    /**
+     * Retrieve the Food IDs and their description
+     * @return Map of he Food IDs and their description
+     */
+    public Map<Long, String> getFoodItems() {
+        Map<Long, String> foodHashMap = new HashMap<Long, String>();
+        String sql = "select foodId, foodDescription from FOOD_NAME";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -704,7 +716,7 @@ public class DatabaseManager {
             user.setUnits(Units.valueOf(rs.getString("Units")));
 
             /**
-             * Need a better way to create Goal
+             * FIX: Need a better way to create Goal
              */
             Matcher matcher = Pattern.compile("\\d+").matcher(rs.getString("GoalDescription"));
             int value = 0;
@@ -713,7 +725,7 @@ public class DatabaseManager {
                 value = Integer.parseInt(matcher.group());
             }
 
-            // Cannot set description as of now, it must use regex to get the number
+            // FIX: Cannot set description as of now, it must use regex to get the number
             Goal userGoal = GoalFactory.createGoal(GoalType.valueOf(rs.getString("GoalType")), value);
             user.setUserGoal(userGoal);
 

@@ -19,6 +19,9 @@ import javax.swing.SwingConstants;
 import com.nutrisci.calculator.NutritionalCalculator;
 import com.nutrisci.calculator.NutritionalData;
 
+/**
+ * Calculate the nutritional data for the selected food items
+ */
 public class CalculateNutritionDialog extends JDialog {
     private List<FoodItem> selectedFoodNames;
     private NutritionalCalculator nutritionalCalculator;
@@ -31,6 +34,11 @@ public class CalculateNutritionDialog extends JDialog {
     private JComboBox<String> nutritionSelector;
     private JLabel displayLabel;
 
+    /**
+     * Perform the calculations for one meal
+     * @param owner The owner frame
+     * @param foodNames The selected food items
+     */
     public CalculateNutritionDialog(Frame owner, Map<Long, FoodItem> foodNames) {
         super(owner, "Nutritional Calculator", true);
         this.selectedFoodNames = new ArrayList<>(foodNames.values());
@@ -69,6 +77,12 @@ public class CalculateNutritionDialog extends JDialog {
         displayLabel.setText(updateDisplay(nutritionSelector.getSelectedItem().toString(), nutritionalData1));
     }
 
+    /**
+     * Perform the calculations for two meals
+     * @param owner The owner panel
+     * @param foodNamesMeal1 The selected food items for meal 1
+     * @param foodNamesMeal2 The selected food items for meal 2
+     */
     public CalculateNutritionDialog(Frame owner, Map<Long, FoodItem> foodNamesMeal1, Map<Long, FoodItem> foodNamesMeal2) {
         super(owner, "Nutrition Calculator - Two Meals", true);
         setSize(500, 250);
@@ -107,11 +121,20 @@ public class CalculateNutritionDialog extends JDialog {
         updateNutritionalDisplay();
     }
 
+    /**
+     * Update the nutritional display data for both meals
+     */
     private void updateNutritionalDisplay() {
         meal1Label.setText(updateDisplay(nutritionSelector.getSelectedItem().toString(), nutritionalData1));
         meal2Label.setText(updateDisplay(nutritionSelector.getSelectedItem().toString(), nutritionalData2));
     }
 
+    /**
+     * Update the display data for the given meal
+     * @param nutritionType The nutrition type to display
+     * @param data The nutritional data to retrieve the data from
+     * @return The nutritional display data
+     */
     private String updateDisplay(String nutritionType, NutritionalData data) {
         String text;
         switch (nutritionType) {
@@ -136,6 +159,9 @@ public class CalculateNutritionDialog extends JDialog {
         return text;
     }
 
+    /**
+     * Show the dialog
+     */
     public void showDialog() {
         setVisible(true);
     }

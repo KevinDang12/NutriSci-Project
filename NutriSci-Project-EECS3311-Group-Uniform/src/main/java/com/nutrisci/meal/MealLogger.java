@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 public class MealLogger {
     public static void main(String[] args) {
 
-        MealLoggerGUI mealLoggerGUI = new MealLoggerGUI();
+        MealLoggerPanel mealLoggerGUI = new MealLoggerPanel();
         JFrame frame = new JFrame("Meal Logger");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(mealLoggerGUI);

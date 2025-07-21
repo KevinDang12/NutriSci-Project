@@ -16,6 +16,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
+/**
+ * The Food Item Search dialog
+ */
 public class FoodSearchDialog extends JDialog {
     private String selectedFood;
     private JTextField searchField;
@@ -25,6 +28,11 @@ public class FoodSearchDialog extends JDialog {
     private final Map<Long, String> foodNames;
     private final List<String> allFoodValues;
 
+    /**
+     * Create the panel to search for a food item in the given list
+     * @param owner The owner panel
+     * @param foodNames The list of available food names
+     */
     public FoodSearchDialog(Frame owner, Map<Long, String> foodNames) {
         super(owner, "Select Food Item", true);
         this.foodNames = foodNames;
@@ -82,11 +90,19 @@ public class FoodSearchDialog extends JDialog {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Show dialog and retrieve the selected food ID
+     * @return The food ID
+     */
     public Long showDialog() {
         setVisible(true);
         return getSelectedFoodId();
     }
 
+    /**
+     * Get the selected food ID
+     * @return The food ID
+     */
     public Long getSelectedFoodId() {
         if (selectedFood == null) return null;
         for (Map.Entry<Long, String> entry : foodNames.entrySet()) {

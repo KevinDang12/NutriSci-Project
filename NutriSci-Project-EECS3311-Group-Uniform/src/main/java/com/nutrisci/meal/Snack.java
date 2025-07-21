@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nutrisci.database.DatabaseManager;
-
 /**
  * Represents a Snack meal (unlimited per day)
  */
