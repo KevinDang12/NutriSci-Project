@@ -3,8 +3,12 @@ package com.nutrisci.meal;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
@@ -26,6 +30,7 @@ public class MealImportDialog extends JDialog {
     private JButton selectButton;
     private List<String> allMealValues;
     Map<Long, String> meals;
+    private long userId = 0;
 
     DatabaseManager db = DatabaseManager.getInstance();
 
@@ -39,9 +44,18 @@ public class MealImportDialog extends JDialog {
         searchField = new JTextField();
         listModel = new DefaultListModel<>();
 
-        meals = db.importMeals(0);
+        meals = db.importMeals(userId);
 
         this.allMealValues = new ArrayList<>(meals.values());
+
+        this.allMealValues.sort(String::compareToIgnoreCase);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a", Locale.ENGLISH);
+
+        allMealValues.sort(Comparator.comparing(entry -> {
+            String datePart = entry.substring(0, entry.indexOf(" -")).replace("a.m.", "AM").replace("p.m.", "PM");
+            return LocalDateTime.parse(datePart, formatter);
+        }));
 
         allMealValues.forEach(listModel::addElement);
         

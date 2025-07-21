@@ -12,9 +12,10 @@ import com.nutrisci.model.User;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.Instant;
@@ -183,11 +184,13 @@ public class DatabaseManager {
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
                     long id = rs.getLong("MealID");
-                    LocalDate date = Instant.ofEpochSecond(id)
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate();
+                    LocalDateTime dateTime = Instant.ofEpochSecond(id)
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDateTime();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
+                    String formatted = dateTime.format(formatter);
                     String mealType = rs.getString("MealType");
-                    result.put(id, date + " " + mealType);
+                    result.put(id, formatted + " - " + mealType);
                 }
             }
 
@@ -327,7 +330,6 @@ public class DatabaseManager {
             ps.setDate(2, java.sql.Date.valueOf(date));
 
             ResultSet rs = ps.executeQuery();
-            System.out.println();
             while (rs.next()) {
                 String type = rs.getString("MealType");
                 MealType mealCategory = MealType.valueOf(type);
@@ -429,12 +431,6 @@ public class DatabaseManager {
 
                 MealType mealType = MealType.valueOf(mealTypeStr);
                 MealBuilder mealBuilder = new MealBuilder().setMealType(mealType);
-
-                // Meal meal = com.nutrisci.meal.MealFactory.createMeal(mealType, entryDate, mealId);
-
-                System.out.println(mealType.name());
-
-                // if (meal == null) continue;
 
                 // Load food items for this meal
                 String foodSql = "SELECT FoodID FROM Meal_Food WHERE MealID = " + mealId;

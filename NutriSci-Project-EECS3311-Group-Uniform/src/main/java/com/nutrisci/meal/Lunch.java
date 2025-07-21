@@ -10,6 +10,8 @@ import com.nutrisci.database.DatabaseManager;
  */
 public class Lunch extends Meal {
 
+    private long userId = 0;
+
     /**
      * Checks if lunch can be added to the date
      * @param date the date to check
@@ -19,7 +21,7 @@ public class Lunch extends Meal {
     public boolean canAddToDate(LocalDate date) {
         DatabaseManager db = DatabaseManager.getInstance();
         // Get user id
-        List<MealType> result = db.getAvailableMealTypes(id, date);
+        List<MealType> result = db.getAvailableMealTypes(userId, date);
 
         for (MealType mealType : result) {
             if (mealType.name().equals("LUNCH")) {

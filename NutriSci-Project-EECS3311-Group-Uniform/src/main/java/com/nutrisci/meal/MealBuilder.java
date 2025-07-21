@@ -22,7 +22,6 @@ public class MealBuilder {
         long mealID = java.time.Instant.now().getEpochSecond();
         mealBeingBuilt = mealFactory.createMeal(type, date, mealID);
         mealTypeSet = true;
-        System.out.println(mealBeingBuilt.foodItems);
         return this;
     }
 

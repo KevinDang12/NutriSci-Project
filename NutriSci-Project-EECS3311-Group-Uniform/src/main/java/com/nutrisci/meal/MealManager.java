@@ -16,7 +16,7 @@ public class MealManager {
     private Map<LocalDate, List<Meal>> mealCache = new HashMap<>();
     private DatabaseManager db = DatabaseManager.getInstance();
 
-    public boolean addMeal(Meal meal) {
+    public boolean addMeal(Meal meal, long userId) {
         // Validate meal (assume isValid method exists or use basic checks)
         if (meal == null || meal.getFoodItems().isEmpty()) return false;
         User user = userSessionManager.getCurrentUser();
@@ -25,7 +25,7 @@ public class MealManager {
         // meal.setUserId(user.getEmail()); // Uncomment if method exists
         // Save to Firestore
         try {
-            db.saveMeal(meal, 0);
+            db.saveMeal(meal, userId);
             notifyObservers(MealEvent.MEAL_ADDED, meal);
             // TODO: Trigger goal progress update
             return true;
@@ -68,25 +68,25 @@ public class MealManager {
         }
     }
 
-    public List<Meal> getMealsForDate(LocalDate date) {
+    public List<Meal> getMealsForDate(LocalDate date, long userId) {
         // Get ID
-        List<Meal> meals = db.getMealsForUser(0, date, date);
+        List<Meal> meals = db.getMealsForUser(userId, date, date);
         return meals;
     }
 
-    public List<Meal> getMealsForDateRange(LocalDate start, LocalDate end) {
+    public List<Meal> getMealsForDateRange(long userId, LocalDate start, LocalDate end) {
         // Get ID
-        List<Meal> meals = db.getMealsForUser(0, start, end);
+        List<Meal> meals = db.getMealsForUser(userId, start, end);
         return meals;
     }
 
-    public boolean importMeal(Meal sourceMeal, LocalDate targetDate) {
+    public boolean importMeal(long userId, Meal sourceMeal, LocalDate targetDate) {
         // Validate target date allows this meal type
         if (!sourceMeal.canAddToDate(targetDate)) return false;
-        Meal newMeal = (Meal) sourceMeal.copyMeal();
+        Meal newMeal = sourceMeal.copyMeal();
         newMeal.date = targetDate;
         // Optionally link to original meal (add field if needed)
-        return addMeal(newMeal);
+        return addMeal(newMeal, userId);
     }
 
     public boolean swapFoodInMeal(Long mealId, FoodItem original, FoodItem replacement) {
@@ -116,23 +116,25 @@ public class MealManager {
     /**
      * Need to uncomment food items
      */
-    // public NutritionalData calculateDailyTotals(LocalDate date) {
-    //     List<Meal> meals = getMealsForDate(date);
-    //     NutritionalData total = nutritionalCalculator.calculateMealNutrition(
-    //         meals.stream().flatMap(m -> m.getFoodItems().stream()).toList()
-    //     );
-    //     // Optionally cache result
-    //     return total;
-    // }
+    public NutritionalData calculateDailyTotals(LocalDate date, long userId) {
+        List<Meal> meals = getMealsForDate(date, userId);
+        NutritionalData nutritionalData = new NutritionalData(0, 0, 0, 0, 0);
 
-    public Map<LocalDate, List<Meal>> getMealHistory(int dayCount) {
+        for (Meal meal : meals) {
+            nutritionalData.add(nutritionalCalculator.calculateMealNutrition(meal.getFoodItems()));
+        }
+
+        return nutritionalData;
+    }
+
+    public Map<LocalDate, List<Meal>> getMealHistory(long userId, int dayCount) {
         User user = userSessionManager.getCurrentUser();
         if (user == null) return Collections.emptyMap();
         
         Map<LocalDate, List<Meal>> history = new HashMap<>();
         LocalDate today = LocalDate.now();
         LocalDate lastDays = today.minusDays(dayCount);
-        List<Meal> meals = db.getMealsForUser(0, lastDays, today);
+        List<Meal> meals = db.getMealsForUser(userId, lastDays, today);
 
         for (Meal meal : meals) {
             LocalDate dateKey = meal.createdAt.toLocalDate();

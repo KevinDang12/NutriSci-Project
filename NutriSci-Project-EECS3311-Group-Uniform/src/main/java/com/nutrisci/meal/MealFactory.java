@@ -11,6 +11,7 @@ import com.nutrisci.model.User;
 public class MealFactory {
 
     DatabaseManager db = DatabaseManager.getInstance();
+    private long userId = 0;
 
     private final Map<MealType, Meal> registry = Map.of(
         MealType.BREAKFAST, new Breakfast(),
@@ -42,27 +43,27 @@ public class MealFactory {
     
     public List<Meal> getMealsForDate(LocalDate date) {
         // Get User ID
-        return db.getMealsForUser(0, date, date);
+        return db.getMealsForUser(userId, date, date);
     }
 
     public List<Meal> getMealsForDateRange(LocalDate startDate, LocalDate endDate) {
         // Get User ID
-        return db.getMealsForUser(0, startDate, endDate);
+        return db.getMealsForUser(userId, startDate, endDate);
     }
 
     public boolean canAddMealType(MealType type, LocalDate date) {
         // Get User ID
-        return db.canAddMealType(0, type, date);
+        return db.canAddMealType(userId, type, date);
     }
 
     public int getMealCountForType(MealType type, LocalDate date) {
         // Get User ID
-        return db.getMealCountForType(0, type, date);
+        return db.getMealCountForType(userId, type, date);
     }
 
     public List<MealType> getAvailableMealTypes(LocalDate date) {
         // Get User ID
-        return db.getAvailableMealTypes(0, date);
+        return db.getAvailableMealTypes(userId, date);
     }
 
     // Duplicates a meal for a new date
