@@ -15,6 +15,7 @@ public class MealLoggerGUI extends JPanel {
     private JPanel foodItemsPanel;
     private JButton addFoodItemButton;
     private JButton logMealButton;
+    private JButton importButton;
 
     private JButton compareMealButton;
     private JButton swapMealButton;
@@ -32,7 +33,8 @@ public class MealLoggerGUI extends JPanel {
 
     private JPanel bottomPanel;
     private JScrollPane scrollPane;
-    private MealBuilder meal;
+    private MealBuilder meal1;
+    private MealBuilder meal2;
 
     public MealLoggerGUI() {
         setLayout(new BorderLayout(10, 10));
@@ -56,7 +58,7 @@ public class MealLoggerGUI extends JPanel {
         }
         
         mealTypeComboBox.getModel().setSelectedItem(MealType.SNACK);
-        meal = new MealBuilder().setMealType(MealType.SNACK);
+        meal1 = new MealBuilder().setMealType(MealType.SNACK);
 
         db = DatabaseManager.getInstance();
 
@@ -64,16 +66,26 @@ public class MealLoggerGUI extends JPanel {
         mealTypeComboBox.addItemListener(e -> {
             if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
                 MealType type = (MealType) e.getItem();
-                MealBuilder newBuilder = new MealBuilder().setMealType(type);
+                MealBuilder newBuilder1 = new MealBuilder().setMealType(type);
 
-                if (meal.mealBeingBuilt != null) {
-                    for (FoodItem item : meal.mealBeingBuilt.getFoodItems()) {
+                if (meal1.mealBeingBuilt != null) {
+                    for (FoodItem item : meal1.mealBeingBuilt.getFoodItems()) {
                         // Use the current servingSize as the quantity
                         FoodItem newItem = new FoodItem(item.getId(), item.description, item.nutrients, item.foodGroup);
-                        newBuilder.addFoodItem(newItem);
+                        newBuilder1.addFoodItem(newItem);
                     }
                 }
-                meal = newBuilder;
+                meal1 = newBuilder1;
+
+                MealBuilder newBuilder2 = new MealBuilder().setMealType(type);
+                if (meal2.mealBeingBuilt != null) {
+                    for (FoodItem item : meal2.mealBeingBuilt.getFoodItems()) {
+                        // Use the current servingSize as the quantity
+                        FoodItem newItem = new FoodItem(item.getId(), item.description, item.nutrients, item.foodGroup);
+                        newBuilder2.addFoodItem(newItem);
+                    }
+                }
+                meal2 = newBuilder2;
             }
         });
 
@@ -89,7 +101,7 @@ public class MealLoggerGUI extends JPanel {
         // Bottom panel for add/log buttons
         bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         addFoodItemButton = new JButton("Add Food Item");
-        addFoodItemButton.addActionListener(e -> addFoodItemSelector());
+        addFoodItemButton.addActionListener(e -> addFoodItemSelectorToPanel(foodItemsPanel, foodNames, selectedFoodNames));
 
         logMealButton = new JButton("Log Meal");
         calculateButton = new JButton("Calculate...");
@@ -98,7 +110,7 @@ public class MealLoggerGUI extends JPanel {
         compareMealButton = new JButton("Compare Meal");
         swapMealButton = new JButton("Swap Meal");
 
-        JButton importButton = new JButton("Import Meal");
+        importButton = new JButton("Import Meal");
         importButton.addActionListener(e -> importMeal(foodItemsPanel, foodNames, selectedFoodNames));
 
         bottomPanel.add(importButton);
@@ -113,25 +125,6 @@ public class MealLoggerGUI extends JPanel {
         // Compare Meal Button Action
         compareMealButton.addActionListener(e -> showComparePanels());
     }
-
-    // private void importMeal() {
-    //     MealImportDialog dialog = new MealImportDialog((Frame) SwingUtilities.getWindowAncestor(this));
-    //     Long id = dialog.showDialog();
-
-    //     if (id != null) {
-    //         List<Long> foodIds = db.importMeal(id);
-
-    //         selectedFoodNames.clear();
-    //         foodNames.clear();
-    //         foodNames = new HashMap<>(listOfFoodNames);
-
-    //         foodItemsPanel.removeAll();
-
-    //         for (long foodId : foodIds) {
-    //             addFoodItemLabel(foodId);
-    //         }
-    //     }
-    // }
 
     private void importMeal(JPanel panel, Map<Long, String> foodNamesForPanel, Map<Long, FoodItem> selectedFoodNamesForPanel) {
         MealImportDialog dialog = new MealImportDialog((Frame) SwingUtilities.getWindowAncestor(this));
@@ -158,7 +151,8 @@ public class MealLoggerGUI extends JPanel {
      * TODO
      * Log Meal ^
      * Log meal when comparing ^
-     * Compare food items
+     * Compare food items ^
+     * Calculate
      * Swap food items
      * DB for user ^
      * User DB ^
@@ -179,13 +173,17 @@ public class MealLoggerGUI extends JPanel {
 
         } else if (comparedSelectedFoodNames.size() <= 0) {
             List<FoodItem> foodItems = new ArrayList<>(selectedFoodNames.values());
-            meal.setFoodItems(foodItems);
-            db.saveMeal(meal.build(), 0);
+            meal1.setFoodItems(foodItems);
+            System.out.println(meal1.mealBeingBuilt.foodItems);
+        
+            db.saveMeal(meal1.build(), 0);
 
         } else if (selectedFoodNames.size() <= 0) {
             List<FoodItem> foodItems = new ArrayList<>(comparedSelectedFoodNames.values());
-            meal.setFoodItems(foodItems);
-            db.saveMeal(meal.build(), 0);
+            meal2.setFoodItems(foodItems);
+            System.out.println(meal2.mealBeingBuilt.foodItems);
+
+            db.saveMeal(meal2.build(), 0);
 
         } else {
             openMealSelectionDialog();
@@ -196,8 +194,8 @@ public class MealLoggerGUI extends JPanel {
     }
 
     private void resetPanel() {
-        meal = new MealBuilder().setMealType(MealType.SNACK);
-        meal.clearFoodItems();
+        meal1 = new MealBuilder().setMealType(MealType.SNACK);
+        meal1.clearFoodItems();
 
         for (long key : selectedFoodNames.keySet()) {
             String descString = selectedFoodNames.get(key).description;
@@ -227,6 +225,9 @@ public class MealLoggerGUI extends JPanel {
 
         mealTypeComboBox.getModel().setSelectedItem(MealType.SNACK);
 
+        meal1 = new MealBuilder().setMealType(MealType.SNACK);
+        meal2 = new MealBuilder().setMealType(MealType.SNACK);
+
         // Rebuild top panel
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.add(new JLabel("Meal Type:"));
@@ -241,6 +242,7 @@ public class MealLoggerGUI extends JPanel {
 
         // Reset bottom panel
         bottomPanel.removeAll();
+        bottomPanel.add(importButton);
         bottomPanel.add(addFoodItemButton);
         bottomPanel.add(calculateButton);
         bottomPanel.add(compareMealButton);
@@ -266,15 +268,15 @@ public class MealLoggerGUI extends JPanel {
     
         meal1Button.addActionListener(e -> {
             List<FoodItem> foodItems = new ArrayList<>(selectedFoodNames.values());
-            meal.setFoodItems(foodItems);
-            db.saveMeal(meal.build(), 0);
+            meal1.setFoodItems(foodItems);
+            db.saveMeal(meal1.build(), 0);
             dialog.dispose();
         });
     
         meal2Button.addActionListener(e -> {
             List<FoodItem> foodItems = new ArrayList<>(comparedSelectedFoodNames.values());
-            meal.setFoodItems(foodItems);
-            db.saveMeal(meal.build(), 0);
+            meal1.setFoodItems(foodItems);
+            db.saveMeal(meal1.build(), 0);
             dialog.dispose();
         });
     
@@ -431,7 +433,7 @@ public class MealLoggerGUI extends JPanel {
         bar.add(swapBtn);
         if (isLeft) {
             importBtn.addActionListener(e -> importMeal(foodItemsPanel, foodNames, selectedFoodNames));
-            addBtn.addActionListener(e -> addFoodItemSelector());
+            addBtn.addActionListener(e -> addFoodItemSelectorToPanel(panelRef, foodNamesForPanel, selectedFoodNamesForPanel));
             // You can wire up swapBtn for the left panel as needed
         } else {
             importBtn.addActionListener(e -> importMeal(panelRef, foodNamesForPanel, selectedFoodNamesForPanel));

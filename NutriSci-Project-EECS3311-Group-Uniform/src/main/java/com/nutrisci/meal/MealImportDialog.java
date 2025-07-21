@@ -19,12 +19,12 @@ import javax.swing.ListSelectionModel;
 import com.nutrisci.database.DatabaseManager;
 
 public class MealImportDialog extends JDialog {
-    private String selectedFood;
+    private String selectedMeal;
     private JTextField searchField;
-    private JList<String> foodList;
+    private JList<String> mealList;
     private DefaultListModel<String> listModel;
     private JButton selectButton;
-    private List<String> allFoodValues;
+    private List<String> allMealValues;
     Map<Long, String> meals;
 
     DatabaseManager db = DatabaseManager.getInstance();
@@ -41,13 +41,13 @@ public class MealImportDialog extends JDialog {
 
         meals = db.importMeals(0);
 
-        this.allFoodValues = new ArrayList<>(meals.values());
+        this.allMealValues = new ArrayList<>(meals.values());
 
-        allFoodValues.forEach(listModel::addElement);
+        allMealValues.forEach(listModel::addElement);
         
-        foodList = new JList<>(listModel);
-        foodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JScrollPane scrollPane = new JScrollPane(foodList);
+        mealList = new JList<>(listModel);
+        mealList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JScrollPane scrollPane = new JScrollPane(mealList);
 
         searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
@@ -57,7 +57,7 @@ public class MealImportDialog extends JDialog {
             private void filter() {
                 String filter = searchField.getText().toLowerCase();
                 listModel.clear();
-                for (String name : allFoodValues) {
+                for (String name : allMealValues) {
                     if (name.toLowerCase().contains(filter)) {
                         listModel.addElement(name);
                     }
@@ -67,14 +67,14 @@ public class MealImportDialog extends JDialog {
 
         selectButton = new JButton("Select");
         selectButton.addActionListener(e -> {
-            selectedFood = foodList.getSelectedValue();
+            selectedMeal = mealList.getSelectedValue();
             setVisible(false);
         });
 
-        foodList.addMouseListener(new java.awt.event.MouseAdapter() {
+        mealList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (evt.getClickCount() == 2) {
-                    selectedFood = foodList.getSelectedValue();
+                    selectedMeal = mealList.getSelectedValue();
                     setVisible(false);
                 }
             }
@@ -94,9 +94,9 @@ public class MealImportDialog extends JDialog {
     }
 
     public Long getSelectedMealId() {
-        if (selectedFood == null) return null;
+        if (selectedMeal == null) return null;
         for (Map.Entry<Long, String> entry : meals.entrySet()) {
-            if (entry.getValue().equals(selectedFood)) {
+            if (entry.getValue().equals(selectedMeal)) {
                 System.out.println(entry.getKey());
                 return entry.getKey();
             }
