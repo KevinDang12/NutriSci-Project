@@ -46,6 +46,10 @@ public abstract class Meal {
         return foodItems;
     }
 
+    public void setFoodItems(List<FoodItem> newFoodItems) {
+        this.foodItems = newFoodItems;
+    }
+
     // Updates the quantity of a food item in the meal
     // helped by AI
     public boolean updateFoodItemQuantity(FoodItem item, double newQuantity) {

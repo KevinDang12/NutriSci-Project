@@ -1,6 +1,7 @@
 package com.nutrisci.meal;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.nutrisci.calculator.NutritionalCalculator;
@@ -10,13 +11,16 @@ public class MealBuilder {
     Meal mealBeingBuilt;
     boolean mealTypeSet, dataSet;
     List<String> buildErrors;
+
+    MealFactory mealFactory;
     
     // Sets the meal type and initializes the meal
     // helped by AI
     public MealBuilder setMealType(MealType type) {
+        mealFactory = new MealFactory();
         LocalDate date = LocalDate.now();
         long mealID = java.time.Instant.now().getEpochSecond();
-        mealBeingBuilt = MealFactory.createMeal(type, date, mealID);
+        mealBeingBuilt = mealFactory.createMeal(type, date, mealID);
         mealTypeSet = true;
         System.out.println(mealBeingBuilt.foodItems);
         return this;
@@ -49,6 +53,11 @@ public class MealBuilder {
         return this;
     }
 
+    public MealBuilder setFoodItems(List<FoodItem> foodItems) {
+        this.mealBeingBuilt.foodItems = new ArrayList<>(foodItems);
+        return this;
+    }
+
     public Meal build() {
         if (!mealTypeSet) {
             System.out.println("Meal Type not set");
@@ -60,12 +69,15 @@ public class MealBuilder {
             return null;
         }
 
+        // mealBeingBuilt.setFoodItems(new ArrayList<>(mealBeingBuilt.getFoodItems()));
+
         return mealBeingBuilt;
     }
 
     // Returns a preview of the meal being built
     // helped by AI
     public Meal buildPreview() {
-        return MealFactory.duplicateMeal(mealBeingBuilt, LocalDate.now());
+        // return mealFactory.duplicateMeal(mealBeingBuilt, LocalDate.now());
+        return mealBeingBuilt;
     }
 }

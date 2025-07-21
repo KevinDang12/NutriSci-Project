@@ -5,6 +5,7 @@ import com.nutrisci.database.DatabaseManager;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -21,6 +22,7 @@ public class MealLoggerGUI extends JPanel {
 
     private DatabaseManager db;
 
+    private final Map<Long, String> listOfFoodNames;
     private Map<Long, String> foodNames;
     private Map<Long, FoodItem> selectedFoodNames;
 
@@ -34,9 +36,10 @@ public class MealLoggerGUI extends JPanel {
 
     public MealLoggerGUI() {
         setLayout(new BorderLayout(10, 10));
-        foodNames = fetchFoodNames();
+        listOfFoodNames = fetchFoodNames();
+        foodNames = new HashMap<>(listOfFoodNames);
         selectedFoodNames = new HashMap<>();
-        comparedFoodNames = new HashMap<>(foodNames);
+        comparedFoodNames = new HashMap<>(listOfFoodNames);
         comparedSelectedFoodNames = new HashMap<>();
 
         // Top panel for meal type
@@ -95,6 +98,10 @@ public class MealLoggerGUI extends JPanel {
         compareMealButton = new JButton("Compare Meal");
         swapMealButton = new JButton("Swap Meal");
 
+        JButton importButton = new JButton("Import Meal");
+        importButton.addActionListener(e -> importMeal(foodItemsPanel, foodNames, selectedFoodNames));
+
+        bottomPanel.add(importButton);
         bottomPanel.add(addFoodItemButton);
         bottomPanel.add(calculateButton);
         bottomPanel.add(compareMealButton);
@@ -107,10 +114,50 @@ public class MealLoggerGUI extends JPanel {
         compareMealButton.addActionListener(e -> showComparePanels());
     }
 
+    // private void importMeal() {
+    //     MealImportDialog dialog = new MealImportDialog((Frame) SwingUtilities.getWindowAncestor(this));
+    //     Long id = dialog.showDialog();
+
+    //     if (id != null) {
+    //         List<Long> foodIds = db.importMeal(id);
+
+    //         selectedFoodNames.clear();
+    //         foodNames.clear();
+    //         foodNames = new HashMap<>(listOfFoodNames);
+
+    //         foodItemsPanel.removeAll();
+
+    //         for (long foodId : foodIds) {
+    //             addFoodItemLabel(foodId);
+    //         }
+    //     }
+    // }
+
+    private void importMeal(JPanel panel, Map<Long, String> foodNamesForPanel, Map<Long, FoodItem> selectedFoodNamesForPanel) {
+        MealImportDialog dialog = new MealImportDialog((Frame) SwingUtilities.getWindowAncestor(this));
+        Long id = dialog.showDialog();
+
+        if (id != null) {
+            List<Long> foodIds = db.importMeal(id);
+
+            selectedFoodNamesForPanel.clear();
+            foodNamesForPanel.clear();
+            foodNamesForPanel.putAll(listOfFoodNames);
+
+            panel.removeAll();
+
+            for (long foodId : foodIds) {
+                String foodName = foodNamesForPanel.get(foodId);
+                System.out.println(foodName);
+                addFoodItemLabelToPanel(panel, foodId, foodName, foodNamesForPanel, selectedFoodNamesForPanel);
+            }
+        }
+    }
+
     /**
      * TODO
-     * Log Meal
-     * Log meal when comparing
+     * Log Meal ^
+     * Log meal when comparing ^
      * Compare food items
      * Swap food items
      * DB for user ^
@@ -131,19 +178,18 @@ public class MealLoggerGUI extends JPanel {
             return;
 
         } else if (comparedSelectedFoodNames.size() <= 0) {
-            for (FoodItem item : selectedFoodNames.values()) {
-                meal.addFoodItem(item);
-            }
+            List<FoodItem> foodItems = new ArrayList<>(selectedFoodNames.values());
+            meal.setFoodItems(foodItems);
             db.saveMeal(meal.build(), 0);
 
         } else if (selectedFoodNames.size() <= 0) {
-            for (FoodItem item : comparedSelectedFoodNames.values()) {
-                meal.addFoodItem(item);
-            }
+            List<FoodItem> foodItems = new ArrayList<>(comparedSelectedFoodNames.values());
+            meal.setFoodItems(foodItems);
             db.saveMeal(meal.build(), 0);
 
         } else {
             openMealSelectionDialog();
+            return;
         }
         
         resetPanel();
@@ -219,17 +265,15 @@ public class MealLoggerGUI extends JPanel {
         JButton meal2Button = new JButton("Meal 2");
     
         meal1Button.addActionListener(e -> {
-            for (long key : selectedFoodNames.keySet()) {
-                meal.addFoodItem(db.loadFoodItem(key));
-            }
+            List<FoodItem> foodItems = new ArrayList<>(selectedFoodNames.values());
+            meal.setFoodItems(foodItems);
             db.saveMeal(meal.build(), 0);
             dialog.dispose();
         });
     
         meal2Button.addActionListener(e -> {
-            for (long key : comparedSelectedFoodNames.keySet()) {
-                meal.addFoodItem(db.loadFoodItem(key));
-            }
+            List<FoodItem> foodItems = new ArrayList<>(comparedSelectedFoodNames.values());
+            meal.setFoodItems(foodItems);
             db.saveMeal(meal.build(), 0);
             dialog.dispose();
         });
@@ -379,14 +423,18 @@ public class MealLoggerGUI extends JPanel {
 
     private JPanel createPanelButtonBar(JPanel panelRef, boolean isLeft, Map<Long, String> foodNamesForPanel, Map<Long, FoodItem> selectedFoodNamesForPanel) {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton importBtn = new JButton("Import Meal");
         JButton addBtn = new JButton("Add Food Item");
         JButton swapBtn = new JButton("Swap Meal");
+        bar.add(importBtn);
         bar.add(addBtn);
         bar.add(swapBtn);
         if (isLeft) {
+            importBtn.addActionListener(e -> importMeal(foodItemsPanel, foodNames, selectedFoodNames));
             addBtn.addActionListener(e -> addFoodItemSelector());
             // You can wire up swapBtn for the left panel as needed
         } else {
+            importBtn.addActionListener(e -> importMeal(panelRef, foodNamesForPanel, selectedFoodNamesForPanel));
             addBtn.addActionListener(e -> addFoodItemSelectorToPanel(panelRef, foodNamesForPanel, selectedFoodNamesForPanel));
             // You can wire up swapBtn for the right panel as needed
         }
