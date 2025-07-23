@@ -1,6 +1,5 @@
 # Firebase service account key (contains sensitive credentials)
 serviceAccount.json
-/CSV
 **/resources/db.properties
 
 # Maven build artifacts

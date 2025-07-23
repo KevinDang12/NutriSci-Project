@@ -29,9 +29,9 @@ public class MealManager {
      */
     public boolean addMeal(Meal meal) {
         // Validate meal (assume isValid method exists or use basic checks)
-        if (meal == null || meal.getFoodItems().isEmpty()) return false;
-        User user = userSessionManager.getCurrentUser();
-        if (user == null) return false;
+        // if (meal == null || meal.getFoodItems().isEmpty()) return false;
+        // User user = userSessionManager.getCurrentUser();
+        // if (user == null) return false;
         // Set user ID (assume setUserId or setEmail method exists)
         // meal.setUserId(user.getEmail()); // Uncomment if method exists
         // Save to Firestore
