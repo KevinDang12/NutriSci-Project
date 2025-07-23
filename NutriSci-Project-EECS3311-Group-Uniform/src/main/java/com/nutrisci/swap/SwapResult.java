@@ -32,6 +32,23 @@ public class SwapResult {
         return swappedMeal.getTotalCalories() - originalMeal.getTotalCalories();
     }
 
+    public double getProteinChange() {
+        double result = 0;
+        for (FoodItem item : swappedMeal.getFoodItems()) {
+            result += item.getNutrientValue("PROTEIN");
+        }
+
+        for (FoodItem item : originalMeal.getFoodItems()) {
+            result -= item.getNutrientValue("PROTEIN");
+        }
+
+        return result;
+    }
+
+    public double getGoalRelevantChange() {
+        return 0.0;
+    }
+
     // Returns the number of food swaps performed
     public int getSwapCount() {
         return individualSwaps.size();
@@ -40,6 +57,14 @@ public class SwapResult {
     // Returns the list of food items that were swapped
     public List<FoodItem> getFoodSwaps() {
         return individualSwaps;
+    }
+
+    public double calculateOverallBenefit() {
+        return 0.0;
+    }
+
+    public String getRecommendedFollowUp() {
+        return "";
     }
 
     // Exports the swap result as a string

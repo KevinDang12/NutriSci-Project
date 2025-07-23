@@ -1,7 +1,6 @@
 package com.nutrisci.swap;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import com.nutrisci.meal.FoodItem;
 import com.nutrisci.meal.Meal;
@@ -36,8 +35,8 @@ public class FoodSwapper {
         minerals.put("potassium", 50.0);
 
         // Create a food item and add it to the meal
-        FoodItem apple = new FoodItem("Apple", "A delicious fruit", macroNutrients, vitamins, minerals, "Fruit", 2, "g");
-        builder.addFoodItem(apple, 1);
+        FoodItem apple = new FoodItem("Apple", macroNutrients, "Fruit");
+        builder.addFoodItem(apple);
         Meal meal = builder.buildPreview();
         SwapResult result = context.executeSwap(meal);
 

@@ -1,7 +1,7 @@
 package com.nutrisci.calculator;
 
 import java.util.List;
-//import com.nutrisci.meal.FoodItem;
+import com.nutrisci.meal.FoodItem;
 
 // Performs nutritional calculations for meals
 public class NutritionalCalculator {
@@ -14,11 +14,11 @@ public class NutritionalCalculator {
         double totalFiber = 0;
 
         for (FoodItem item : foodItems) {
-            totalCalories += item.getNutrientValue("calories");
-            totalProtein += item.getNutrientValue("protein");
-            totalCarbs += item.getNutrientValue("carbs");
-            totalFat += item.getNutrientValue("fat");
-            totalFiber += item.getNutrientValue("fiber");
+            totalCalories += item.calculateCaloriesFromMacros();
+            totalProtein += item.getNutrientValue("PROTEIN");
+            totalCarbs += item.getNutrientValue("CARBOHYDRATE, TOTAL (BY DIFFERENCE)");
+            totalFat += item.getNutrientValue("FAT (TOTAL LIPIDS)");
+            totalFiber += item.getNutrientValue("FIBRE, TOTAL DIETARY");
         }
     
         NutritionalData result = new NutritionalData(totalCalories, totalProtein, totalCarbs, totalFat, totalFiber);
