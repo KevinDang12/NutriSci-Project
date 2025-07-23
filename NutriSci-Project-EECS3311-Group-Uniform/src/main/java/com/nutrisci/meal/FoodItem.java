@@ -21,6 +21,10 @@ public class FoodItem {
         return id;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public void setId(long id) {
         this.id = id;
     }

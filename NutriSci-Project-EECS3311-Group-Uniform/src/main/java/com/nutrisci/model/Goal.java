@@ -1,45 +1,31 @@
 package com.nutrisci.model;
 
-import com.nutrisci.calculator.NutritionalData;
+import java.io.Serializable;
 
-// Abstract base class for all nutritional goals
-public abstract class Goal {
-    protected GoalType goalType; // Type of the goal
-    protected String description; // Description of the goal
-    
-    // Sets the goal type and description
-    public Goal(GoalType goalType, String description) {
-        this.goalType = goalType;
-        this.description = description;
+// Represents a user's nutrition goal
+public class Goal implements Serializable {
+    private GoalType type;
+    private boolean increase; // true = increase, false = decrease
+    private int percent; // 5, 10, or 15
+
+    public Goal(GoalType type, boolean increase, int percent) {
+        this.type = type;
+        this.increase = increase;
+        this.percent = percent;
     }
-    
-    // Checks if the goal is achieved based on current intake
-    public abstract boolean isAchieved(NutritionalData currentIntake);
-    
-    // Returns a progress message for the goal
-    public abstract String getProgressMessage(NutritionalData currentIntake);
-    
-    // Returns the type of this goal
-    public GoalType getGoalType() {
-        return goalType;
-    }
-    
-    // Returns a human-readable description of the goal
-    public String getGoalDescription() {
-        return description;
-    }
-    
-    // Sets the goal description
-    public void setGoalDescription(String description) {
-        this.description = description;
-    }
-    
-    // Returns a string representation of the goal
+
+    public GoalType getType() { return type; }
+    public boolean isIncrease() { return increase; }
+    public int getPercent() { return percent; }
+
+    public void setType(GoalType type) { this.type = type; }
+    public void setIncrease(boolean increase) { this.increase = increase; }
+    public void setPercent(int percent) { this.percent = percent; }
+
+    public String getDirectionString() { return increase ? "Increase" : "Decrease"; }
+
     @Override
     public String toString() {
-        return "Goal{" +
-                "type=" + goalType +
-                ", description='" + description + '\'' +
-                '}';
+        return getDirectionString() + " " + type.getDisplayName() + " by " + percent + "%";
     }
 } 

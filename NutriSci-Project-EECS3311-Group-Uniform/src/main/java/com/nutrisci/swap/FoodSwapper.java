@@ -35,7 +35,7 @@ public class FoodSwapper {
         minerals.put("potassium", 50.0);
 
         // Create a food item and add it to the meal
-        FoodItem apple = new FoodItem("Apple", macroNutrients, "Fruit");
+        FoodItem apple = new FoodItem(1L, "Apple", macroNutrients, "Fruit");
         builder.addFoodItem(apple);
         Meal meal = builder.buildPreview();
         SwapResult result = context.executeSwap(meal);

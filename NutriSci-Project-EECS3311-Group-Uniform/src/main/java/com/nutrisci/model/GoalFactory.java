@@ -5,60 +5,75 @@ import java.util.List;
 
 // Factory for creating Goal objects
 public class GoalFactory {
-    // Creates a Goal object based on type and value
-    public static Goal createGoal(GoalType type, int value) {
-        if (!validateGoalValue(type, value)) {
+    // Creates a Goal object based on type and percentage
+    public static Goal createGoal(GoalType type, int percent) {
+        if (!validateGoalValue(percent)) {
             return null;
         }
-        switch (type) {
-            case INCREASE_PROTEIN:
-                return new IncreaseProteinGoal(value);
-            case INCREASE_CALORIES: // implement later
-            case DECREASE_CALORIES: // implement later
-                return null;
-            default:
-                return null;
-        }
+        // For now, default to increase. In a real app, this would be configurable
+        return new Goal(type, true, percent);
     }
+    
+    // Creates a Goal object with specified direction
+    public static Goal createGoal(GoalType type, boolean increase, int percent) {
+        if (!validateGoalValue(percent)) {
+            return null;
+        }
+        return new Goal(type, increase, percent);
+    }
+    
     // Returns a list of available goal options for the UI
     public static List<GoalOption> getAvailableGoals() {
         List<GoalOption> options = new ArrayList<>();
-        options.add(new GoalOption(GoalType.INCREASE_PROTEIN, 3, "Increase protein by 3g"));
-        options.add(new GoalOption(GoalType.INCREASE_PROTEIN, 5, "Increase protein by 5g"));
-        options.add(new GoalOption(GoalType.INCREASE_PROTEIN, 10, "Increase protein by 10g"));
+        
+        // Add options for each goal type with different percentages
+        for (GoalType type : GoalType.values()) {
+            options.add(new GoalOption(type, true, 5, "Increase " + type.getDisplayName() + " by 5%"));
+            options.add(new GoalOption(type, true, 10, "Increase " + type.getDisplayName() + " by 10%"));
+            options.add(new GoalOption(type, true, 15, "Increase " + type.getDisplayName() + " by 15%"));
+            options.add(new GoalOption(type, false, 5, "Decrease " + type.getDisplayName() + " by 5%"));
+            options.add(new GoalOption(type, false, 10, "Decrease " + type.getDisplayName() + " by 10%"));
+            options.add(new GoalOption(type, false, 15, "Decrease " + type.getDisplayName() + " by 15%"));
+        }
+        
         return options;
     }
-    // Validates that the goal value is acceptable for the type
-    public static boolean validateGoalValue(GoalType type, int value) {
-        switch (type) {
-            case INCREASE_PROTEIN:
-                return value == 3 || value == 5 || value == 10;
-            case INCREASE_CALORIES:
-            case DECREASE_CALORIES:
-                return false;
-            default:
-                return false;
-        }
+    
+    // Validates that the goal percentage is acceptable
+    public static boolean validateGoalValue(int percent) {
+        return percent == 5 || percent == 10 || percent == 15;
     }
+    
     // Helper class to represent goal options in the UI
     public static class GoalOption {
-        private final GoalType type; // Type of goal
-        private final int value; // Value for the goal
-        private final String displayText; // Text for UI display
-        public GoalOption(GoalType type, int value, String displayText) {
+        private final GoalType type;
+        private final boolean increase;
+        private final int percent;
+        private final String displayText;
+        
+        public GoalOption(GoalType type, boolean increase, int percent, String displayText) {
             this.type = type;
-            this.value = value;
+            this.increase = increase;
+            this.percent = percent;
             this.displayText = displayText;
         }
+        
         public GoalType getType() {
             return type;
         }
-        public int getValue() {
-            return value;
+        
+        public boolean isIncrease() {
+            return increase;
         }
+        
+        public int getPercent() {
+            return percent;
+        }
+        
         public String getDisplayText() {
             return displayText;
         }
+        
         @Override
         public String toString() {
             return displayText;

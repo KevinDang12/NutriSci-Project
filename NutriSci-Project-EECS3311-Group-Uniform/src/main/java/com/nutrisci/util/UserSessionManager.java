@@ -3,7 +3,7 @@ package com.nutrisci.util;
 import com.nutrisci.model.User;
 import com.nutrisci.model.Gender;
 import com.nutrisci.model.Units;
-import com.nutrisci.database.FirestoreSingleton;
+import com.nutrisci.database.DatabaseManager;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -23,10 +23,14 @@ public class UserSessionManager {
     private User currentUser;
     private boolean isLoggedIn;
     
+    // Database manager for user operations
+    private DatabaseManager databaseManager;
+    
     // Private constructor to prevent instantiation
     private UserSessionManager() {
         this.currentUser = null;
         this.isLoggedIn = false;
+        this.databaseManager = DatabaseManager.getInstance();
     }
     
     /**
@@ -47,35 +51,28 @@ public class UserSessionManager {
     
     /**
      * Attempts to authenticate a user with the provided email and password.
-     * This method integrates with Firebase for user verification.
+     * This method integrates with Azure MySQL for user verification.
      * 
      * @param email User's email address
      * @param password User's password
      * @return true if authentication is successful, false otherwise
      */
-    // helped by AI - Firebase integration and authentication logic
     public boolean login(String email, String password) {
         if (email == null || password == null || email.trim().isEmpty() || password.trim().isEmpty()) {
             return false;
         }
         
         try {
-            // Get Firebase instance
-            FirestoreSingleton firestore = FirestoreSingleton.getInstance();
+            // For now, we'll use a simple approach with email as userId
+            // In a real application, you would query by email first to get the userId
+            String userId = email; // Simplified for demo - should query by email
             
-            // Query for user with matching email
-            // Note: In a real application, you would hash the password and compare hashes
-            // For Deliverable 1, we'll do a simple string comparison
-            Map<String, Object> userData = findUserByEmail(email);
+            User authenticatedUser = databaseManager.authenticateUser(userId, password);
             
-            if (userData != null) {
-                String storedPassword = (String) userData.get("password");
-                if (password.equals(storedPassword)) {
-                    // Authentication successful - create User object
-                    currentUser = createUserFromData(userData);
-                    isLoggedIn = true;
-                    return true;
-                }
+            if (authenticatedUser != null) {
+                currentUser = authenticatedUser;
+                isLoggedIn = true;
+                return true;
             }
             
             return false;
@@ -121,11 +118,12 @@ public class UserSessionManager {
         if (isLoggedIn && updatedUser != null) {
             currentUser = updatedUser;
             
-            // Update user data in Firebase
+            // Update user data in MySQL database
             try {
-                FirestoreSingleton firestore = FirestoreSingleton.getInstance();
-                Map<String, Object> userData = convertUserToMap(updatedUser);
-                firestore.updateDocument("users", currentUser.getEmail(), userData);
+                boolean success = databaseManager.updateUserProfile(updatedUser);
+                if (!success) {
+                    System.err.println("Failed to update user profile in database");
+                }
             } catch (Exception e) {
                 System.err.println("Failed to update user profile: " + e.getMessage());
             }
@@ -144,106 +142,13 @@ public class UserSessionManager {
         }
         
         try {
-            // Check if user already exists
-            Map<String, Object> existingUser = findUserByEmail(user.getEmail());
-            if (existingUser != null) {
-                return false; // User already exists
-            }
-            
-            // Add user to Firebase
-            FirestoreSingleton firestore = FirestoreSingleton.getInstance();
-            Map<String, Object> userData = convertUserToMap(user);
-            firestore.addDocument("users", userData);
-            
-            return true;
+            // Add user to MySQL database
+            boolean success = databaseManager.saveUser(user);
+            return success;
             
         } catch (Exception e) {
             System.err.println("Registration error: " + e.getMessage());
             return false;
-        }
-    }
-    
-    /**
-     * Finds a user by email address in the database.
-     * 
-     * @param email The email address to search for
-     * @return User data as Map, or null if not found
-     */
-    private Map<String, Object> findUserByEmail(String email) {
-        try {
-            FirestoreSingleton firestore = FirestoreSingleton.getInstance();
-            // Query for user with matching email
-            // For simplicity in Deliverable 1, we'll use the email as document ID
-            return firestore.getDocument("users", email);
-        } catch (Exception e) {
-            System.err.println("Error finding user: " + e.getMessage());
-            return null;
-        }
-    }
-    
-    /**
-     * Converts a User object to a Map for Firebase storage.
-     * 
-     * @param user The User object to convert
-     * @return Map representation of the user
-     */
-    private Map<String, Object> convertUserToMap(User user) {
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("name", user.getName());
-        userData.put("email", user.getEmail());
-        userData.put("password", user.getPassword()); // In production, this should be hashed
-        userData.put("gender", user.getGender() != null ? user.getGender().name() : null);
-        userData.put("dateOfBirth", user.getDateOfBirth() != null ? user.getDateOfBirth().toString() : null);
-        userData.put("height", user.getHeight());
-        userData.put("weight", user.getWeight());
-        userData.put("units", user.getUnits() != null ? user.getUnits().name() : null);
-        
-        // Store goal information if present
-        if (user.getUserGoal() != null) {
-            Map<String, Object> goalData = new HashMap<>();
-            goalData.put("type", user.getUserGoal().getGoalType().name());
-            goalData.put("description", user.getUserGoal().getGoalDescription());
-            userData.put("goal", goalData);
-        }
-        
-        return userData;
-    }
-    
-    /**
-     * Creates a User object from Firebase data.
-     * 
-     * @param userData The user data from Firebase
-     * @return User object, or null if creation fails
-     */
-    private User createUserFromData(Map<String, Object> userData) {
-        try {
-            User user = new User();
-            user.setName((String) userData.get("name"));
-            user.setEmail((String) userData.get("email"));
-            user.setPassword((String) userData.get("password"));
-            
-            // Set other fields if they exist
-            if (userData.get("gender") != null) {
-                user.setGender(Gender.valueOf((String) userData.get("gender")));
-            }
-            if (userData.get("dateOfBirth") != null) {
-                user.setDateOfBirth(java.time.LocalDate.parse((String) userData.get("dateOfBirth")));
-            }
-            if (userData.get("height") != null) {
-                user.setHeight(((Number) userData.get("height")).doubleValue());
-            }
-            if (userData.get("weight") != null) {
-                user.setWeight(((Number) userData.get("weight")).doubleValue());
-            }
-            if (userData.get("units") != null) {
-                user.setUnits(Units.valueOf((String) userData.get("units")));
-            }
-            
-            return user;
-            
-        } catch (Exception e) {
-            System.err.println("Error creating user from data: " + e.getMessage());
-            return null;
         }
     }
 } 

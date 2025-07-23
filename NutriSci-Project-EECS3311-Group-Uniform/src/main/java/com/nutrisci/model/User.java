@@ -17,7 +17,7 @@ public class User {
     private double height; // Height (cm or inches)
     private double weight; // Weight (kg or lbs)
     private Units units; // Preferred measurement units
-    private Goal userGoal; // User's nutrition goal
+    private com.nutrisci.model.Goal goal; // User's nutrition goal
     
     /**
      * Creates a user with default units (metric)
@@ -118,8 +118,8 @@ public class User {
     public void setWeight(double weight) { this.weight = weight; }
     public Units getUnits() { return units; }
     public void setUnits(Units units) { this.units = units; }
-    public Goal getUserGoal() { return userGoal; }
-    public void setUserGoal(Goal userGoal) { this.userGoal = userGoal; }
+    public com.nutrisci.model.Goal getGoal() { return goal; }
+    public void setGoal(com.nutrisci.model.Goal goal) { this.goal = goal; }
     
     /**
      * Returns a summary string for the user
@@ -132,6 +132,7 @@ public class User {
                 ", age=" + getAge() +
                 ", bmi=" + String.format("%.1f", getBMI()) +
                 ", units=" + units +
+                ", goal=" + (goal != null ? goal.toString() : "None") +
                 '}';
     }
 } 

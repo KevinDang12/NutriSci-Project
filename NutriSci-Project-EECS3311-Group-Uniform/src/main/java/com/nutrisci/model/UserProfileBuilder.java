@@ -104,7 +104,7 @@ public class UserProfileBuilder {
         user.setHeight(height);
         user.setWeight(weight);
         user.setUnits(units);
-        user.setUserGoal(userGoal);
+        user.setGoal(userGoal);
         return user;
     }
     // Returns a list of validation errors

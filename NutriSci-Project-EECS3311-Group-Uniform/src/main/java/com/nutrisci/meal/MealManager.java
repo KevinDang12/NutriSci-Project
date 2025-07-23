@@ -243,7 +243,7 @@ public class MealManager {
         List<Meal> meals = db.getMealsForUser(userId, lastDays, today);
 
         for (Meal meal : meals) {
-            LocalDate dateKey = meal.createdAt.toLocalDate();
+            LocalDate dateKey = meal.getCreatedAt().toLocalDate();
             if (!history.containsKey(dateKey)) {
                 history.put(dateKey, new ArrayList<Meal>());
             }

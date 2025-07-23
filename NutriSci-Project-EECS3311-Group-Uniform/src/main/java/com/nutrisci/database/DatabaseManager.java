@@ -25,6 +25,10 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.io.InputStream;
 import java.io.IOException;
 import com.nutrisci.meal.MealType;
+import com.nutrisci.meal.Breakfast;
+import com.nutrisci.meal.Lunch;
+import com.nutrisci.meal.Dinner;
+import com.nutrisci.meal.Snack;
 
 /**
  * DatabaseManager handles all database operations for meals, users, and food items.
@@ -440,7 +444,9 @@ public class DatabaseManager {
                 // LocalDate entryDate = rs.getDate("EntryDate").toLocalDate();
 
                 MealType mealType = MealType.valueOf(mealTypeStr);
-                MealBuilder mealBuilder = new MealBuilder().setMealType(mealType);
+                
+                // Create meal directly from registry without validation (since we're loading from DB)
+                Meal meal = createMealFromRegistry(mealType, mealId);
 
                 // Load food items for this meal
                 String foodSql = "SELECT FoodID FROM Meal_Food WHERE MealID = " + mealId;
@@ -456,8 +462,8 @@ public class DatabaseManager {
                     }
                 }
 
-                mealBuilder.setFoodItems(foodItems);
-                Meal meal = mealBuilder.buildPreview();
+                // Set food items directly on the meal
+                meal.setFoodItems(foodItems);
                 meal.setId(mealId);
                 meals.add(meal);
             }
@@ -465,6 +471,31 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return meals;
+    }
+
+    /**
+     * Creates a meal directly from the registry without validation (for loading from DB)
+     */
+    private Meal createMealFromRegistry(MealType type, long mealId) {
+        Meal meal = null;
+        switch (type) {
+            case BREAKFAST:
+                meal = new Breakfast();
+                break;
+            case LUNCH:
+                meal = new Lunch();
+                break;
+            case DINNER:
+                meal = new Dinner();
+                break;
+            case SNACK:
+                meal = new Snack();
+                break;
+        }
+        if (meal != null) {
+            meal.setId(mealId);
+        }
+        return meal;
     }
 
     /**
@@ -629,8 +660,8 @@ public class DatabaseManager {
         user.getHeight() + ", " +
         user.getWeight() + ", " +
         user.getUnits() + ", " +
-        user.getUserGoal().getGoalType().name() + ", " +
-        user.getUserGoal().getGoalDescription() + ")";
+        user.getGoal().getType().name() + ", " +
+        user.getGoal().toString() + ")";
 
         try (PreparedStatement ps = connection.prepareStatement(saveUserSQL)) {
 
@@ -668,8 +699,8 @@ public class DatabaseManager {
         ", Height=" + user.getHeight() + 
         ", Weight=" + user.getWeight() + 
         ", Units=" + user.getUnits() + 
-        ", GoalType=" + user.getUserGoal().getGoalType().name() +
-        ", GoalDescription=" + user.getUserGoal().getGoalDescription() +
+        ", GoalType=" + user.getGoal().getType().name() +
+        ", GoalDescription=" + user.getGoal().toString() +
         " WHERE UserID=" + userID;
 
         try (PreparedStatement ps = connection.prepareStatement(updateUserSQL)) {
@@ -727,7 +758,7 @@ public class DatabaseManager {
 
             // FIX: Cannot set description as of now, it must use regex to get the number
             Goal userGoal = GoalFactory.createGoal(GoalType.valueOf(rs.getString("GoalType")), value);
-            user.setUserGoal(userGoal);
+            user.setGoal(userGoal);
 
             return user;
         } catch (SQLException e) {

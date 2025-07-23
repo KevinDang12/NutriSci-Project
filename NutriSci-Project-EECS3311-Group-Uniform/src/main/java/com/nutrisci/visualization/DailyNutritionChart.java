@@ -2,11 +2,17 @@ package com.nutrisci.visualization;
 
 import com.nutrisci.meal.Meal;
 import com.nutrisci.meal.FoodItem;
+import com.nutrisci.calculator.NutritionalCalculator;
+import com.nutrisci.calculator.NutritionalData;
 
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -30,10 +36,19 @@ public class DailyNutritionChart implements ChartDisplayStrategy {
             return handleEmptyDay(date);
         }
 
-        double[] macros = calculator.calculateMacros(dailyMeals);
-        double totalCalories = calculator.calculateTotalCalories(macros[0], macros[1], macros[2]);
+        // Collect all food items from meals
+        List<FoodItem> allFoodItems = new ArrayList<>();
+        for (Meal meal : dailyMeals) {
+            allFoodItems.addAll(meal.getFoodItems());
+        }
 
-        PieDataset dataset = calculateMacronutrientData(macros[0], macros[1], macros[2], totalCalories);
+        NutritionalData nutritionData = calculator.calculateMealNutrition(allFoodItems);
+        double totalCalories = nutritionData.getCalories();
+
+        PieDataset dataset = calculateMacronutrientData(nutritionData.getProtein(), 
+                                                       nutritionData.getCarbs(), 
+                                                       nutritionData.getFat(), 
+                                                       totalCalories);
         JFreeChart chart = ChartFactoryUtil.createNutritionPieChart(dataset, date, nutritionColors);
 
         // Optionally add goal indicators or extra styling here

@@ -85,7 +85,7 @@ public class IncreaseProteinStrategy implements FoodSwapStrategy {
         minerals.put("phosphorus", 40.0);
         minerals.put("potassium", 50.0);
 
-        FoodItem broccoli = new FoodItem("Broccoli", macroNutrients, "Vegetable");
+        FoodItem broccoli = new FoodItem(2L, "Broccoli", macroNutrients, "Vegetable");
 
         return broccoli;
     }

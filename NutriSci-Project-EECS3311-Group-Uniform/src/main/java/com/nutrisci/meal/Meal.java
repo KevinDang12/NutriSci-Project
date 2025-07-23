@@ -109,6 +109,10 @@ public abstract class Meal {
         return id;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     /**
      * Creates deep copy of meal with all food items
      * helped by AI

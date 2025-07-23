@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import com.nutrisci.service.FoodSwapService;
+import com.nutrisci.model.Goal;
 
 /**
  * The Meal logging panel
@@ -22,6 +24,7 @@ public class MealLoggerPanel extends JPanel {
     private JButton compareMealButton;
     private JButton swapMealButton;
     private JButton calculateButton;
+    private JButton foodSwapButton;
 
     private final Map<Long, String> listOfFoodNames;
     private Map<Long, String> foodNames;
@@ -37,12 +40,14 @@ public class MealLoggerPanel extends JPanel {
     private MealBuilder meal2;
 
     private MealManager mealManager;
+    private FoodSwapService foodSwapService;
 
     /**
      * Set up the MealLogger panel
      */
     public MealLoggerPanel() {
         mealManager = new MealManager();
+        foodSwapService = new FoodSwapService();
 
         setLayout(new BorderLayout(10, 10));
         listOfFoodNames = fetchFoodNames();
@@ -117,6 +122,8 @@ public class MealLoggerPanel extends JPanel {
 
         compareMealButton = new JButton("Compare Meal");
         swapMealButton = new JButton("Swap Meal");
+        foodSwapButton = new JButton("Food Swap");
+        foodSwapButton.addActionListener(e -> suggestFoodSwap());
 
         importButton = new JButton("Import Meal");
         importButton.addActionListener(e -> importMeal(foodItemsPanel, foodNames, selectedFoodNames));
@@ -126,6 +133,7 @@ public class MealLoggerPanel extends JPanel {
         bottomPanel.add(calculateButton);
         bottomPanel.add(compareMealButton);
         bottomPanel.add(swapMealButton);
+        bottomPanel.add(foodSwapButton);
         bottomPanel.add(logMealButton);
 
         add(bottomPanel, BorderLayout.SOUTH);
@@ -273,6 +281,7 @@ public class MealLoggerPanel extends JPanel {
         bottomPanel.add(calculateButton);
         bottomPanel.add(compareMealButton);
         bottomPanel.add(swapMealButton);
+        bottomPanel.add(foodSwapButton);
         bottomPanel.add(logMealButton);
         this.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -405,16 +414,20 @@ public class MealLoggerPanel extends JPanel {
         JButton importBtn = new JButton("Import Meal");
         JButton addBtn = new JButton("Add Food Item");
         JButton swapBtn = new JButton("Swap Meal");
+        JButton foodSwapBtn = new JButton("Food Swap");
         bar.add(importBtn);
         bar.add(addBtn);
         bar.add(swapBtn);
+        bar.add(foodSwapBtn);
         if (isLeft) {
             importBtn.addActionListener(e -> importMeal(foodItemsPanel, foodNames, selectedFoodNames));
             addBtn.addActionListener(e -> addFoodItemSelectorToPanel(panelRef, foodNamesForPanel, selectedFoodNamesForPanel));
+            foodSwapBtn.addActionListener(e -> suggestFoodSwapForPanel(panelRef, foodNamesForPanel, selectedFoodNamesForPanel));
             // You can wire up swapBtn for the left panel as needed
         } else {
             importBtn.addActionListener(e -> importMeal(panelRef, foodNamesForPanel, selectedFoodNamesForPanel));
             addBtn.addActionListener(e -> addFoodItemSelectorToPanel(panelRef, foodNamesForPanel, selectedFoodNamesForPanel));
+            foodSwapBtn.addActionListener(e -> suggestFoodSwapForPanel(panelRef, foodNamesForPanel, selectedFoodNamesForPanel));
             // You can wire up swapBtn for the right panel as needed
         }
         return bar;
@@ -496,6 +509,237 @@ public class MealLoggerPanel extends JPanel {
         itemPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, foodLabel.getPreferredSize().height + 8));
         panel.add(itemPanel);
         panel.add(Box.createRigidArea(new Dimension(0, 8)));
+        panel.revalidate();
+        panel.repaint();
+    }
+
+    // After adding a meal, update goal progress
+    private void afterMealAdded() {
+        // TODO: Call updateGoalProgress() or similar logic
+        // For now, just print a message
+        System.out.println("Goal progress updated after meal added.");
+    }
+    
+    /**
+     * Suggest a food swap based on user's goal
+     */
+    private void suggestFoodSwap() {
+        if (selectedFoodNames.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "Please add at least one food item before requesting a swap suggestion.", 
+                "No Food Items", 
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        // For demo purposes, create a sample goal (in real app, get from user session)
+        Goal userGoal = new Goal(com.nutrisci.model.GoalType.PROTEIN, true, 10);
+        
+        List<FoodItem> currentFoodItems = new ArrayList<>(selectedFoodNames.values());
+        FoodSwapService.FoodSwapSuggestion suggestion = foodSwapService.suggestSwap(currentFoodItems, userGoal);
+        
+        if (suggestion == null) {
+            JOptionPane.showMessageDialog(this, 
+                "No suitable swap suggestions found for your current meal.", 
+                "No Suggestions", 
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        // Show swap suggestion dialog
+        showSwapSuggestionDialog(suggestion);
+    }
+    
+    /**
+     * Show dialog with swap suggestion
+     */
+    private void showSwapSuggestionDialog(FoodSwapService.FoodSwapSuggestion suggestion) {
+        String message = String.format(
+            "Swap Suggestion:\n\n" +
+            "Replace: %s\n" +
+            "With: %s\n\n" +
+            "%s\n\n" +
+            "Would you like to apply this swap?",
+            suggestion.getOriginalItem().getDescription(),
+            suggestion.getReplacementItem().getDescription(),
+            suggestion.getImprovementDescription()
+        );
+        
+        int choice = JOptionPane.showConfirmDialog(this, 
+            message, 
+            "Food Swap Suggestion", 
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE);
+        
+        if (choice == JOptionPane.YES_OPTION) {
+            applySwap(suggestion);
+        }
+    }
+    
+    /**
+     * Apply the suggested swap
+     */
+    private void applySwap(FoodSwapService.FoodSwapSuggestion suggestion) {
+        FoodItem originalItem = suggestion.getOriginalItem();
+        FoodItem replacementItem = suggestion.getReplacementItem();
+        
+        // Find and remove the original item
+        Long originalId = null;
+        for (Map.Entry<Long, FoodItem> entry : selectedFoodNames.entrySet()) {
+            if (entry.getValue().getDescription().equals(originalItem.getDescription())) {
+                originalId = entry.getKey();
+                break;
+            }
+        }
+        
+        if (originalId != null) {
+            // Remove original item
+            selectedFoodNames.remove(originalId);
+            foodNames.put(originalId, originalItem.getDescription());
+            
+            // Add replacement item
+            Long replacementId = replacementItem.getId();
+            selectedFoodNames.put(replacementId, replacementItem);
+            foodNames.remove(replacementId);
+            
+            // Update the UI
+            refreshFoodItemsPanel();
+            
+            JOptionPane.showMessageDialog(this, 
+                "Swap applied successfully!", 
+                "Swap Complete", 
+                JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    
+    /**
+     * Refresh the food items panel after a swap
+     */
+    private void refreshFoodItemsPanel() {
+        foodItemsPanel.removeAll();
+        
+        for (Map.Entry<Long, FoodItem> entry : selectedFoodNames.entrySet()) {
+            Long id = entry.getKey();
+            FoodItem item = entry.getValue();
+            addFoodItemLabelToPanel(foodItemsPanel, id, item.getDescription(), foodNames, selectedFoodNames);
+        }
+        
+        foodItemsPanel.revalidate();
+        foodItemsPanel.repaint();
+    }
+    
+    /**
+     * Suggest food swap for a specific panel (used in compare mode)
+     */
+    private void suggestFoodSwapForPanel(JPanel panel, Map<Long, String> foodNamesForPanel, Map<Long, FoodItem> selectedFoodNamesForPanel) {
+        if (selectedFoodNamesForPanel.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "Please add at least one food item before requesting a swap suggestion.", 
+                "No Food Items", 
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        // For demo purposes, create a sample goal (in real app, get from user session)
+        Goal userGoal = new Goal(com.nutrisci.model.GoalType.PROTEIN, true, 10);
+        
+        List<FoodItem> currentFoodItems = new ArrayList<>(selectedFoodNamesForPanel.values());
+        FoodSwapService.FoodSwapSuggestion suggestion = foodSwapService.suggestSwap(currentFoodItems, userGoal);
+        
+        if (suggestion == null) {
+            JOptionPane.showMessageDialog(this, 
+                "No suitable swap suggestions found for your current meal.", 
+                "No Suggestions", 
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        // Show swap suggestion dialog for this panel
+        showSwapSuggestionDialogForPanel(suggestion, panel, foodNamesForPanel, selectedFoodNamesForPanel);
+    }
+    
+    /**
+     * Show swap suggestion dialog for a specific panel
+     */
+    private void showSwapSuggestionDialogForPanel(FoodSwapService.FoodSwapSuggestion suggestion, 
+                                                 JPanel panel, 
+                                                 Map<Long, String> foodNamesForPanel, 
+                                                 Map<Long, FoodItem> selectedFoodNamesForPanel) {
+        String message = String.format(
+            "Swap Suggestion:\n\n" +
+            "Replace: %s\n" +
+            "With: %s\n\n" +
+            "%s\n\n" +
+            "Would you like to apply this swap?",
+            suggestion.getOriginalItem().getDescription(),
+            suggestion.getReplacementItem().getDescription(),
+            suggestion.getImprovementDescription()
+        );
+        
+        int choice = JOptionPane.showConfirmDialog(this, 
+            message, 
+            "Food Swap Suggestion", 
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE);
+        
+        if (choice == JOptionPane.YES_OPTION) {
+            applySwapForPanel(suggestion, panel, foodNamesForPanel, selectedFoodNamesForPanel);
+        }
+    }
+    
+    /**
+     * Apply swap for a specific panel
+     */
+    private void applySwapForPanel(FoodSwapService.FoodSwapSuggestion suggestion, 
+                                  JPanel panel, 
+                                  Map<Long, String> foodNamesForPanel, 
+                                  Map<Long, FoodItem> selectedFoodNamesForPanel) {
+        FoodItem originalItem = suggestion.getOriginalItem();
+        FoodItem replacementItem = suggestion.getReplacementItem();
+        
+        // Find and remove the original item
+        Long originalId = null;
+        for (Map.Entry<Long, FoodItem> entry : selectedFoodNamesForPanel.entrySet()) {
+            if (entry.getValue().getDescription().equals(originalItem.getDescription())) {
+                originalId = entry.getKey();
+                break;
+            }
+        }
+        
+        if (originalId != null) {
+            // Remove original item
+            selectedFoodNamesForPanel.remove(originalId);
+            foodNamesForPanel.put(originalId, originalItem.getDescription());
+            
+            // Add replacement item
+            Long replacementId = replacementItem.getId();
+            selectedFoodNamesForPanel.put(replacementId, replacementItem);
+            foodNamesForPanel.remove(replacementId);
+            
+            // Update the UI
+            refreshFoodItemsPanelForPanel(panel, foodNamesForPanel, selectedFoodNamesForPanel);
+            
+            JOptionPane.showMessageDialog(this, 
+                "Swap applied successfully!", 
+                "Swap Complete", 
+                JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    
+    /**
+     * Refresh food items panel for a specific panel
+     */
+    private void refreshFoodItemsPanelForPanel(JPanel panel, 
+                                              Map<Long, String> foodNamesForPanel, 
+                                              Map<Long, FoodItem> selectedFoodNamesForPanel) {
+        panel.removeAll();
+        
+        for (Map.Entry<Long, FoodItem> entry : selectedFoodNamesForPanel.entrySet()) {
+            Long id = entry.getKey();
+            FoodItem item = entry.getValue();
+            addFoodItemLabelToPanel(panel, id, item.getDescription(), foodNamesForPanel, selectedFoodNamesForPanel);
+        }
+        
         panel.revalidate();
         panel.repaint();
     }
