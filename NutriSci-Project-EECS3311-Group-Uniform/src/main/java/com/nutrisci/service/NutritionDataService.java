@@ -5,6 +5,8 @@ import com.nutrisci.calculator.NutritionalData;
 import com.nutrisci.database.DatabaseManager;
 import com.nutrisci.meal.Meal;
 import com.nutrisci.model.GoalType;
+import com.nutrisci.util.UserSessionManager;
+import com.nutrisci.model.User;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,14 +18,21 @@ import java.util.Map;
 public class NutritionDataService {
     private DatabaseManager dbManager;
     private NutritionalCalculator calculator;
-    
-    // For demo purposes, using a fixed user ID (0)
-    // In a real app, this would come from user session
-    private static final long USER_ID = 0;
+    private UserSessionManager userSessionManager;
     
     public NutritionDataService() {
         this.dbManager = DatabaseManager.getInstance();
         this.calculator = new NutritionalCalculator();
+        this.userSessionManager = UserSessionManager.getInstance();
+    }
+    
+    /**
+     * Get the current user's ID from the session
+     * @return The current user's ID, or 0 if no user is logged in
+     */
+    private long getCurrentUserId() {
+        User currentUser = userSessionManager.getCurrentUser();
+        return currentUser != null ? currentUser.getId() : 0;
     }
     
     /**
@@ -33,8 +42,13 @@ public class NutritionDataService {
         Map<String, Double> data = new HashMap<>();
         LocalDate today = LocalDate.now();
         
+        long userId = getCurrentUserId();
+        if (userId == 0) {
+            return data; // Return empty data if no user logged in
+        }
+        
         // Get meals for today
-        List<Meal> meals = dbManager.getMealsForUser(USER_ID, today, today);
+        List<Meal> meals = dbManager.getMealsForUser(userId, today, today);
         
         // Group by meal type and calculate totals
         Map<String, NutritionalData> mealTypeTotals = new HashMap<>();
@@ -67,8 +81,13 @@ public class NutritionDataService {
         LocalDate today = LocalDate.now();
         LocalDate startOfMonth = today.withDayOfMonth(1);
         
+        long userId = getCurrentUserId();
+        if (userId == 0) {
+            return data; // Return empty data if no user logged in
+        }
+        
         // Get meals for the current month
-        List<Meal> meals = dbManager.getMealsForUser(USER_ID, startOfMonth, today);
+        List<Meal> meals = dbManager.getMealsForUser(userId, startOfMonth, today);
         
         // Group by week and calculate totals
         Map<String, NutritionalData> weekTotals = new HashMap<>();

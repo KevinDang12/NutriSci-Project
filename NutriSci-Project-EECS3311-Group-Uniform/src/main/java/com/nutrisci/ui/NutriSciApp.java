@@ -5,6 +5,8 @@ import java.awt.*;
 import com.nutrisci.meal.MealLoggerPanel;
 import com.nutrisci.model.Goal;
 import com.nutrisci.ui.GoalDialog;
+import com.nutrisci.util.UserSessionManager;
+import com.nutrisci.model.User;
 import java.awt.CardLayout;
 
 // Main application class for NutriSci
@@ -18,9 +20,11 @@ public class NutriSciApp {
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private HomePagePanel homePagePanel;
+    private UserSessionManager userSessionManager;
 
     // Creates the main application
     public NutriSciApp() {
+        userSessionManager = UserSessionManager.getInstance();
         setupMainFrame();
         showLogin();
     }
@@ -43,6 +47,13 @@ public class NutriSciApp {
 
     // Shows the login dialog
     private void showLogin() {
+        // Check if user is already logged in (e.g., from signup)
+        if (userSessionManager.isUserLoggedIn()) {
+            isLoggedIn = true;
+            showHomePage();
+            return;
+        }
+        
         loginDialog = new LoginDialog(mainFrame);
         loginDialog.setVisible(true);
         
@@ -56,7 +67,15 @@ public class NutriSciApp {
     }
 
     private void showHomePage() {
-        String email = loginDialog.getUserEmail();
+        // Get user email from session
+        String email = "";
+        User currentUser = userSessionManager.getCurrentUser();
+        if (currentUser != null) {
+            email = currentUser.getEmail();
+        } else if (loginDialog != null) {
+            email = loginDialog.getUserEmail();
+        }
+        
         homePagePanel = new HomePagePanel(email);
         homePagePanel.setAddMealAction(e -> showMealLogger());
         homePagePanel.setGoalAction(e -> openGoalDialog());
@@ -96,11 +115,23 @@ public class NutriSciApp {
     }
 
     private void openGoalDialog() {
+        // Get the current user's goal from the session
+        User currentUser = userSessionManager.getCurrentUser();
+        if (currentUser != null) {
+            userGoal = currentUser.getGoal();
+        }
+        
         GoalDialog dialog = new GoalDialog(mainFrame, userGoal);
         dialog.setVisible(true);
         if (dialog.isGoalUpdated()) {
             userGoal = dialog.getGoal();
-            // TODO: Save updated goal to user/profile/database if needed
+            
+            // Update the user's goal in the session and database
+            if (currentUser != null) {
+                currentUser.setGoal(userGoal);
+                userSessionManager.updateUserProfile(currentUser);
+            }
+            
             JOptionPane.showMessageDialog(mainFrame, "Goal updated to: " + userGoal, "Goal Updated", JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -122,6 +153,7 @@ public class NutriSciApp {
 
     private void logout() {
         isLoggedIn = false;
+        userSessionManager.logout();
         mainPanel.removeAll();
         showLogin();
     }

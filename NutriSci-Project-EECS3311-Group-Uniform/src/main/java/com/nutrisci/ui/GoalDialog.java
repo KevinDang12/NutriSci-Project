@@ -81,16 +81,101 @@ public class GoalDialog extends JDialog {
             dispose();
         });
     }
-    // Simple progress chart using JFreeChart
+    // Progress chart using JFreeChart with real user data
     private ChartPanel createProgressChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        // For demo: just use random progress (replace with real progress logic)
-        double progress = Math.random() * 100;
-        dataset.addValue(progress, "Progress", "Current");
-        dataset.addValue(100, "Progress", "Goal");
+        
+        // Get real progress data for the current user
+        double currentProgress = calculateUserProgress();
+        double goalTarget = 100.0; // Goal is always 100%
+        
+        dataset.addValue(currentProgress, "Progress", "Current");
+        dataset.addValue(goalTarget, "Progress", "Goal");
+        
         JFreeChart chart = ChartFactory.createBarChart(
                 "Goal Progress", "", "% Achieved", dataset);
         return new ChartPanel(chart);
+    }
+    
+    /**
+     * Calculate the user's actual progress towards their goal
+     * @return Progress percentage (0-100)
+     */
+    private double calculateUserProgress() {
+        if (goal == null) {
+            return 0.0;
+        }
+        
+        try {
+            // Get current user's meal data for today
+            com.nutrisci.util.UserSessionManager sessionManager = com.nutrisci.util.UserSessionManager.getInstance();
+            com.nutrisci.model.User currentUser = sessionManager.getCurrentUser();
+            
+            if (currentUser == null) {
+                return 0.0;
+            }
+            
+            // Get today's meals and calculate nutrition
+            com.nutrisci.meal.MealManager mealManager = new com.nutrisci.meal.MealManager();
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.util.List<com.nutrisci.meal.Meal> todaysMeals = mealManager.getMealsForDate(today);
+            
+            if (todaysMeals.isEmpty()) {
+                return 0.0; // No meals logged today
+            }
+            
+            // Calculate total nutrition for today
+            com.nutrisci.calculator.NutritionalCalculator calculator = new com.nutrisci.calculator.NutritionalCalculator();
+            com.nutrisci.calculator.NutritionalData totalNutrition = new com.nutrisci.calculator.NutritionalData(0, 0, 0, 0, 0);
+            
+            for (com.nutrisci.meal.Meal meal : todaysMeals) {
+                totalNutrition.add(calculator.calculateMealNutrition(meal.getFoodItems()));
+            }
+            
+            // Calculate progress based on goal type
+            double currentValue = 0.0;
+            double targetValue = 0.0;
+            
+            switch (goal.getType()) {
+                case CALORIES:
+                    currentValue = totalNutrition.getCalories();
+                    // For demo purposes, assume target is 2000 calories
+                    targetValue = 2000.0;
+                    break;
+                case PROTEIN:
+                    currentValue = totalNutrition.getProtein();
+                    // For demo purposes, assume target is 50g protein
+                    targetValue = 50.0;
+                    break;
+                case FIBRE:
+                    currentValue = totalNutrition.getFiber();
+                    // For demo purposes, assume target is 25g fiber
+                    targetValue = 25.0;
+                    break;
+                default:
+                    return 0.0;
+            }
+            
+            if (targetValue == 0) {
+                return 0.0;
+            }
+            
+            double progress = (currentValue / targetValue) * 100.0;
+            
+            // Apply goal direction (increase/decrease)
+            if (goal.isIncrease()) {
+                // For increase goals, progress is how much we've achieved
+                return Math.min(progress, 100.0);
+            } else {
+                // For decrease goals, progress is inverse (less is better)
+                // If we're at 80% of target, that's 20% progress towards decrease goal
+                return Math.max(0.0, 100.0 - progress);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0.0;
+        }
     }
     public boolean isGoalUpdated() { return goalUpdated; }
     public Goal getGoal() { return goal; }

@@ -19,8 +19,14 @@ public class MealManager {
     private Map<LocalDate, List<Meal>> mealCache = new HashMap<>();
     private DatabaseManager db = DatabaseManager.getInstance();
 
-    // FIX: Get User ID from session
-    private long userId = 0;
+    /**
+     * Get the current user's ID from the session
+     * @return The current user's ID, or 0 if no user is logged in
+     */
+    private long getCurrentUserId() {
+        User currentUser = userSessionManager.getCurrentUser();
+        return currentUser != null ? currentUser.getId() : 0;
+    }
 
     /**
      * Add meal to the database
@@ -34,8 +40,13 @@ public class MealManager {
         // if (user == null) return false;
         // Set user ID (assume setUserId or setEmail method exists)
         // meal.setUserId(user.getEmail()); // Uncomment if method exists
-        // Save to Firestore
+        // Save to database
         try {
+            long userId = getCurrentUserId();
+            if (userId == 0) {
+                System.err.println("No user logged in");
+                return false;
+            }
             db.saveMeal(meal, userId);
             notifyObservers(MealEvent.MEAL_ADDED, meal);
             // TODO: Trigger goal progress update
@@ -88,7 +99,7 @@ public class MealManager {
      * @return Map of meals and their ids
      */
     public Map<Long, String> importMeals() {
-        return db.importMeals(userId);
+        return db.importMeals(getCurrentUserId());
     }
 
     /**
@@ -97,8 +108,7 @@ public class MealManager {
      * @return List of meal types logged for the date
      */
     public List<MealType> getAvailableMealTypes(LocalDate date) {
-        // Get ID
-        return db.getAvailableMealTypes(userId, date);
+        return db.getAvailableMealTypes(getCurrentUserId(), date);
     }
 
     /**
@@ -107,8 +117,7 @@ public class MealManager {
      * @return The list of meals for the date
      */
     public List<Meal> getMealsForDate(LocalDate date) {
-        // Get ID
-        List<Meal> meals = db.getMealsForUser(userId, date, date);
+        List<Meal> meals = db.getMealsForUser(getCurrentUserId(), date, date);
         return meals;
     }
 
@@ -119,8 +128,7 @@ public class MealManager {
      * @return The list of meals between the two dates
      */
     public List<Meal> getMealsForDateRange(LocalDate start, LocalDate end) {
-        // Get ID
-        List<Meal> meals = db.getMealsForUser(userId, start, end);
+        List<Meal> meals = db.getMealsForUser(getCurrentUserId(), start, end);
         return meals;
     }
 
@@ -182,7 +190,7 @@ public class MealManager {
      * @return true if it is possible to add, otherwise false
      */
     public boolean canAddMealType(MealType type, LocalDate date) {
-        return db.canAddMealType(userId, type, date);
+        return db.canAddMealType(getCurrentUserId(), type, date);
     }
 
     /**
@@ -192,7 +200,7 @@ public class MealManager {
      * @return The number of meals of a given type for a certain date
      */
     public int getMealCountForType(MealType type, LocalDate date) {
-        return db.getMealCountForType(userId, type, date);
+        return db.getMealCountForType(getCurrentUserId(), type, date);
     }
 
     /**
@@ -240,7 +248,7 @@ public class MealManager {
         Map<LocalDate, List<Meal>> history = new HashMap<>();
         LocalDate today = LocalDate.now();
         LocalDate lastDays = today.minusDays(dayCount);
-        List<Meal> meals = db.getMealsForUser(userId, lastDays, today);
+        List<Meal> meals = db.getMealsForUser(getCurrentUserId(), lastDays, today);
 
         for (Meal meal : meals) {
             LocalDate dateKey = meal.getCreatedAt().toLocalDate();

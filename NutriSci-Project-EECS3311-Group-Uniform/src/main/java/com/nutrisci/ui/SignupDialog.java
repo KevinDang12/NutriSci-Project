@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import com.nutrisci.model.Gender;
 import com.nutrisci.model.GoalType;
+import com.nutrisci.model.User;
+import com.nutrisci.util.UserSessionManager;
 
 // Simple signup dialog for NutriSci
 public class SignupDialog extends JDialog {
@@ -25,6 +27,7 @@ public class SignupDialog extends JDialog {
     private JButton backButton;
     private boolean signupSuccessful = false;
     private UserSignupData signupData;
+    private UserSessionManager userSessionManager;
 
     // Data class to hold signup information
     public static class UserSignupData {
@@ -40,6 +43,7 @@ public class SignupDialog extends JDialog {
     // Creates the signup dialog
     public SignupDialog(Frame parent) {
         super(parent, "Sign Up for NutriSci", true);
+        userSessionManager = UserSessionManager.getInstance();
         setupUI();
         setupLayout();
         setupListeners();
@@ -285,15 +289,53 @@ public class SignupDialog extends JDialog {
         int percent = (Integer) percentComboBox.getSelectedItem();
         signupData.goal = new com.nutrisci.model.Goal(goalType, increase, percent);
         
-        // TODO: Add actual user registration logic here
-        // For now, just show success message
-        JOptionPane.showMessageDialog(this, 
-            "Account created successfully! You can now login.", 
-            "Signup Success", 
-            JOptionPane.INFORMATION_MESSAGE);
-        
-        signupSuccessful = true;
-        dispose();
+        // Create User object and save to database
+        try {
+            User newUser = new User();
+            newUser.setName(email.split("@")[0]); // Use email prefix as name
+            newUser.setEmail(email);
+            newUser.setPassword(password);
+            newUser.setGender(signupData.gender);
+            newUser.setDateOfBirth(LocalDate.now().minusYears(age));
+            newUser.setHeight(height);
+            newUser.setWeight(weight);
+            newUser.setUnits(com.nutrisci.model.Units.METRIC);
+            newUser.setGoal(signupData.goal);
+            
+            // Register user in database
+            boolean registrationSuccess = userSessionManager.registerUser(newUser);
+            
+            if (registrationSuccess) {
+                // Automatically log in the user after successful registration
+                boolean loginSuccess = userSessionManager.login(email, password);
+                
+                if (loginSuccess) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Account created successfully! You are now logged in.", 
+                        "Signup Success", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                    signupSuccessful = true;
+                    dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this, 
+                        "Account created successfully! Please login with your email and password.", 
+                        "Signup Success", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                    signupSuccessful = true;
+                    dispose();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Failed to create account. Please try again.", 
+                    "Signup Error", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error creating account: " + e.getMessage(), 
+                "Signup Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     // Returns true if signup was successful

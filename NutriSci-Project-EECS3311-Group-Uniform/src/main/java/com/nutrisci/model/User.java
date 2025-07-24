@@ -9,6 +9,7 @@ import java.time.Period;
  * and nutritional goals.
  */
 public class User {
+    private long id; // User's database ID
     private String name; // User's name
     private String email; // User's email
     private String password; // User's password
@@ -69,13 +70,32 @@ public class User {
      * Checks if all required profile fields are valid
      */
     public boolean validateProfile() {
-        if (name == null || name.trim().isEmpty()) return false;
-        if (email == null || email.trim().isEmpty()) return false;
-        if (password == null || password.length() < 8) return false;
-        if (dateOfBirth == null) return false;
+        if (name == null || name.trim().isEmpty()) {
+            System.out.println("Validation failed: name is empty");
+            return false;
+        }
+        if (email == null || email.trim().isEmpty()) {
+            System.out.println("Validation failed: email is empty");
+            return false;
+        }
+        if (password == null || password.length() < 1) {
+            System.out.println("Validation failed: password is too short (length: " + (password != null ? password.length() : 0) + ")");
+            return false;
+        }
+        if (dateOfBirth == null) {
+            System.out.println("Validation failed: dateOfBirth is null");
+            return false;
+        }
         int age = getAge();
-        if (age < 13 || age > 120) return false;
-        if (height <= 0 || weight <= 0) return false;
+        if (age < 13 || age > 120) {
+            System.out.println("Validation failed: age is invalid (" + age + ")");
+            return false;
+        }
+        if (height <= 0 || weight <= 0) {
+            System.out.println("Validation failed: height or weight is invalid (height: " + height + ", weight: " + weight + ")");
+            return false;
+        }
+        System.out.println("User validation passed successfully");
         return true;
     }
     
@@ -102,6 +122,8 @@ public class User {
     }
     
     // Getters and setters for all fields
+    public long getId() { return id; }
+    public void setId(long id) { this.id = id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public String getEmail() { return email; }
@@ -127,7 +149,8 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", age=" + getAge() +
                 ", bmi=" + String.format("%.1f", getBMI()) +

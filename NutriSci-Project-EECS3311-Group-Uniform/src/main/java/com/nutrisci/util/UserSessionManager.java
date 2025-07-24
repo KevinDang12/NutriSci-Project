@@ -59,26 +59,28 @@ public class UserSessionManager {
      */
     public boolean login(String email, String password) {
         if (email == null || password == null || email.trim().isEmpty() || password.trim().isEmpty()) {
+            System.out.println("Login failed: Empty email or password");
             return false;
         }
         
         try {
-            // For now, we'll use a simple approach with email as userId
-            // In a real application, you would query by email first to get the userId
-            String userId = email; // Simplified for demo - should query by email
-            
-            User authenticatedUser = databaseManager.authenticateUser(userId, password);
+            System.out.println("Attempting login for email: " + email);
+            User authenticatedUser = databaseManager.authenticateUser(email, password);
             
             if (authenticatedUser != null) {
                 currentUser = authenticatedUser;
                 isLoggedIn = true;
+                System.out.println("Login successful for user: " + authenticatedUser.getName() + " (ID: " + authenticatedUser.getId() + ")");
+                System.out.println("User goal: " + (authenticatedUser.getGoal() != null ? authenticatedUser.getGoal().toString() : "No goal set"));
                 return true;
+            } else {
+                System.out.println("Login failed: Invalid credentials for email: " + email);
+                return false;
             }
-            
-            return false;
             
         } catch (Exception e) {
             System.err.println("Login error: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -87,6 +89,9 @@ public class UserSessionManager {
      * Logs out the current user and clears the session.
      */
     public void logout() {
+        if (currentUser != null) {
+            System.out.println("Logging out user: " + currentUser.getName() + " (ID: " + currentUser.getId() + ")");
+        }
         currentUser = null;
         isLoggedIn = false;
     }
@@ -97,6 +102,11 @@ public class UserSessionManager {
      * @return Current User object, or null if no user is logged in
      */
     public User getCurrentUser() {
+        if (currentUser == null) {
+            System.out.println("getCurrentUser() called but no user is logged in");
+        } else {
+            System.out.println("getCurrentUser() called for user: " + currentUser.getName() + " (ID: " + currentUser.getId() + ")");
+        }
         return currentUser;
     }
     
@@ -106,7 +116,9 @@ public class UserSessionManager {
      * @return true if a user is logged in, false otherwise
      */
     public boolean isUserLoggedIn() {
-        return isLoggedIn && currentUser != null;
+        boolean loggedIn = isLoggedIn && currentUser != null;
+        System.out.println("isUserLoggedIn() called: " + loggedIn + (currentUser != null ? " (User: " + currentUser.getName() + ")" : ""));
+        return loggedIn;
     }
     
     /**
@@ -138,16 +150,28 @@ public class UserSessionManager {
      */
     public boolean registerUser(User user) {
         if (user == null || !user.validateProfile()) {
+            System.out.println("Registration failed: User is null or invalid profile");
             return false;
         }
         
         try {
+            System.out.println("Attempting to register user: " + user.getEmail());
+            System.out.println("User details - Name: " + user.getName() + ", Goal: " + (user.getGoal() != null ? user.getGoal().toString() : "No goal"));
+            
             // Add user to MySQL database
             boolean success = databaseManager.saveUser(user);
+            
+            if (success) {
+                System.out.println("User registration successful for: " + user.getEmail());
+            } else {
+                System.out.println("User registration failed for: " + user.getEmail());
+            }
+            
             return success;
             
         } catch (Exception e) {
             System.err.println("Registration error: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }

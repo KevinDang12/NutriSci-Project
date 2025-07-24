@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import com.nutrisci.util.UserSessionManager;
 
 // Simple login dialog for NutriSci
 public class LoginDialog extends JDialog {
@@ -15,10 +16,12 @@ public class LoginDialog extends JDialog {
     private boolean loginSuccessful = false;
     private String userEmail = "";
     private String userPassword = "";
+    private UserSessionManager userSessionManager;
 
     // Creates the login dialog
     public LoginDialog(Frame parent) {
         super(parent, "Login to NutriSci", true);
+        userSessionManager = UserSessionManager.getInstance();
         setupUI();
         setupLayout();
         setupListeners();
@@ -121,16 +124,17 @@ public class LoginDialog extends JDialog {
             return;
         }
         
-        // TODO: Add actual authentication logic here
-        // For now, just accept any non-empty email/password
-        if (!email.isEmpty() && !password.isEmpty()) {
+        // Attempt to authenticate with UserSessionManager
+        boolean authSuccess = userSessionManager.login(email, password);
+        
+        if (authSuccess) {
             userEmail = email;
             userPassword = password;
             loginSuccessful = true;
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, 
-                "Invalid email or password", 
+                "Invalid email or password. Please check your credentials and try again.", 
                 "Login Error", 
                 JOptionPane.ERROR_MESSAGE);
         }

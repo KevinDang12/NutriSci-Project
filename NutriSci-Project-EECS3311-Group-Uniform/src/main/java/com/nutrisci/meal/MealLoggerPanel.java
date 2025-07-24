@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.List;
 import com.nutrisci.service.FoodSwapService;
 import com.nutrisci.model.Goal;
+import com.nutrisci.model.User;
+import com.nutrisci.util.UserSessionManager;
 
 /**
  * The Meal logging panel
@@ -532,9 +534,17 @@ public class MealLoggerPanel extends JPanel {
             return;
         }
         
-        // For demo purposes, create a sample goal (in real app, get from user session)
-        Goal userGoal = new Goal(com.nutrisci.model.GoalType.PROTEIN, true, 10);
+        // Get the current user's goal from the session
+        User currentUser = UserSessionManager.getInstance().getCurrentUser();
+        if (currentUser == null || currentUser.getGoal() == null) {
+            JOptionPane.showMessageDialog(this, 
+                "Please set a goal first before requesting food swap suggestions.", 
+                "No Goal Set", 
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         
+        Goal userGoal = currentUser.getGoal();
         List<FoodItem> currentFoodItems = new ArrayList<>(selectedFoodNames.values());
         FoodSwapService.FoodSwapSuggestion suggestion = foodSwapService.suggestSwap(currentFoodItems, userGoal);
         
@@ -640,9 +650,17 @@ public class MealLoggerPanel extends JPanel {
             return;
         }
         
-        // For demo purposes, create a sample goal (in real app, get from user session)
-        Goal userGoal = new Goal(com.nutrisci.model.GoalType.PROTEIN, true, 10);
+        // Get the current user's goal from the session
+        User currentUser = UserSessionManager.getInstance().getCurrentUser();
+        if (currentUser == null || currentUser.getGoal() == null) {
+            JOptionPane.showMessageDialog(this, 
+                "Please set a goal first before requesting food swap suggestions.", 
+                "No Goal Set", 
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         
+        Goal userGoal = currentUser.getGoal();
         List<FoodItem> currentFoodItems = new ArrayList<>(selectedFoodNamesForPanel.values());
         FoodSwapService.FoodSwapSuggestion suggestion = foodSwapService.suggestSwap(currentFoodItems, userGoal);
         
