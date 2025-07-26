@@ -1,12 +1,7 @@
 package com.nutrisci.util;
 
 import com.nutrisci.model.User;
-import com.nutrisci.model.Gender;
-import com.nutrisci.model.Units;
 import com.nutrisci.database.DatabaseManager;
-
-import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Singleton class for managing user sessions and authentication in the NutriSci application.

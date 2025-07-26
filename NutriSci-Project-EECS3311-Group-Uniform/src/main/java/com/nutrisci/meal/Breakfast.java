@@ -48,11 +48,6 @@ public class Breakfast extends Meal {
         return 1;
     }
 
-    /* There is no time range class in Java */
-    // public TimeRange getTypicalTimeRange() {
-        
-    // }
-
     /**
      * Returns the recommended calories percentage for breakfast
      * @return 0.25, the recommended calories percentage for breakfast

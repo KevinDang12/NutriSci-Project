@@ -20,6 +20,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
+/**
+ * The Meal Import Dialog
+ */
 public class MealImportDialog extends JDialog {
     private String selectedMeal;
     private JTextField searchField;
@@ -28,10 +31,13 @@ public class MealImportDialog extends JDialog {
     private JButton selectButton;
     private List<String> allMealValues;
     Map<Long, String> meals;
-    private long userId = 0;
 
     private MealManager mealManager;
 
+    /**
+     * Create the panel to import a meal in the given list
+     * @param owner The owner panel
+     */
     public MealImportDialog(Frame owner) {
         super(owner, "Import Meal", true);
         mealManager = new MealManager();
@@ -101,11 +107,19 @@ public class MealImportDialog extends JDialog {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Show dialog and retrieve the selected food ID
+     * @return The food ID
+     */
     public Long showDialog() {
         setVisible(true);
         return getSelectedMealId();
     }
 
+    /**
+     * Get the selected meal ID
+     * @return The meal ID
+     */
     public Long getSelectedMealId() {
         if (selectedMeal == null) return null;
         for (Map.Entry<Long, String> entry : meals.entrySet()) {

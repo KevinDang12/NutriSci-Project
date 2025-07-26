@@ -57,7 +57,7 @@ public class NutriSciApp {
         loginDialog = new LoginDialog(mainFrame);
         loginDialog.setVisible(true);
         
-        if (loginDialog.isLoginSuccessful()) {
+        if (loginDialog.isLoginSuccessful() || userSessionManager.isUserLoggedIn()) {
             isLoggedIn = true;
             showHomePage();
         } else {
@@ -155,6 +155,7 @@ public class NutriSciApp {
         isLoggedIn = false;
         userSessionManager.logout();
         mainPanel.removeAll();
+        mainFrame.setVisible(false);
         showLogin();
     }
 

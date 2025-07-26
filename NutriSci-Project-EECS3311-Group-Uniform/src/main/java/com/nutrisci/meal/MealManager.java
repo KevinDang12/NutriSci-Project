@@ -16,7 +16,6 @@ public class MealManager {
     private List<MealObserver> observers = new ArrayList<>();
     private UserSessionManager userSessionManager = UserSessionManager.getInstance();
     private NutritionalCalculator nutritionalCalculator = new NutritionalCalculator();
-    private Map<LocalDate, List<Meal>> mealCache = new HashMap<>();
     private DatabaseManager db = DatabaseManager.getInstance();
 
     /**
@@ -34,13 +33,6 @@ public class MealManager {
      * @return true if successful, otherwise false
      */
     public boolean addMeal(Meal meal) {
-        // Validate meal (assume isValid method exists or use basic checks)
-        // if (meal == null || meal.getFoodItems().isEmpty()) return false;
-        // User user = userSessionManager.getCurrentUser();
-        // if (user == null) return false;
-        // Set user ID (assume setUserId or setEmail method exists)
-        // meal.setUserId(user.getEmail()); // Uncomment if method exists
-        // Save to database
         try {
             long userId = getCurrentUserId();
             if (userId == 0) {
@@ -49,7 +41,7 @@ public class MealManager {
             }
             db.saveMeal(meal, userId);
             notifyObservers(MealEvent.MEAL_ADDED, meal);
-            // TODO: Trigger goal progress update
+            
             return true;
         } catch (Exception e) {
             e.printStackTrace();
