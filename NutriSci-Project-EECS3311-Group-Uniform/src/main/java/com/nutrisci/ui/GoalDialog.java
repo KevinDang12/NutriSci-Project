@@ -129,9 +129,10 @@ public class GoalDialog extends JDialog {
             // Calculate total nutrition for today
             com.nutrisci.calculator.NutritionalCalculator calculator = new com.nutrisci.calculator.NutritionalCalculator();
             com.nutrisci.calculator.NutritionalData totalNutrition = new com.nutrisci.calculator.NutritionalData(0, 0, 0, 0, 0);
-            
+            com.nutrisci.calculator.NutritionalData resultNutrition = totalNutrition;
+
             for (com.nutrisci.meal.Meal meal : todaysMeals) {
-                totalNutrition.add(calculator.calculateMealNutrition(meal.getFoodItems()));
+                resultNutrition = totalNutrition.add(calculator.calculateMealNutrition(meal.getFoodItems()));
             }
             
             // Calculate progress based on goal type
@@ -140,17 +141,17 @@ public class GoalDialog extends JDialog {
             
             switch (goal.getType()) {
                 case CALORIES:
-                    currentValue = totalNutrition.getCalories();
+                    currentValue = resultNutrition.getCalories();
                     // For demo purposes, assume target is 2000 calories
                     targetValue = 2000.0;
                     break;
                 case PROTEIN:
-                    currentValue = totalNutrition.getProtein();
+                    currentValue = resultNutrition.getProtein();
                     // For demo purposes, assume target is 50g protein
                     targetValue = 50.0;
                     break;
                 case FIBRE:
-                    currentValue = totalNutrition.getFiber();
+                    currentValue = resultNutrition.getFiber();
                     // For demo purposes, assume target is 25g fiber
                     targetValue = 25.0;
                     break;
