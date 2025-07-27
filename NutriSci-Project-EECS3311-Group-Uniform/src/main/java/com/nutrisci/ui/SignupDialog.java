@@ -72,6 +72,7 @@ public class SignupDialog extends JDialog {
     }
 
     // Sets up the layout
+    // helped by AI
     private void setupLayout() {
         setLayout(new BorderLayout(10, 10));
         
@@ -196,6 +197,7 @@ public class SignupDialog extends JDialog {
     }
 
     // Handles signup attempt
+    // helped by AI
     private void handleSignup() {
         // Get all the values
         String email = emailField.getText().trim();

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 public class MealFactory {
     /**
      * Creates a meal of the given type for the given date
+     * helped by AI
      * @param type The select meal type
      * @param date The entry date
      * @param id The meal ID

@@ -58,6 +58,7 @@ public class HomePagePanel extends JPanel {
     }
     
     private void setupChartSection() {
+        // helped by AI
         // Chart controls panel
         JPanel chartControlsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         chartControlsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -87,6 +88,7 @@ public class HomePagePanel extends JPanel {
     }
     
     private ChartPanel createChartPanel() {
+        // helped by AI
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         GoalType selectedNutrient = (GoalType) nutrientComboBox.getSelectedItem();
         

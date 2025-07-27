@@ -39,6 +39,7 @@ public class LoginDialog extends JDialog {
     }
 
     // Sets up the layout
+    // helped by AI
     private void setupLayout() {
         setLayout(new BorderLayout(10, 10));
         

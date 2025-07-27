@@ -161,9 +161,10 @@ public class MealManager {
     }
 
     /**
-     * Notify all observers of an event change
-     * @param event The event name
-     * @param meal The meal to apply the change
+     * Notifies all registered observers of meal events using the Observer pattern.
+     * helped by AI
+     * @param event The type of meal event
+     * @param meal The meal involved in the event
      */
     public void notifyObservers(MealEvent event, Meal meal) {
         for (MealObserver observer : observers) {
@@ -213,9 +214,10 @@ public class MealManager {
     }
 
     /**
-     * Calculate the daily nutrition of all meals for a given date
-     * @param date The given date
-     * @return The total nutritional data for the given date
+     * Calculates daily nutritional totals for a given date.
+     * helped by AI
+     * @param date The date to calculate totals for
+     * @return NutritionalData object with daily totals
      */
     public NutritionalData calculateDailyTotals(LocalDate date) {
         List<Meal> meals = getMealsForDate(date);
@@ -229,9 +231,10 @@ public class MealManager {
     }
 
     /**
-     * Get the meal history from the past few days
-     * @param dayCount The number of days before the current date
-     * @return A Map of the date and its list of meals
+     * Retrieves meal history for a specified number of days.
+     * helped by AI
+     * @param dayCount Number of days to retrieve
+     * @return Map of dates to lists of meals
      */
     public Map<LocalDate, List<Meal>> getMealHistory(int dayCount) {
         User user = userSessionManager.getCurrentUser();

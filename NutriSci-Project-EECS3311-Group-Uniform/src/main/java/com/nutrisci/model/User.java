@@ -49,6 +49,7 @@ public class User {
     
     /**
      * Calculates BMI using height and weight
+     * helped by AI
      */
     public double getBMI() {
         if (height <= 0 || weight <= 0) {

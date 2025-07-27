@@ -293,6 +293,7 @@ public class MealLoggerPanel extends JPanel {
 
     /**
      * Dialog to select meal 1 or meal 2 to log to the database
+     * helped by AI
      */
     private void openMealSelectionDialog() {
         JDialog dialog = new JDialog((Frame) null, "Select Meal", true);
@@ -359,6 +360,7 @@ public class MealLoggerPanel extends JPanel {
 
     /**
      * Create the compare panel between two meals
+     * helped by AI
      */
     private void showComparePanels() {
         this.remove(scrollPane);
@@ -562,6 +564,7 @@ public class MealLoggerPanel extends JPanel {
     
     /**
      * Show dialog with swap suggestion
+     * helped by AI
      */
     private void showSwapSuggestionDialog(FoodSwapService.FoodSwapSuggestion suggestion) {
         String message = String.format(
@@ -588,6 +591,7 @@ public class MealLoggerPanel extends JPanel {
     
     /**
      * Apply the suggested swap
+     * helped by AI
      */
     private void applySwap(FoodSwapService.FoodSwapSuggestion suggestion) {
         FoodItem originalItem = suggestion.getOriginalItem();

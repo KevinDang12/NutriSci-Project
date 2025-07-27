@@ -36,6 +36,7 @@ public class CalculateNutritionDialog extends JDialog {
 
     /**
      * Perform the calculations for one meal
+     * helped by AI
      * @param owner The owner frame
      * @param foodNames The selected food items
      */
@@ -79,6 +80,7 @@ public class CalculateNutritionDialog extends JDialog {
 
     /**
      * Perform the calculations for two meals
+     * helped by AI
      * @param owner The owner panel
      * @param foodNamesMeal1 The selected food items for meal 1
      * @param foodNamesMeal2 The selected food items for meal 2

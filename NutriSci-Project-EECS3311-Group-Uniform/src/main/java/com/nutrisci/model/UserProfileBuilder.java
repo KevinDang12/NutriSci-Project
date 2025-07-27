@@ -35,6 +35,7 @@ public class UserProfileBuilder {
         return this;
     }
     // Sets and validates the user's email address
+    // helped by AI
     public UserProfileBuilder setEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             validationErrors.add("Email cannot be empty");
@@ -55,6 +56,7 @@ public class UserProfileBuilder {
         return this;
     }
     // Sets basic user info (gender, dob, height, weight)
+    // helped by AI
     public UserProfileBuilder setBasicInfo(Gender gender, LocalDate dateOfBirth, double height, double weight) {
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;

@@ -41,6 +41,7 @@ public class GoalDialog extends JDialog {
     }
 
     private void setupLayout() {
+        // helped by AI
         setLayout(new BorderLayout(10, 10));
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -82,6 +83,7 @@ public class GoalDialog extends JDialog {
         });
     }
     // Progress chart using JFreeChart with real user data
+    // helped by AI
     private ChartPanel createProgressChart() {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         
@@ -98,8 +100,8 @@ public class GoalDialog extends JDialog {
     }
     
     /**
-     * Calculate the user's actual progress towards their goal
-     * @return Progress percentage (0-100)
+     * Calculates the user's current progress towards their goal
+     * helped by AI
      */
     private double calculateUserProgress() {
         if (goal == null) {

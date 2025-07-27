@@ -55,6 +55,7 @@ public class DatabaseManager {
     /**
      * Loads database configuration from a properties file (db.properties).
      * Expects db.url, db.user, db.password for Azure MySQL.
+     * helped by AI
      */
     private void loadConfiguration() {
         dbProperties = new Properties();
@@ -75,6 +76,7 @@ public class DatabaseManager {
 
     /**
      * Sets up the connection to Azure MySQL using JDBC and loaded properties.
+     * helped by AI
      */
     private void setupConnection() {
         try {
@@ -107,6 +109,7 @@ public class DatabaseManager {
      * Uses transactions and prepared statements.
      * @param meal Meal to save
      * @return true if successful, false if error (with rollback)
+     * helped by AI
      */
     public boolean saveMeal(Meal meal, long userId) {
         // Generate a unique mealID (using epoch seconds for simplicity)
@@ -194,6 +197,7 @@ public class DatabaseManager {
      * Retrieve a list of meals from the user ID
      * @param userId The user ID to retrieve the meal
      * @return A Map of the meal IDs and their description
+     * helped by AI
      */
     public Map<Long, String> importMeals(long userId) {
         
@@ -437,6 +441,7 @@ public class DatabaseManager {
      * @param startDate Start date
      * @param endDate End date
      * @return List of Meal objects
+     * helped by AI
      */
     public List<Meal> getMealsForUser(long userId, LocalDate startDate, LocalDate endDate) {
         List<Meal> meals = new ArrayList<>();
@@ -509,9 +514,8 @@ public class DatabaseManager {
     }
 
     /**
-     * Loads a single FoodItem by ID with full nutritional data
-     * @param foodId Food item ID
-     * @return FoodItem object
+     * Loads a food item with all its nutritional data from the database.
+     * helped by AI
      */
     public FoodItem loadFoodItem(Long foodId) {
         Map<String, Double> nutrients = new HashMap<>();
@@ -652,9 +656,8 @@ public class DatabaseManager {
     }
 
     /**
-     * Save a user profile to the database with password hashing (bcrypt).
-     * @param user User object
-     * @return true if successful, false if error
+     * Saves a new user with password hashing and goal information.
+     * helped by AI
      */
     public boolean saveUser(User user) {
         try {

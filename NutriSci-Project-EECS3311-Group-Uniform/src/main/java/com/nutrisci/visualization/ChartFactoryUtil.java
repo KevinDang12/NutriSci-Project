@@ -12,6 +12,7 @@ import java.time.LocalDate;
 // Utility for creating nutrition pie charts
 public class ChartFactoryUtil {
     // Creates a nutrition pie chart for a given dataset and date
+    // helped by AI
     public static JFreeChart createNutritionPieChart(PieDataset dataset, LocalDate date, ColorScheme colorScheme) {
         JFreeChart chart = ChartFactory.createPieChart(
             "Nutrition Summary for " + date,
