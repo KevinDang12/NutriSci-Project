@@ -6,9 +6,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.junit.Test;
 
 import com.nutrisci.calculator.NutritionalCalculator;
@@ -20,8 +17,6 @@ import com.nutrisci.service.FoodSwapService;
 import com.nutrisci.service.FoodSwapService.FoodSwapSuggestion;
 
 public class MealLoggingTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MealLoggingTest.class);
-
     /**
      * Log a Snack meal to the database
      */
@@ -193,6 +188,7 @@ public class MealLoggingTest {
         Goal calorieGoal = new Goal(GoalType.CALORIES, true, 5);
         FoodSwapSuggestion calorieFoodSwap = foodSwapService.suggestSwap(mealBuilder.mealBeingBuilt.foodItems, calorieGoal);
         assertNotEquals(calorieFoodSwap.getOriginalItem(), calorieFoodSwap.getReplacementItem());
+        assertTrue(calorieFoodSwap.getReplacementItem().calculateCaloriesFromMacros() > calorieFoodSwap.getOriginalItem().calculateCaloriesFromMacros());
     }
 
     /**
@@ -221,6 +217,7 @@ public class MealLoggingTest {
         Goal proteinGoal = new Goal(GoalType.PROTEIN, true, 5);
         FoodSwapSuggestion proteinFoodSwap = foodSwapService.suggestSwap(mealBuilder.mealBeingBuilt.foodItems, proteinGoal);
         assertNotEquals(proteinFoodSwap.getOriginalItem(), proteinFoodSwap.getReplacementItem());
+        assertTrue(proteinFoodSwap.getReplacementItem().getNutrientValue("PROTEIN") > proteinFoodSwap.getOriginalItem().getNutrientValue("PROTEIN"));
     }
 
     /**
@@ -249,5 +246,6 @@ public class MealLoggingTest {
         Goal fibreGoal = new Goal(GoalType.FIBRE, true, 5);
         FoodSwapSuggestion fibreFoodSwap = foodSwapService.suggestSwap(mealBuilder.mealBeingBuilt.foodItems, fibreGoal);
         assertNotEquals(fibreFoodSwap.getOriginalItem(), fibreFoodSwap.getReplacementItem());
+        assertTrue(fibreFoodSwap.getReplacementItem().getNutrientValue("FIBRE") >= fibreFoodSwap.getOriginalItem().getNutrientValue("FIBRE"));
     }
 }
