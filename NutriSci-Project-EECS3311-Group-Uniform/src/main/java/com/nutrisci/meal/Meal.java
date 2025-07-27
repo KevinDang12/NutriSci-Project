@@ -101,14 +101,26 @@ public abstract class Meal {
         return foodItems.size();
     }
 
+    /**
+     * Set the ID of the meal
+     * @param id The ID of the meal using UNIX time
+     */
     public void setId(long id) {
         this.id = id;
     }
 
+    /**
+     * Retrieve the ID of the meal
+     * @return The Meal ID
+     */
     public long getId() {
         return id;
     }
 
+    /**
+     * Get the meal creation date
+     * @return The creation date of the meal
+     */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }

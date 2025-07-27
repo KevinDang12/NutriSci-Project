@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nutrisci.calculator.NutritionalCalculator;
-
 // Builder for constructing Meal objects step by step
 public class MealBuilder {
     Meal mealBeingBuilt;
@@ -42,11 +40,6 @@ public class MealBuilder {
         return this;
     }
 
-    // public MealBuilder calculateNutrition() {
-    //     NutritionalCalculator.calculateMealNutrition(mealBeingBuilt.getFoodItems());
-    //     return this;
-    // }
-
     public MealBuilder addNotes(String notes) {
         this.mealBeingBuilt.notes = notes;
         return this;
@@ -57,6 +50,11 @@ public class MealBuilder {
         return this;
     }
 
+    /**
+     * Build the Meal object while checking whether the meal is set
+     * ond at least one food item is selected.
+     * @return
+     */
     public Meal build() {
         if (!mealTypeSet) {
             System.out.println("Meal Type not set");
@@ -68,15 +66,12 @@ public class MealBuilder {
             return null;
         }
 
-        // mealBeingBuilt.setFoodItems(new ArrayList<>(mealBeingBuilt.getFoodItems()));
-
         return mealBeingBuilt;
     }
 
     // Returns a preview of the meal being built
     // helped by AI
     public Meal buildPreview() {
-        // return mealFactory.duplicateMeal(mealBeingBuilt, LocalDate.now());
         return mealBeingBuilt;
     }
 }

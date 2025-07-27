@@ -17,16 +17,28 @@ public class FoodItem {
         this.foodGroup = foodGroup;
     }
 
+    /**
+     * Get Food ID
+     * @return The Food ID
+     */
     public long getId() {
         return id;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
+    /**
+     * Set the Food Item ID
+     * @param id The ID of the new food item
+     */
     public void setId(long id) {
         this.id = id;
+    }
+
+    /**
+     * Get the description of the food item
+     * @return Food Item description
+     */
+    public String getDescription() {
+        return description;
     }
 
     // Returns the value of a nutrient (macro, vitamin, or mineral)
@@ -75,18 +87,4 @@ public class FoodItem {
         double calories = calculateCaloriesFromMacros();
         return nutrientValue / calories * 100;
     }
-
-    public boolean isHighIn(String nutrient) {
-        // if statement to check is high in certain nutrient
-        return true;
-    }
-
-    // does not contain
-    // public int getGlycemicIndex() {
-
-    // }
-
-    // public Set<String> getAllergenInfo() {
-
-    // }
 }

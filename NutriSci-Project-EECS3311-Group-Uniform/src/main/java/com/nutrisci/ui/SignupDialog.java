@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import com.nutrisci.database.DatabaseManager;
 import com.nutrisci.model.Gender;
 import com.nutrisci.model.GoalType;
 import com.nutrisci.model.User;
@@ -28,6 +30,7 @@ public class SignupDialog extends JDialog {
     private boolean signupSuccessful = false;
     private UserSignupData signupData;
     private UserSessionManager userSessionManager;
+    private DatabaseManager databaseManager;
 
     // Data class to hold signup information
     public static class UserSignupData {
@@ -44,6 +47,7 @@ public class SignupDialog extends JDialog {
     public SignupDialog(Frame parent) {
         super(parent, "Sign Up for NutriSci", true);
         userSessionManager = UserSessionManager.getInstance();
+        databaseManager = DatabaseManager.getInstance();
         setupUI();
         setupLayout();
         setupListeners();
@@ -208,6 +212,15 @@ public class SignupDialog extends JDialog {
                 JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        // Check if username exists
+        if (databaseManager.checkIfUserExists(email)) {
+            JOptionPane.showMessageDialog(this, 
+                "The provided email exists, please enter a different email", 
+                "Signup Error", 
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
         // Check if passwords match
         if (!password.equals(confirmPassword)) {
@@ -323,6 +336,8 @@ public class SignupDialog extends JDialog {
                         JOptionPane.INFORMATION_MESSAGE);
                     signupSuccessful = true;
                     dispose();
+                    LoginDialog loginDialog = new LoginDialog((Frame) getOwner());
+                    loginDialog.setVisible(true);
                 }
             } else {
                 JOptionPane.showMessageDialog(this, 

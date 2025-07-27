@@ -1,11 +1,9 @@
 package com.nutrisci.database;
 
 import com.nutrisci.meal.Meal;
-import com.nutrisci.meal.MealBuilder;
 import com.nutrisci.meal.FoodItem;
 import com.nutrisci.model.Gender;
 import com.nutrisci.model.Goal;
-import com.nutrisci.model.GoalFactory;
 import com.nutrisci.model.GoalType;
 import com.nutrisci.model.Units;
 import com.nutrisci.model.User;
@@ -740,6 +738,35 @@ public class DatabaseManager {
             
             ps.executeUpdate();
             return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Check if a user is already using an email in the database
+     * @param email The provided email
+     * @return true if a user exists, otherwise false if the user does not exist
+     */
+    public boolean checkIfUserExists(String email) {
+        String checkForUser = "Select COUNT(*) as NUM from Meal_User where Email=?";
+
+        try (PreparedStatement ps = connection.prepareStatement(checkForUser)) {
+            ps.setString(1, email);
+
+            ResultSet rs = ps.executeQuery();
+            int number = 0;
+
+            if (rs.next()) {
+                number = rs.getInt("NUM");
+            }
+
+            if (number > 0) {
+                return true;
+            }
+
+            return false;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
