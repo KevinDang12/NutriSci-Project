@@ -24,7 +24,6 @@ public class MealLoggerPanel extends JPanel {
     private JButton importButton;
 
     private JButton compareMealButton;
-    private JButton swapMealButton;
     private JButton calculateButton;
     private JButton foodSwapButton;
 
@@ -123,7 +122,6 @@ public class MealLoggerPanel extends JPanel {
         calculateButton.addActionListener(e -> calculateMealNutrition(false));
 
         compareMealButton = new JButton("Compare Meal");
-        swapMealButton = new JButton("Swap Meal");
         foodSwapButton = new JButton("Food Swap");
         foodSwapButton.addActionListener(e -> suggestFoodSwap());
 
@@ -134,7 +132,6 @@ public class MealLoggerPanel extends JPanel {
         bottomPanel.add(addFoodItemButton);
         bottomPanel.add(calculateButton);
         bottomPanel.add(compareMealButton);
-        bottomPanel.add(swapMealButton);
         bottomPanel.add(foodSwapButton);
         bottomPanel.add(logMealButton);
 
@@ -216,7 +213,6 @@ public class MealLoggerPanel extends JPanel {
 
         } else {
             openMealSelectionDialog();
-            return;
         }
         
         resetPanel();
@@ -282,7 +278,6 @@ public class MealLoggerPanel extends JPanel {
         bottomPanel.add(addFoodItemButton);
         bottomPanel.add(calculateButton);
         bottomPanel.add(compareMealButton);
-        bottomPanel.add(swapMealButton);
         bottomPanel.add(foodSwapButton);
         bottomPanel.add(logMealButton);
         this.add(bottomPanel, BorderLayout.SOUTH);
@@ -316,7 +311,7 @@ public class MealLoggerPanel extends JPanel {
     
         meal2Button.addActionListener(e -> {
             List<FoodItem> foodItems = new ArrayList<>(comparedSelectedFoodNames.values());
-            meal1.setFoodItems(foodItems);
+            meal2.setFoodItems(foodItems);
             mealManager.addMeal(meal2.build());
             dialog.dispose();
         });
@@ -417,11 +412,9 @@ public class MealLoggerPanel extends JPanel {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton importBtn = new JButton("Import Meal");
         JButton addBtn = new JButton("Add Food Item");
-        JButton swapBtn = new JButton("Swap Meal");
         JButton foodSwapBtn = new JButton("Food Swap");
         bar.add(importBtn);
         bar.add(addBtn);
-        bar.add(swapBtn);
         bar.add(foodSwapBtn);
         if (isLeft) {
             importBtn.addActionListener(e -> importMeal(foodItemsPanel, foodNames, selectedFoodNames));
