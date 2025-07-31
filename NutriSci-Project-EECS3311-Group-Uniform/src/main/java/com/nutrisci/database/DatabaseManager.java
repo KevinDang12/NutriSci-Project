@@ -456,7 +456,7 @@ public class DatabaseManager {
             while (rs.next()) {
                 long mealId = rs.getLong("MealID");
                 String mealTypeStr = rs.getString("MealType");
-                // LocalDate entryDate = rs.getDate("EntryDate").toLocalDate();
+                LocalDate entryDate = rs.getDate("EntryDate").toLocalDate();
 
                 MealType mealType = MealType.valueOf(mealTypeStr);
                 
@@ -480,6 +480,7 @@ public class DatabaseManager {
                 // Set food items directly on the meal
                 meal.setFoodItems(foodItems);
                 meal.setId(mealId);
+                meal.setEntryDate(entryDate.atStartOfDay());
                 meals.add(meal);
             }
         } catch (SQLException e) {

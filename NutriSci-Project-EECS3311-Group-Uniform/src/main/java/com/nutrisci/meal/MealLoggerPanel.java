@@ -479,11 +479,12 @@ public class MealLoggerPanel extends JPanel {
                 selectedFoodNamesForPanel.remove(oldId);
                 foodNamesForPanel.put(oldId, oldFood);
 
-                FoodItem newFoodItem = mealManager.loadFoodItem(id);
+                FoodItem newFoodItem = mealManager.loadFoodItem(newId);
                 selectedFoodNamesForPanel.put(newId, newFoodItem);
                 foodNamesForPanel.remove(newId);
 
                 foodLabel.setText(newFood);
+                foodLabel.setName(newId.toString());
             }
         });
         

@@ -41,6 +41,11 @@ public abstract class Meal {
         }
     }
 
+    // Set the Entry Date
+    public void setEntryDate(LocalDateTime date) {
+        this.createdAt = date;
+    }
+
     // Returns the list of food items in the meal
     public List<FoodItem> getFoodItems() {
         return foodItems;
