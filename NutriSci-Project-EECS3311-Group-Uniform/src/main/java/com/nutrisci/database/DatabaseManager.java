@@ -1,28 +1,25 @@
 package com.nutrisci.database;
 
-import com.nutrisci.meal.Meal;
-import com.nutrisci.meal.FoodItem;
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.time.Instant;
+
+import com.nutrisci.meal.FoodItem;
+import com.nutrisci.meal.Meal;
+import com.nutrisci.meal.MealType;
+import com.nutrisci.model.User;
 
 import java.io.InputStream;
 import java.io.IOException;
-import com.nutrisci.meal.MealType;
-import com.nutrisci.meal.Breakfast;
-import com.nutrisci.meal.Lunch;
-import com.nutrisci.meal.Dinner;
-import com.nutrisci.meal.Snack;
 
 /**
  * DatabaseManager handles all database operations for meals, users, and food items.
  */
 public class DatabaseManager {
     private static DatabaseManager instance;
+    private MealManager mealManager;
+    private FoodManager foodManager;
+    private UserManager userManager;
     private Connection connection;
     private Properties dbProperties;
 
@@ -30,6 +27,9 @@ public class DatabaseManager {
     private DatabaseManager() {
         loadConfiguration();
         setupConnection();
+        mealManager = new MealManager();
+        foodManager = new FoodManager();
+        userManager = new UserManager();
     }
 
     /**
@@ -95,417 +95,158 @@ public class DatabaseManager {
     }
 
     /**
-     * Persists a meal to the database with all food items and nutritional data.
-     * Uses transactions and prepared statements.
-     * @param meal Meal to save
-     * @return true if successful, false if error (with rollback)
-     * helped by AI
+     * Use Meal Manager to save the meal
+     * @param meal The meal to save
+     * @param userId The user ID
+     * @return true if successful, otherwise false
      */
     public boolean saveMeal(Meal meal, long userId) {
-        // Generate a unique mealID (using epoch seconds for simplicity)
-        long mealID = meal.getId();
-
-        // String insertMealLogSQL = "INSERT INTO Meal_Log (UserID, MealID, MealType, EntryDate) VALUES (" + userId + ", " + mealID + ", '" + meal.getMealType() + "', '" + LocalDate.now() + "')";
-        String insertMealLogSQL = "INSERT INTO Meal_Log (UserID, MealID, MealType, EntryDate) VALUES (?, ?, ?, ?)";
-
-        // Build a single SQL statement for all food items
-        StringBuilder insertMealFoodSQL = new StringBuilder("INSERT INTO Meal_Food (MealID, FoodID) VALUES ");
-        List<FoodItem> foodItems = meal.getFoodItems();
-        for (int i = 0; i < foodItems.size(); i++) {
-            FoodItem item = foodItems.get(i);
-            insertMealFoodSQL.append("(").append(mealID).append(", ").append(item.getId()).append(")");
-            if (i < foodItems.size() - 1) {
-                insertMealFoodSQL.append(", ");
-            }
-        }
-        insertMealFoodSQL.append(";");
-
-        try {
-            // Execute Meal_Log insert
-            try (PreparedStatement ps = connection.prepareStatement(insertMealLogSQL)) {
-                
-                ps.setLong(1, userId);
-                ps.setLong(2, mealID);
-                ps.setString(3, meal.getMealType().name());
-
-                LocalDate localDate = LocalDate.now();
-                java.sql.Date date = java.sql.Date.valueOf(localDate);
-                ps.setDate(4, date);
-
-                ps.executeUpdate();
-            }
-
-            // Execute Meal_Food insert if there are food items
-            if (!foodItems.isEmpty()) {
-                try (Statement stmt = connection.createStatement()) {
-                    stmt.executeUpdate(insertMealFoodSQL.toString());
-                }
-            }
-
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        return mealManager.saveMeal(meal, userId, connection);
     }
 
     /**
-     * Import a list of food IDs to the meal logging page
-     * @param mealId The meal id for importing the meal
+     * Use Meal Manager to update the meal
+     * @param meal The meal to update
+     * @return true if successful, otherwise false
+     */
+    public boolean updateMeal(Meal meal) {
+        return mealManager.updateMeal(meal, connection);
+    }
+
+    /**
+     * Use Meal Manager to delete the meal
+     * @param mealId The meal ID
+     * @return true if successful, otherwise false
+     */
+    public boolean deleteMeal(Long mealId) {
+        return mealManager.deleteMeal(mealId, connection);
+    }
+
+    /**
+     * Use Meal Manager to get the meals for the user
+     * @param userId The user ID
+     * @param startDate The start date
+     * @param endDate The end date
+     * @return The list of meals
+     */
+    public List<Meal> getMealsForUser(long userId, LocalDate startDate, LocalDate endDate) {
+        return mealManager.getMealsForUser(userId, startDate, endDate, connection);
+    }
+
+    /**
+     * Use Meal Manager to import the meals
+     * @param userId The user ID
+     * @return The map of meals
+     */
+    public Map<Long, String> importMeals(long userId) {
+        return mealManager.importMeals(userId, connection);
+    }
+
+    /**
+     * Use Meal Manager to import the meal
+     * @param mealId The meal ID
      * @return The list of food IDs
      */
     public List<Long> importMeal(long mealId) {
-        
-        String importMealSQL = "SELECT FoodID FROM Meal_Food WHERE MealID=" + mealId;
-
-        List<Long> result = new ArrayList<>();
-
-        try {
-            connection.setAutoCommit(false);
-
-            try (PreparedStatement ps = connection.prepareStatement(importMealSQL)) {
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    long id = rs.getLong("FoodID");
-                    result.add(id);
-                }
-            }
-
-            connection.commit();
-
-            return result;
-        } catch (SQLException e) {
-            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            e.printStackTrace();
-            return null;
-        } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
-        }
+        return mealManager.importMeal(mealId, connection);
     }
 
     /**
-     * Retrieve a list of meals from the user ID
-     * @param userId The user ID to retrieve the meal
-     * @return A Map of the meal IDs and their description
-     * helped by AI
-     */
-    public Map<Long, String> importMeals(long userId) {
-        
-        String importMealSQL = "SELECT MealID, MealType FROM Meal_Log WHERE UserID=" + userId;
-
-        Map<Long, String> result = new HashMap<>();
-
-        try {
-            connection.setAutoCommit(false);
-
-            try (PreparedStatement ps = connection.prepareStatement(importMealSQL)) {
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    long id = rs.getLong("MealID");
-                    LocalDateTime dateTime = Instant.ofEpochSecond(id)
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDateTime();
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
-                    String formatted = dateTime.format(formatter);
-                    String mealType = rs.getString("MealType");
-                    result.put(id, formatted + " - " + mealType);
-                }
-            }
-
-            connection.commit();
-
-            return result;
-        } catch (SQLException e) {
-            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            e.printStackTrace();
-            return null;
-        } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
-        }
-    }
-
-    /**
-     * Updates an existing meal record and associated data.
-     * Deletes and reinserts food items for simplicity.
-     * @param meal Meal to update
-     * @return true if successful, false if error (with rollback)
-     */
-    public boolean updateMeal(Meal meal) {
-        long mealID = meal.getId(); // use getter for id
-        List<FoodItem> foodItems = meal.getFoodItems();
-
-        // Build a single SQL statement for all food items
-        StringBuilder insertMealFoodSQL = new StringBuilder("INSERT INTO Meal_Food (MealID, FoodID) VALUES ");
-        for (int i = 0; i < foodItems.size(); i++) {
-            FoodItem item = foodItems.get(i);
-            insertMealFoodSQL.append("(").append(mealID).append(", ").append(item.getId()).append(")");
-            if (i < foodItems.size() - 1) {
-                insertMealFoodSQL.append(", ");
-            }
-        }
-        insertMealFoodSQL.append(";");
-
-        try {
-            connection.setAutoCommit(false);
-
-            // Delete existing Meal_Food entries for this mealID
-            String deleteSQL = "DELETE FROM Meal_Food WHERE MealID = " + mealID;
-            try (Statement stmt = connection.createStatement()) {
-                stmt.executeUpdate(deleteSQL);
-            }
-
-            // Insert new Meal_Food entries if there are food items
-            if (!foodItems.isEmpty()) {
-                try (Statement stmt = connection.createStatement()) {
-                    stmt.executeUpdate(insertMealFoodSQL.toString());
-                }
-            }
-
-            connection.commit();
-            return true;
-        } catch (SQLException e) {
-            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            e.printStackTrace();
-            return false;
-        } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
-        }
-    }
-
-    /**
-     * Check if you can add a meal type for the user on a certain date
-     * @param userId The User ID
-     * @param type The Meal Type
-     * @param date The current Date
-     * @return true if successful, otherwise false
-     */
-    public boolean canAddMealType(long userId, MealType type, LocalDate date) {
-        String checkForMeal = "Select MealType from Meal_Log where UserID = ? and EntryDate = ?";
-
-        try (PreparedStatement ps = connection.prepareStatement(checkForMeal)) {
-
-            ps.setLong(1, userId);
-            ps.setDate(2, java.sql.Date.valueOf(date));
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                String mealType = rs.getString("MealType");
-                
-                if (mealType.equals(type.name()) && !type.name().equals("SNACK")) {
-                    return false;
-                }
-            }
-
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    /**
-     * Get the number of meals for a certain day
-     * @param userId The user ID
-     * @param type The type of meal
-     * @param date The current date
-     * @return The number of meals for a meal type
-     */
-    public int getMealCountForType(long userId, MealType type, LocalDate date) {
-        String mealCountString = "Select Count(MealType) as amount from Meal_Log where UserID = ? and MealType = ? and EntryDate = ?";
-
-        try (PreparedStatement ps = connection.prepareStatement(mealCountString)) {
-
-            ps.setLong(1, userId);
-            ps.setString(2, type.name());
-            ps.setDate(3, java.sql.Date.valueOf(date));
-
-            ResultSet rs = ps.executeQuery();
-            int amount = 0;
-            if (rs.next()) {
-                amount = rs.getInt("amount");
-            }
-            return amount;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    /**
-     * Get a list of available meals that the user can log
-     * @param userId The User ID
-     * @param date The current date
-     * @return A list of meals that the user has already logged for the date
-     */
-    public List<MealType> getAvailableMealTypes(long userId, LocalDate date) {
-        String mealTypeString = "SELECT MealType FROM Meal_Log WHERE UserID = ? AND EntryDate = ? GROUP BY MealType";
-
-        List<MealType> availabMealTypes = new ArrayList<>();
-
-        try (PreparedStatement ps = connection.prepareStatement(mealTypeString)) {
-
-            ps.setLong(1, userId);
-            ps.setDate(2, java.sql.Date.valueOf(date));
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                String type = rs.getString("MealType");
-                MealType mealCategory = MealType.valueOf(type);
-                availabMealTypes.add(mealCategory);
-            }
-            
-            return availabMealTypes;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Perform a food swap on the meal
-     * @param mealId The Meal ID
+     * Use Meal Manager to swap the food in the meal
+     * @param mealId The meal ID
      * @param original The original food item
      * @param replacement The replacement food item
      * @return true if successful, otherwise false
      */
     public boolean swapFoodInMeal(Long mealId, FoodItem original, FoodItem replacement) {
-        long originalId = original.getId();
-        long replacementId = replacement.getId();
-
-        // SQL: Get the list of food items in Meal_Food by meal ID, update the original food with new food item.
-        String sql = "UPDATE Meal_Food SET FoodID=" + replacementId + " where MealID=" + mealId + " and FoodID=" + originalId;
-
-        try {
-            connection.setAutoCommit(false);
-
-            try (Statement stmt = connection.createStatement()) {
-                stmt.executeUpdate(sql);
-            }
-
-            connection.commit();
-            return true;
-        } catch (SQLException e) {
-            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            e.printStackTrace();
-            return false;
-        } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
-        }
+        return mealManager.swapFoodInMeal(mealId, original, replacement, connection);
     }
 
     /**
-     * Removes a meal and all associated data from the database.
-     * @param mealId ID of meal to delete
-     * @return true if successful, false if error (with rollback)
+     * Use Meal Manager to check if the meal type can be added
+     * @param userId The user ID
+     * @param type The meal type
+     * @param date The date
+     * @return true if the meal type can be added, otherwise false
      */
-    public boolean deleteMeal(Long mealId) {
-        try {
-            connection.setAutoCommit(false);
-
-            // Delete from Meal_Food first (to avoid FK constraint issues)
-            String deleteMealFoodSQL = "DELETE FROM Meal_Food WHERE MealID = " + mealId;
-            try (Statement stmt = connection.createStatement()) {
-                stmt.executeUpdate(deleteMealFoodSQL);
-            }
-
-            // Delete from Meal_Log
-            String deleteMealLogSQL = "DELETE FROM Meal_Log WHERE MealID = " + mealId;
-            try (Statement stmt = connection.createStatement()) {
-                stmt.executeUpdate(deleteMealLogSQL);
-            }
-
-            connection.commit();
-            return true;
-        } catch (SQLException e) {
-            try { connection.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            e.printStackTrace();
-            return false;
-        } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
-        }
+    public boolean canAddMealType(long userId, MealType type, LocalDate date) {
+        return mealManager.canAddMealType(userId, type, date, connection);
     }
 
     /**
-     * Retrieves meals for a user within a date range, reconstructing full objects.
-     * @param userId User ID
-     * @param startDate Start date
-     * @param endDate End date
-     * @return List of Meal objects
-     * helped by AI
+     * Use Meal Manager to get the meal count for the meal type
+     * @param userId The user ID
+     * @param type The meal type
+     * @param date The date
+     * @return The meal count
      */
-    public List<Meal> getMealsForUser(long userId, LocalDate startDate, LocalDate endDate) {
-        List<Meal> meals = new ArrayList<>();
-        String sql = "SELECT * FROM Meal_Log WHERE UserID = ? AND EntryDate BETWEEN ? AND ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setLong(1, userId);
-            ps.setDate(2, java.sql.Date.valueOf(startDate));
-            ps.setDate(3, java.sql.Date.valueOf(endDate));
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                long mealId = rs.getLong("MealID");
-                String mealTypeStr = rs.getString("MealType");
-                // LocalDate entryDate = rs.getDate("EntryDate").toLocalDate();
-
-                MealType mealType = MealType.valueOf(mealTypeStr);
-                
-                // Create meal directly from registry without validation (since we're loading from DB)
-                Meal meal = createMealFromRegistry(mealType, mealId);
-
-                // Load food items for this meal
-                String foodSql = "SELECT FoodID FROM Meal_Food WHERE MealID = " + mealId;
-                
-                List<FoodItem> foodItems = new ArrayList<>();
-
-                try (PreparedStatement foodPs = connection.prepareStatement(foodSql)) {
-                    ResultSet foodRs = foodPs.executeQuery();
-                    while (foodRs.next()) {
-                        long foodId = foodRs.getLong("FoodID");
-                        FoodItem item = loadFoodItem(foodId);
-                        foodItems.add(item);
-                    }
-                }
-
-                // Set food items directly on the meal
-                meal.setFoodItems(foodItems);
-                meal.setId(mealId);
-                meals.add(meal);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return meals;
+    public int getMealCountForType(long userId, MealType type, LocalDate date) {
+        return mealManager.getMealCountForType(userId, type, date, connection);
     }
 
     /**
-     * Creates a meal directly from the registry without validation (for loading from DB)
+     * Use Meal Manager to get the available meal types
+     * @param userId The user ID
+     * @param date The date
+     * @return The list of meal types
      */
-    private Meal createMealFromRegistry(MealType type, long mealId) {
-        Meal meal = null;
-        switch (type) {
-            case BREAKFAST:
-                meal = new Breakfast();
-                break;
-            case LUNCH:
-                meal = new Lunch();
-                break;
-            case DINNER:
-                meal = new Dinner();
-                break;
-            case SNACK:
-                meal = new Snack();
-                break;
-        }
-        if (meal != null) {
-            meal.setId(mealId);
-        }
-        return meal;
+    public List<MealType> getAvailableMealTypes(long userId, LocalDate date) {
+        return mealManager.getAvailableMealTypes(userId, date, connection);
     }
 
     /**
-     * Split here for Meal and Food
+     * Use Food Manager to load the food item
+     * @param foodId The food ID
+     * @return The food item
      */
+    public FoodItem loadFoodItem(Long foodId) {
+        return foodManager.loadFoodItem(foodId, connection);
+    }
+
+    /**
+     * Use Food Manager to get the food items
+     * @return The map of food items
+     */
+    public Map<Long, String> getFoodItems() {
+        return foodManager.getFoodItems(connection);
+    }
+
+    /**
+     * Use User Manager to save the user
+     * @param user The user to save
+     * @return true if successful, otherwise false
+     */
+    public boolean saveUser(User user) {
+        return userManager.saveUser(user, connection);
+    }
+
+    /**
+     * Use User Manager to update the user profile
+     * @param user The user to update
+     * @return true if successful, otherwise false
+     */
+    public boolean updateUserProfile(User user) {
+        return userManager.updateUserProfile(user, connection);
+    }
+
+    /**
+     * Use User Manager to authenticate the user
+     * @param email The email of the user
+     * @param password The password of the user
+     * @return The user if successful, otherwise null
+     */
+    public User authenticateUser(String email, String password) {
+        return userManager.authenticateUser(email, password, connection);
+    }
+
+    /**
+     * Use User Manager to check if the user exists
+     * @param email The email of the user
+     * @return true if the user exists, otherwise false
+     */
+    public boolean checkIfUserExists(String email) {
+        return userManager.checkIfUserExists(email, connection);
+    }
 
     /**
      * Properly closes database connections and cleans up resources.

@@ -16,12 +16,15 @@ import com.nutrisci.model.GoalType;
 import com.nutrisci.model.Units;
 import com.nutrisci.model.User;
 
-public class UserDatabaseManager {
-    private static UserDatabaseManager instance;
+/**
+ * UserManager handles all database operations for users.
+ */
+public class UserManager {
+    private static UserManager instance;
 
-    public static UserDatabaseManager getInstance() {
+    public static UserManager getInstance() {
         if (instance == null) {
-            instance = new UserDatabaseManager();
+            instance = new UserManager();
         }
         return instance;
     }
