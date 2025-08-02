@@ -6,8 +6,6 @@ import com.nutrisci.model.User;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 
 /**
  * PostgreSQL database adapter implementation.
