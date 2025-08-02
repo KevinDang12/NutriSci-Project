@@ -24,9 +24,9 @@ import com.nutrisci.meal.MealType;
 import com.nutrisci.meal.Snack;
 
 /**
- * MealManager handles all database operations for meals.
+ * MealLogManager handles all database operations for meals.
  */
-public class MealManager {
+public class MealLogManager {
     /**
      * Persists a meal to the database with all food items and nutritional data.
      * Uses transactions and prepared statements.
@@ -393,7 +393,7 @@ public class MealManager {
 
                 try (PreparedStatement foodPs = connection.prepareStatement(foodSql)) {
                     ResultSet foodRs = foodPs.executeQuery();
-                    FoodManager foodManager = FoodManager.getInstance();
+                    FoodLogManager foodManager = new FoodLogManager();
                     while (foodRs.next()) {
                         long foodId = foodRs.getLong("FoodID");
                         FoodItem item = foodManager.loadFoodItem(foodId, connection);

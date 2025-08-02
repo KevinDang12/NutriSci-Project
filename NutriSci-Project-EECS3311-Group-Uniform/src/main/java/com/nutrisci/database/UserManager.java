@@ -20,15 +20,6 @@ import com.nutrisci.model.User;
  * UserManager handles all database operations for users.
  */
 public class UserManager {
-    private static UserManager instance;
-
-    public static UserManager getInstance() {
-        if (instance == null) {
-            instance = new UserManager();
-        }
-        return instance;
-    }
-
     /**
      * Saves a new user with password hashing and goal information.
      * helped by AI

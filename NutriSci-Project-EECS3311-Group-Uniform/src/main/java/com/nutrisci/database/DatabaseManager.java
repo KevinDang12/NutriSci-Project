@@ -17,8 +17,8 @@ import java.io.IOException;
  */
 public class DatabaseManager {
     private static DatabaseManager instance;
-    private MealManager mealManager;
-    private FoodManager foodManager;
+    private MealLogManager mealLogManager;
+    private FoodLogManager foodLogManager;
     private UserManager userManager;
     private Connection connection;
     private Properties dbProperties;
@@ -27,8 +27,8 @@ public class DatabaseManager {
     private DatabaseManager() {
         loadConfiguration();
         setupConnection();
-        mealManager = new MealManager();
-        foodManager = new FoodManager();
+        mealLogManager = new MealLogManager();
+        foodLogManager = new FoodLogManager();
         userManager = new UserManager();
     }
 
@@ -101,7 +101,7 @@ public class DatabaseManager {
      * @return true if successful, otherwise false
      */
     public boolean saveMeal(Meal meal, long userId) {
-        return mealManager.saveMeal(meal, userId, connection);
+        return mealLogManager.saveMeal(meal, userId, connection);
     }
 
     /**
@@ -110,7 +110,7 @@ public class DatabaseManager {
      * @return true if successful, otherwise false
      */
     public boolean updateMeal(Meal meal) {
-        return mealManager.updateMeal(meal, connection);
+        return mealLogManager.updateMeal(meal, connection);
     }
 
     /**
@@ -119,7 +119,7 @@ public class DatabaseManager {
      * @return true if successful, otherwise false
      */
     public boolean deleteMeal(Long mealId) {
-        return mealManager.deleteMeal(mealId, connection);
+        return mealLogManager.deleteMeal(mealId, connection);
     }
 
     /**
@@ -130,7 +130,7 @@ public class DatabaseManager {
      * @return The list of meals
      */
     public List<Meal> getMealsForUser(long userId, LocalDate startDate, LocalDate endDate) {
-        return mealManager.getMealsForUser(userId, startDate, endDate, connection);
+        return mealLogManager.getMealsForUser(userId, startDate, endDate, connection);
     }
 
     /**
@@ -139,7 +139,7 @@ public class DatabaseManager {
      * @return The map of meals
      */
     public Map<Long, String> importMeals(long userId) {
-        return mealManager.importMeals(userId, connection);
+        return mealLogManager.importMeals(userId, connection);
     }
 
     /**
@@ -148,7 +148,7 @@ public class DatabaseManager {
      * @return The list of food IDs
      */
     public List<Long> importMeal(long mealId) {
-        return mealManager.importMeal(mealId, connection);
+        return mealLogManager.importMeal(mealId, connection);
     }
 
     /**
@@ -159,7 +159,7 @@ public class DatabaseManager {
      * @return true if successful, otherwise false
      */
     public boolean swapFoodInMeal(Long mealId, FoodItem original, FoodItem replacement) {
-        return mealManager.swapFoodInMeal(mealId, original, replacement, connection);
+        return mealLogManager.swapFoodInMeal(mealId, original, replacement, connection);
     }
 
     /**
@@ -170,7 +170,7 @@ public class DatabaseManager {
      * @return true if the meal type can be added, otherwise false
      */
     public boolean canAddMealType(long userId, MealType type, LocalDate date) {
-        return mealManager.canAddMealType(userId, type, date, connection);
+        return mealLogManager.canAddMealType(userId, type, date, connection);
     }
 
     /**
@@ -181,7 +181,7 @@ public class DatabaseManager {
      * @return The meal count
      */
     public int getMealCountForType(long userId, MealType type, LocalDate date) {
-        return mealManager.getMealCountForType(userId, type, date, connection);
+        return mealLogManager.getMealCountForType(userId, type, date, connection);
     }
 
     /**
@@ -191,7 +191,7 @@ public class DatabaseManager {
      * @return The list of meal types
      */
     public List<MealType> getAvailableMealTypes(long userId, LocalDate date) {
-        return mealManager.getAvailableMealTypes(userId, date, connection);
+        return mealLogManager.getAvailableMealTypes(userId, date, connection);
     }
 
     /**
@@ -200,7 +200,7 @@ public class DatabaseManager {
      * @return The food item
      */
     public FoodItem loadFoodItem(Long foodId) {
-        return foodManager.loadFoodItem(foodId, connection);
+        return foodLogManager.loadFoodItem(foodId, connection);
     }
 
     /**
@@ -208,7 +208,7 @@ public class DatabaseManager {
      * @return The map of food items
      */
     public Map<Long, String> getFoodItems() {
-        return foodManager.getFoodItems(connection);
+        return foodLogManager.getFoodItems(connection);
     }
 
     /**

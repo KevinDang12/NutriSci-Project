@@ -12,18 +12,9 @@ import java.util.Map;
 import com.nutrisci.meal.FoodItem;
 
 /**
- * FoodManager handles all database operations for food items.
+ * FoodLogManager handles all database operations for food items.
  */
-public class FoodManager {
-
-    private static FoodManager instance;
-
-    public static FoodManager getInstance() {
-        if (instance == null) {
-            instance = new FoodManager();
-        }
-        return instance;
-    }
+public class FoodLogManager {
 
     /**
      * Loads a food item with all its nutritional data from the database.
