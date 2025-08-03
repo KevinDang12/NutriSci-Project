@@ -196,15 +196,7 @@ public class SignupDialog extends JDialog {
         getRootPane().setDefaultButton(signupButton);
     }
 
-    // Handles signup attempt
-    // helped by AI
-    private void handleSignup() {
-        // Get all the values
-        String email = emailField.getText().trim();
-        String password = new String(passwordField.getPassword());
-        String confirmPassword = new String(confirmPasswordField.getPassword());
-        
-        // Validate required fields
+    private boolean validateCredntials(String email, String password, String confirmPassword) {
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() ||
             ageField.getText().trim().isEmpty() || heightField.getText().trim().isEmpty() ||
             weightField.getText().trim().isEmpty()) {
@@ -212,28 +204,34 @@ public class SignupDialog extends JDialog {
                 "Please fill in all fields", 
                 "Signup Error", 
                 JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
+        return true;
+    }
 
-        // Check if username exists
+    private boolean usernameExists(String email) {
         if (databaseManager.checkIfUserExists(email)) {
             JOptionPane.showMessageDialog(this, 
                 "The provided email exists, please enter a different email", 
                 "Signup Error", 
                 JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
-        
-        // Check if passwords match
+        return true;
+    }
+
+    private boolean passwordMatch(String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
             JOptionPane.showMessageDialog(this, 
                 "Passwords do not match", 
                 "Signup Error", 
                 JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
-        
-        // Validate age
+        return true;
+    }
+
+    private int validateAge() {
         int age;
         try {
             age = Integer.parseInt(ageField.getText().trim());
@@ -242,17 +240,19 @@ public class SignupDialog extends JDialog {
                     "Age must be between 13 and 120", 
                     "Signup Error", 
                     JOptionPane.ERROR_MESSAGE);
-                return;
+                return -1;
             }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, 
                 "Please enter a valid age", 
                 "Signup Error", 
                 JOptionPane.ERROR_MESSAGE);
-            return;
+            return -1;
         }
-        
-        // Validate height
+        return age;
+    }
+
+    private double validateHeight() {
         double height;
         try {
             height = Double.parseDouble(heightField.getText().trim());
@@ -261,17 +261,21 @@ public class SignupDialog extends JDialog {
                     "Please enter a valid height (1-300 cm)", 
                     "Signup Error", 
                     JOptionPane.ERROR_MESSAGE);
-                return;
+                System.out.println("Valid Height");
+                return -1;
             }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, 
                 "Please enter a valid height", 
                 "Signup Error", 
                 JOptionPane.ERROR_MESSAGE);
-            return;
+                System.out.println("Error Height");
+            return -1;
         }
-        
-        // Validate weight
+        return height;
+    }
+
+    private double validateWeight() {
         double weight;
         try {
             weight = Double.parseDouble(weightField.getText().trim());
@@ -280,40 +284,31 @@ public class SignupDialog extends JDialog {
                     "Please enter a valid weight (1-500 kg)", 
                     "Signup Error", 
                     JOptionPane.ERROR_MESSAGE);
-                return;
+                    System.out.println("Valid Weight");
+                return -1;
             }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, 
                 "Please enter a valid weight", 
                 "Signup Error", 
                 JOptionPane.ERROR_MESSAGE);
-            return;
+                System.out.println("Error Weight");
+            return -1;
         }
-        
-        // Create signup data
-        signupData = new UserSignupData();
-        signupData.email = email;
-        signupData.password = password;
-        signupData.age = age;
-        signupData.height = height;
-        signupData.weight = weight;
-        signupData.gender = (Gender) genderComboBox.getSelectedItem();
-        // New goal selection
-        GoalType goalType = (GoalType) goalTypeComboBox.getSelectedItem();
-        boolean increase = directionComboBox.getSelectedItem().equals("Increase");
-        int percent = (Integer) percentComboBox.getSelectedItem();
-        signupData.goal = new com.nutrisci.model.Goal(goalType, increase, percent);
-        
+        return weight;
+    }
+
+    private void createSignupData(UserSignupData signupData) {
         // Create User object and save to database
         try {
             User newUser = new User();
-            newUser.setName(email.split("@")[0]); // Use email prefix as name
-            newUser.setEmail(email);
-            newUser.setPassword(password);
+            newUser.setName(signupData.email.split("@")[0]); // Use email prefix as name
+            newUser.setEmail(signupData.email);
+            newUser.setPassword(signupData.password);
             newUser.setGender(signupData.gender);
-            newUser.setDateOfBirth(LocalDate.now().minusYears(age));
-            newUser.setHeight(height);
-            newUser.setWeight(weight);
+            newUser.setDateOfBirth(LocalDate.now().minusYears(signupData.age));
+            newUser.setHeight(signupData.height);
+            newUser.setWeight(signupData.weight);
             newUser.setUnits(com.nutrisci.model.Units.METRIC);
             newUser.setGoal(signupData.goal);
             
@@ -322,7 +317,7 @@ public class SignupDialog extends JDialog {
             
             if (registrationSuccess) {
                 // Automatically log in the user after successful registration
-                boolean loginSuccess = userSessionManager.login(email, password);
+                boolean loginSuccess = userSessionManager.login(signupData.email, signupData.password);
                 
                 if (loginSuccess) {
                     JOptionPane.showMessageDialog(this, 
@@ -353,6 +348,68 @@ public class SignupDialog extends JDialog {
                 "Signup Error", 
                 JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    // Handles signup attempt
+    // helped by AI
+    private void handleSignup() {
+        // Get all the values
+        String email = emailField.getText().trim();
+        String password = new String(passwordField.getPassword());
+        String confirmPassword = new String(confirmPasswordField.getPassword());
+        
+        // Validate required fields
+        if (!validateCredntials(email, password, confirmPassword)) {
+            return;
+        }
+
+        // Check if username exists
+        if (!usernameExists(email)) {
+            return;
+        }
+        
+        // Check if passwords match
+        if (!passwordMatch(password, confirmPassword)) {
+            return;
+        }
+        
+        // Validate age
+        int age = validateAge();
+        if (age <= -1) {
+            return;
+        }
+        
+        // Validate height
+        double height = validateHeight();
+        System.out.println("Height");
+        if (height <= -1.0) {
+            System.out.println("Unvalid Height");
+            return;
+        }
+        
+        // Validate weight
+        double weight = validateWeight();
+        System.out.println("Weight");
+        if (weight <= -1.0) {
+            System.out.println("Unvalid Weight");
+            return;
+        }
+        
+        // Create signup data
+        signupData = new UserSignupData();
+        signupData.email = email;
+        signupData.password = password;
+        signupData.age = age;
+        signupData.height = height;
+        signupData.weight = weight;
+        signupData.gender = (Gender) genderComboBox.getSelectedItem();
+        // New goal selection
+        GoalType goalType = (GoalType) goalTypeComboBox.getSelectedItem();
+        boolean increase = directionComboBox.getSelectedItem().equals("Increase");
+        int percent = (Integer) percentComboBox.getSelectedItem();
+        signupData.goal = new com.nutrisci.model.Goal(goalType, increase, percent);
+
+        createSignupData(signupData);
     }
 
     // Returns true if signup was successful
