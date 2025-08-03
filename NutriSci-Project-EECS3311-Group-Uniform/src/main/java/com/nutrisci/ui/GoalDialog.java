@@ -2,6 +2,12 @@ package com.nutrisci.ui;
 
 import com.nutrisci.model.Goal;
 import com.nutrisci.model.GoalType;
+import com.nutrisci.model.User;
+import com.nutrisci.util.UserSessionManager;
+import com.nutrisci.calculator.*;
+import com.nutrisci.meal.MealManager;
+import com.nutrisci.meal.Meal;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -9,6 +15,8 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
+import java.util.List;
 
 // Dialog for viewing and updating the user's goal
 public class GoalDialog extends JDialog {
@@ -100,6 +108,62 @@ public class GoalDialog extends JDialog {
     }
     
     /**
+     * Calculate the total nutrition of each meal
+     * @return The total nutritional data
+     */
+    private NutritionalData calculateTotalNutrition() {
+        MealManager mealManager = new MealManager();
+        LocalDate today = LocalDate.now();
+        List<Meal> todaysMeals = mealManager.getMealsForDate(today);
+        
+        if (todaysMeals.isEmpty()) {
+            return null; // No meals logged today
+        }
+        
+        // Calculate total nutrition for today
+        NutritionalCalculator calculator = new NutritionalCalculator();
+        NutritionalData totalNutrition = new NutritionalData(0, 0, 0, 0, 0);
+
+        for (Meal meal : todaysMeals) {
+            totalNutrition = totalNutrition.add(calculator.calculateMealNutrition(meal.getFoodItems()));
+        }
+        
+        return totalNutrition;
+    }
+
+    private double calculateProgress(NutritionalData totalNutrition) {
+        double currentValue = 0.0;
+        double targetValue = 0.0;
+        
+        switch (goal.getType()) {
+            case CALORIES:
+                currentValue = totalNutrition.getCalories();
+                // For demo purposes, assume target is 2000 calories
+                targetValue = 2000.0;
+                break;
+            case PROTEIN:
+                currentValue = totalNutrition.getProtein();
+                // For demo purposes, assume target is 50g protein
+                targetValue = 50.0;
+                break;
+            case FIBRE:
+                currentValue = totalNutrition.getFiber();
+                // For demo purposes, assume target is 25g fiber
+                targetValue = 25.0;
+                break;
+            default:
+                return 0.0;
+        }
+        
+        if (targetValue == 0) {
+            return 0.0;
+        }
+        
+        double progress = (currentValue / targetValue) * 100.0;
+        return progress;
+    }
+
+    /**
      * Calculates the user's current progress towards their goal
      * helped by AI
      */
@@ -108,62 +172,23 @@ public class GoalDialog extends JDialog {
             return 0.0;
         }
         
+        UserSessionManager sessionManager = UserSessionManager.getInstance();
+        User currentUser = sessionManager.getCurrentUser();
+
         try {
-            // Get current user's meal data for today
-            com.nutrisci.util.UserSessionManager sessionManager = com.nutrisci.util.UserSessionManager.getInstance();
-            com.nutrisci.model.User currentUser = sessionManager.getCurrentUser();
-            
+            // Get current user's meal data for today            
             if (currentUser == null) {
                 return 0.0;
             }
             
             // Get today's meals and calculate nutrition
-            com.nutrisci.meal.MealManager mealManager = new com.nutrisci.meal.MealManager();
-            java.time.LocalDate today = java.time.LocalDate.now();
-            java.util.List<com.nutrisci.meal.Meal> todaysMeals = mealManager.getMealsForDate(today);
-            
-            if (todaysMeals.isEmpty()) {
-                return 0.0; // No meals logged today
-            }
-            
-            // Calculate total nutrition for today
-            com.nutrisci.calculator.NutritionalCalculator calculator = new com.nutrisci.calculator.NutritionalCalculator();
-            com.nutrisci.calculator.NutritionalData totalNutrition = new com.nutrisci.calculator.NutritionalData(0, 0, 0, 0, 0);
-            com.nutrisci.calculator.NutritionalData resultNutrition = totalNutrition;
-
-            for (com.nutrisci.meal.Meal meal : todaysMeals) {
-                resultNutrition = totalNutrition.add(calculator.calculateMealNutrition(meal.getFoodItems()));
-            }
-            
-            // Calculate progress based on goal type
-            double currentValue = 0.0;
-            double targetValue = 0.0;
-            
-            switch (goal.getType()) {
-                case CALORIES:
-                    currentValue = resultNutrition.getCalories();
-                    // For demo purposes, assume target is 2000 calories
-                    targetValue = 2000.0;
-                    break;
-                case PROTEIN:
-                    currentValue = resultNutrition.getProtein();
-                    // For demo purposes, assume target is 50g protein
-                    targetValue = 50.0;
-                    break;
-                case FIBRE:
-                    currentValue = resultNutrition.getFiber();
-                    // For demo purposes, assume target is 25g fiber
-                    targetValue = 25.0;
-                    break;
-                default:
-                    return 0.0;
-            }
-            
-            if (targetValue == 0) {
+            NutritionalData totalNutrition = calculateTotalNutrition();
+            if (totalNutrition == null) {
                 return 0.0;
             }
             
-            double progress = (currentValue / targetValue) * 100.0;
+            // Calculate progress based on goal type
+            double progress = calculateProgress(totalNutrition);
             
             // Apply goal direction (increase/decrease)
             if (goal.isIncrease()) {

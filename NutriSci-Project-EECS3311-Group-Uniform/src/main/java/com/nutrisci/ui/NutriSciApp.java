@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import com.nutrisci.meal.MealLoggerPanel;
 import com.nutrisci.model.Goal;
-import com.nutrisci.ui.GoalDialog;
 import com.nutrisci.util.UserSessionManager;
 import com.nutrisci.model.User;
 import java.awt.CardLayout;
@@ -14,7 +13,6 @@ public class NutriSciApp {
     private JFrame mainFrame;
     private LoginDialog loginDialog;
     private MealLoggerPanel mealLoggerPanel;
-    private boolean isLoggedIn = false;
     private JButton goalButton;
     private Goal userGoal;
     private CardLayout cardLayout;
@@ -49,7 +47,6 @@ public class NutriSciApp {
     private void showLogin() {
         // Check if user is already logged in (e.g., from signup)
         if (userSessionManager.isUserLoggedIn()) {
-            isLoggedIn = true;
             showHomePage();
             return;
         }
@@ -58,7 +55,6 @@ public class NutriSciApp {
         loginDialog.setVisible(true);
         
         if (loginDialog.isLoginSuccessful() || userSessionManager.isUserLoggedIn()) {
-            isLoggedIn = true;
             showHomePage();
         } else {
             // User cancelled login, exit application
@@ -83,35 +79,6 @@ public class NutriSciApp {
         mainPanel.add(homePagePanel, "home");
         cardLayout.show(mainPanel, "home");
         mainFrame.setVisible(true);
-    }
-
-    // Shows the main application after successful login
-    private void showMainApplication() {
-        mealLoggerPanel = new MealLoggerPanel();
-        
-        // Add it to the main frame
-        // Add 'Back to Home' button
-        JButton backButton = new JButton("Back to Home");
-        backButton.addActionListener(e -> showHomePage());
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(backButton);
-        JPanel mealLoggerContainer = new JPanel(new BorderLayout());
-        mealLoggerContainer.add(topPanel, BorderLayout.NORTH);
-        mealLoggerContainer.add(mealLoggerPanel, BorderLayout.CENTER);
-        mainPanel.add(mealLoggerContainer, "meal");
-        cardLayout.show(mainPanel, "meal");
-        
-        // Show the main frame
-        mainFrame.setVisible(true);
-        
-        // Show welcome message
-        String email = loginDialog.getUserEmail();
-        JOptionPane.showMessageDialog(mainFrame, 
-            "Welcome to NutriSci, " + email + "!\nYou can now start logging your meals.", 
-            "Welcome", 
-            JOptionPane.INFORMATION_MESSAGE);
-        // Set up goal button action
-        goalButton.addActionListener(e -> openGoalDialog());
     }
 
     private void openGoalDialog() {
@@ -152,7 +119,6 @@ public class NutriSciApp {
     }
 
     private void logout() {
-        isLoggedIn = false;
         userSessionManager.logout();
         mainPanel.removeAll();
         mainFrame.setVisible(false);

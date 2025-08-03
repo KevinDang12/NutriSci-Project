@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import com.nutrisci.database.DatabaseManager;
 import com.nutrisci.model.Gender;
@@ -196,6 +195,13 @@ public class SignupDialog extends JDialog {
         getRootPane().setDefaultButton(signupButton);
     }
 
+    /**
+     * Validate wehther the user credentials are empty
+     * @param email The user's email
+     * @param password The user's password
+     * @param confirmPassword The user's confirmed password
+     * @return true if all fields are entered, otherwise false with an error message
+     */
     private boolean validateCredntials(String email, String password, String confirmPassword) {
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() ||
             ageField.getText().trim().isEmpty() || heightField.getText().trim().isEmpty() ||
@@ -209,6 +215,11 @@ public class SignupDialog extends JDialog {
         return true;
     }
 
+    /**
+     * Check if the username exists in the database
+     * @param email The user's email
+     * @return true if the user does not exist, otherwise false with an error message
+     */
     private boolean usernameExists(String email) {
         if (databaseManager.checkIfUserExists(email)) {
             JOptionPane.showMessageDialog(this, 
@@ -220,6 +231,12 @@ public class SignupDialog extends JDialog {
         return true;
     }
 
+    /**
+     * Check whether the user's password and confirm password are correct
+     * @param password The user's password
+     * @param confirmPassword The user's confirmed password
+     * @return true if the passwords match, otherwise false with an error message
+     */
     private boolean passwordMatch(String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
             JOptionPane.showMessageDialog(this, 
@@ -231,6 +248,10 @@ public class SignupDialog extends JDialog {
         return true;
     }
 
+    /**
+     * Check if the age is valid
+     * @return true if valid, otherwise false
+     */
     private int validateAge() {
         int age;
         try {
@@ -252,6 +273,10 @@ public class SignupDialog extends JDialog {
         return age;
     }
 
+    /**
+     * Check if the height is valid
+     * @return true if valid, otherwise false
+     */
     private double validateHeight() {
         double height;
         try {
@@ -275,6 +300,10 @@ public class SignupDialog extends JDialog {
         return height;
     }
 
+    /**
+     * Check if the weight is valid
+     * @return true if valid, otherwise false
+     */
     private double validateWeight() {
         double weight;
         try {
@@ -298,6 +327,10 @@ public class SignupDialog extends JDialog {
         return weight;
     }
 
+    /**
+     * Add the user to the database
+     * @param signupData The user's signup data
+     */
     private void createSignupData(UserSignupData signupData) {
         // Create User object and save to database
         try {
