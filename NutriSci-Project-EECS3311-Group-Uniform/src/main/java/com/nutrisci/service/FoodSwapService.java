@@ -58,20 +58,21 @@ public class FoodSwapService {
         
         return worstItem;
     }
-    
+
     /**
-     * Find a better replacement food item
+     * Find a better food candidate
+     * @param originalItem The original food item
+     * @param userGoal The user's goal
+     * @param goalType The goal type
+     * @return A list of food item candidates
      */
-    private FoodItem findBetterReplacement(FoodItem originalItem, Goal userGoal) {
-        GoalType goalType = userGoal.getType();
+    private List<FoodItem> findCandidates(FoodItem originalItem, Goal userGoal, GoalType goalType) {
         double originalValue = getNutrientValue(originalItem, goalType);
-        
-        // Get all available food items
         Map<Long, String> allFoodNames = dbManager.getFoodItems();
+
         List<FoodItem> candidates = new ArrayList<>();
-        
-        // Sample a subset of food items for performance (take first 100)
         int count = 0;
+
         for (Map.Entry<Long, String> entry : allFoodNames.entrySet()) {
             if (count >= 100) break; // Limit for performance
             
@@ -93,6 +94,16 @@ public class FoodSwapService {
                 continue;
             }
         }
+        return candidates;
+    }
+    
+    /**
+     * Find a better replacement food item
+     */
+    private FoodItem findBetterReplacement(FoodItem originalItem, Goal userGoal) {
+        GoalType goalType = userGoal.getType();
+
+        List<FoodItem> candidates = findCandidates(originalItem, userGoal, goalType);
         
         // If no candidates found, return null
         if (candidates.isEmpty()) {
