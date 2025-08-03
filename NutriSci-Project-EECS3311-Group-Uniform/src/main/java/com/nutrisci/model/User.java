@@ -66,36 +66,88 @@ public class User {
         }
         return weightInKg / (heightInMeters * heightInMeters);
     }
-    
+
     /**
-     * Checks if all required profile fields are valid
+     * Check if name is empty
+     * @return true if not empty, otherwise false
      */
-    public boolean validateProfile() {
+    private boolean emptyName() {
         if (name == null || name.trim().isEmpty()) {
             System.out.println("Validation failed: name is empty");
             return false;
         }
+        return true;
+    }
+
+    /**
+     * Check if password is empty
+     * @return true if not empty, otherwise false
+     */
+    private boolean emptyPassword() {
         if (email == null || email.trim().isEmpty()) {
             System.out.println("Validation failed: email is empty");
             return false;
         }
+        return true;
+    }
+
+    /**
+     * Check if password is valid
+     * @return true if valid, otherwise false
+     */
+    private boolean validPassword() {
         if (password == null || password.length() < 1) {
             System.out.println("Validation failed: password is too short (length: " + (password != null ? password.length() : 0) + ")");
             return false;
         }
+        return true;
+    }
+
+    /**
+     * Check if date of birth is empty
+     * @return true if not empty, otherwise false
+     */
+    private boolean emptyDateOfBirth() {
         if (dateOfBirth == null) {
             System.out.println("Validation failed: dateOfBirth is null");
             return false;
         }
+        return true;
+    }
+
+    /**
+     * Check if age is valid
+     * @return true if valid, otherwise false
+     */
+    private boolean validAge() {
         int age = getAge();
         if (age < 13 || age > 120) {
             System.out.println("Validation failed: age is invalid (" + age + ")");
             return false;
         }
+        return true;
+    }
+
+    /**
+     * Check if height and weight is valid
+     * @return true if valid, otherwise false
+     */
+    private boolean validHeightAndWeight() {
         if (height <= 0 || weight <= 0) {
             System.out.println("Validation failed: height or weight is invalid (height: " + height + ", weight: " + weight + ")");
             return false;
         }
+        return true;
+    }
+    
+    /**
+     * Checks if all required profile fields are valid
+     */
+    public boolean validateProfile() {
+        if (!emptyName() || !emptyPassword() || !validPassword() || !emptyDateOfBirth() || !validAge() || !validHeightAndWeight()) {
+            return false;
+        }
+       
         System.out.println("User validation passed successfully");
         return true;
     }

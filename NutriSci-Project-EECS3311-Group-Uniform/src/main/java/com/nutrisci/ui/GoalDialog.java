@@ -131,6 +131,11 @@ public class GoalDialog extends JDialog {
         return totalNutrition;
     }
 
+    /**
+     * Calculate the user's progress
+     * @param totalNutrition The user's total nutrition
+     * @return The user's progress
+     */
     private double calculateProgress(NutritionalData totalNutrition) {
         double currentValue = 0.0;
         double targetValue = 0.0;
