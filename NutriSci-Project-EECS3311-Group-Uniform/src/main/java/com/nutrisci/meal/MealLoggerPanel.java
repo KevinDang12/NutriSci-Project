@@ -75,14 +75,12 @@ public class MealLoggerPanel extends JPanel {
                 MealType type = (MealType) e.getItem();
                 MealBuilder newBuilder = new MealBuilder().setMealType(type);
 
-                if (meal.mealBeingBuilt != null) {
-                    for (FoodItem item : meal.mealBeingBuilt.getFoodItems()) {
-                        // Use the current servingSize as the quantity
-                        FoodItem newItem = new FoodItem(item.getId(), item.description, item.nutrients, item.foodGroup);
-                        newBuilder.addFoodItem(newItem);
-                    }
-                    meal = newBuilder;
+                for (FoodItem item : meal.getFoodItems()) {
+                    // Use the current servingSize as the quantity
+                    FoodItem newItem = new FoodItem(item.getId(), item.description, item.nutrients, item.foodGroup);
+                    newBuilder.addFoodItem(newItem);
                 }
+                meal = newBuilder;
             }
         });
 
@@ -193,7 +191,7 @@ public class MealLoggerPanel extends JPanel {
         } else if (comparedSelectedFoodNames.size() <= 0) {
             List<FoodItem> foodItems = new ArrayList<>(selectedFoodNames.values());
             meal.setFoodItems(foodItems);
-            System.out.println(meal.mealBeingBuilt.foodItems);
+            System.out.println(meal.getFoodItems());
         
             mealManager.addMeal(meal.build());
             resetPanel();
@@ -201,7 +199,7 @@ public class MealLoggerPanel extends JPanel {
         } else if (selectedFoodNames.size() <= 0) {
             List<FoodItem> foodItems = new ArrayList<>(comparedSelectedFoodNames.values());
             meal.setFoodItems(foodItems);
-            System.out.println(meal.mealBeingBuilt.foodItems);
+            System.out.println(meal.getFoodItems());
 
             mealManager.addMeal(meal.build());
             resetPanel();

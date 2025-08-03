@@ -17,7 +17,6 @@ import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -25,7 +24,6 @@ import javax.swing.ListSelectionModel;
  */
 public class MealImportDialog extends JDialog {
     private String selectedMeal;
-    private JTextField searchField;
     private JList<String> mealList;
     private DefaultListModel<String> listModel;
     private JButton selectButton;
@@ -46,7 +44,6 @@ public class MealImportDialog extends JDialog {
         setSize(450, 400);
         setLocationRelativeTo(owner);
 
-        searchField = new JTextField();
         listModel = new DefaultListModel<>();
 
         meals = mealManager.importMeals();
@@ -68,22 +65,6 @@ public class MealImportDialog extends JDialog {
         mealList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane scrollPane = new JScrollPane(mealList);
 
-        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
-
-            private void filter() {
-                String filter = searchField.getText().toLowerCase();
-                listModel.clear();
-                for (String name : allMealValues) {
-                    if (name.toLowerCase().contains(filter)) {
-                        listModel.addElement(name);
-                    }
-                }
-            }
-        });
-
         selectButton = new JButton("Select");
         selectButton.addActionListener(e -> {
             selectedMeal = mealList.getSelectedValue();
@@ -102,7 +83,6 @@ public class MealImportDialog extends JDialog {
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.add(selectButton);
 
-        add(searchField, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
     }

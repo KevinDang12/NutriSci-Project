@@ -37,7 +37,7 @@ public class MealLoggingTest {
         // Add meal to the database
         assertTrue(db.saveMeal(mealBuilder.build(), 1));
 
-        db.deleteMeal(mealBuilder.mealBeingBuilt.id);
+        db.deleteMeal(mealBuilder.build().id);
     }
 
     /**
@@ -59,7 +59,7 @@ public class MealLoggingTest {
         assertTrue(db.saveMeal(mealBuilder.build(), 1));
         boolean canAddSnack = db.canAddMealType(1, MealType.SNACK, LocalDate.now());
         assertTrue(canAddSnack);
-        db.deleteMeal(mealBuilder.mealBeingBuilt.id);
+        db.deleteMeal(mealBuilder.build().id);
 
         // Add Breakfast
         mealBuilder = new MealBuilder().setMealType(MealType.BREAKFAST);
@@ -68,7 +68,7 @@ public class MealLoggingTest {
         assertTrue(db.saveMeal(mealBuilder.build(), 1));
         boolean canAddBreakfast = db.canAddMealType(1, MealType.BREAKFAST, LocalDate.now());
         assertFalse(canAddBreakfast);
-        db.deleteMeal(mealBuilder.mealBeingBuilt.id);
+        db.deleteMeal(mealBuilder.build().id);
 
         // Add Lunch
         mealBuilder = new MealBuilder().setMealType(MealType.LUNCH);
@@ -77,7 +77,7 @@ public class MealLoggingTest {
         assertTrue(db.saveMeal(mealBuilder.build(), 1));
         boolean canAddLunch = db.canAddMealType(1, MealType.LUNCH, LocalDate.now());
         assertFalse(canAddLunch);
-        db.deleteMeal(mealBuilder.mealBeingBuilt.id);
+        db.deleteMeal(mealBuilder.build().id);
 
         // Add Dinner
         mealBuilder = new MealBuilder().setMealType(MealType.DINNER);
@@ -86,7 +86,7 @@ public class MealLoggingTest {
         assertTrue(db.saveMeal(mealBuilder.build(), 1));
         boolean canAddDinner = db.canAddMealType(1, MealType.DINNER, LocalDate.now());
         assertFalse(canAddDinner);
-        db.deleteMeal(mealBuilder.mealBeingBuilt.id);
+        db.deleteMeal(mealBuilder.build().id);
     }
 
     /**
@@ -113,7 +113,7 @@ public class MealLoggingTest {
 
         assertTrue(db.saveMeal(mealBuilder.build(), 1));
 
-        db.deleteMeal(mealBuilder.mealBeingBuilt.id);
+        db.deleteMeal(mealBuilder.build().id);
     }
 
     /**
@@ -151,8 +151,8 @@ public class MealLoggingTest {
             mealBuilder2.addFoodItem(db.loadFoodItem(id));
         }
 
-        NutritionalData data1 = nutritionalCalculator.calculateMealNutrition(mealBuilder1.mealBeingBuilt.foodItems);
-        NutritionalData data2 = nutritionalCalculator.calculateMealNutrition(mealBuilder2.mealBeingBuilt.foodItems);
+        NutritionalData data1 = nutritionalCalculator.calculateMealNutrition(mealBuilder1.getFoodItems());
+        NutritionalData data2 = nutritionalCalculator.calculateMealNutrition(mealBuilder2.getFoodItems());
 
         assertNotEquals(data1, data2);
         assertNotEquals(data1.getCalories(), data2.getCalories());
@@ -186,7 +186,7 @@ public class MealLoggingTest {
         }
 
         Goal calorieGoal = new Goal(GoalType.CALORIES, true, 5);
-        FoodSwapSuggestion calorieFoodSwap = foodSwapService.suggestSwap(mealBuilder.mealBeingBuilt.foodItems, calorieGoal);
+        FoodSwapSuggestion calorieFoodSwap = foodSwapService.suggestSwap(mealBuilder.getFoodItems(), calorieGoal);
         assertNotEquals(calorieFoodSwap.getOriginalItem(), calorieFoodSwap.getReplacementItem());
         assertTrue(calorieFoodSwap.getReplacementItem().calculateCaloriesFromMacros() > calorieFoodSwap.getOriginalItem().calculateCaloriesFromMacros());
     }
@@ -215,7 +215,7 @@ public class MealLoggingTest {
         }
 
         Goal proteinGoal = new Goal(GoalType.PROTEIN, true, 5);
-        FoodSwapSuggestion proteinFoodSwap = foodSwapService.suggestSwap(mealBuilder.mealBeingBuilt.foodItems, proteinGoal);
+        FoodSwapSuggestion proteinFoodSwap = foodSwapService.suggestSwap(mealBuilder.getFoodItems(), proteinGoal);
         assertNotEquals(proteinFoodSwap.getOriginalItem(), proteinFoodSwap.getReplacementItem());
         assertTrue(proteinFoodSwap.getReplacementItem().getNutrientValue("PROTEIN") > proteinFoodSwap.getOriginalItem().getNutrientValue("PROTEIN"));
     }
@@ -244,7 +244,7 @@ public class MealLoggingTest {
         }
 
         Goal fibreGoal = new Goal(GoalType.FIBRE, true, 5);
-        FoodSwapSuggestion fibreFoodSwap = foodSwapService.suggestSwap(mealBuilder.mealBeingBuilt.foodItems, fibreGoal);
+        FoodSwapSuggestion fibreFoodSwap = foodSwapService.suggestSwap(mealBuilder.getFoodItems(), fibreGoal);
         assertNotEquals(fibreFoodSwap.getOriginalItem(), fibreFoodSwap.getReplacementItem());
         assertTrue(fibreFoodSwap.getReplacementItem().getNutrientValue("FIBRE") >= fibreFoodSwap.getOriginalItem().getNutrientValue("FIBRE"));
     }

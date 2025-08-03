@@ -3,11 +3,12 @@ package com.nutrisci.meal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.Instant;
 
 // Builder for constructing Meal objects step by step
 public class MealBuilder {
-    Meal mealBeingBuilt;
-    boolean mealTypeSet, dataSet;
+    private Meal mealBeingBuilt;
+    private boolean mealTypeSet;
     List<String> buildErrors;
 
     MealFactory mealFactory;
@@ -17,10 +18,20 @@ public class MealBuilder {
     public MealBuilder setMealType(MealType type) {
         mealFactory = new MealFactory();
         LocalDate date = LocalDate.now();
-        long mealID = java.time.Instant.now().getEpochSecond();
+        long mealID = Instant.now().getEpochSecond();
         mealBeingBuilt = mealFactory.createMeal(type, date, mealID);
         mealTypeSet = true;
         return this;
+    }
+
+    public MealBuilder setId(Long id) {
+        this.mealBeingBuilt.id = id;
+        return this;
+    }
+
+    // Return a list of food items
+    public List<FoodItem> getFoodItems() {
+        return this.mealBeingBuilt.foodItems;
     }
 
     // Adds a food item to the meal
@@ -35,18 +46,21 @@ public class MealBuilder {
         return this;
     }
 
+    // Clear food items from list
     public MealBuilder clearFoodItems() {
         mealBeingBuilt.foodItems.clear();
         return this;
     }
 
-    public MealBuilder addNotes(String notes) {
-        this.mealBeingBuilt.notes = notes;
+    // Add a new list of food items for the meal
+    public MealBuilder setFoodItems(List<FoodItem> foodItems) {
+        this.mealBeingBuilt.foodItems = new ArrayList<>(foodItems);
         return this;
     }
 
-    public MealBuilder setFoodItems(List<FoodItem> foodItems) {
-        this.mealBeingBuilt.foodItems = new ArrayList<>(foodItems);
+    // Add notes for the meal
+    public MealBuilder addNotes(String notes) {
+        this.mealBeingBuilt.notes = notes;
         return this;
     }
 

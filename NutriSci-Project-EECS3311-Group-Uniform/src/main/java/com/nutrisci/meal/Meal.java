@@ -144,7 +144,7 @@ public abstract class Meal {
         }
 
         clonedMeal.addNotes(notes);
-        clonedMeal.mealBeingBuilt.setId(id);
+        clonedMeal.setId(id);
 
         return clonedMeal.build();
     }
