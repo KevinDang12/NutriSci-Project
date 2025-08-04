@@ -1,6 +1,7 @@
 package com.nutrisci.database;
 
 import com.nutrisci.meal.Meal;
+import com.nutrisci.meal.MealType;
 import com.nutrisci.meal.FoodItem;
 import com.nutrisci.model.User;
 import java.time.LocalDate;
@@ -111,19 +112,19 @@ public class PostgreSQLDatabaseAdapter implements DatabaseAdapter {
     }
     
     @Override
-    public boolean canAddMealType(long userId, com.nutrisci.meal.MealType type, LocalDate date) {
+    public boolean canAddMealType(long userId, MealType type, LocalDate date) {
         // PostgreSQL-specific implementation would go here
         return fallbackDatabase.canAddMealType(userId, type, date);
     }
     
     @Override
-    public int getMealCountForType(long userId, com.nutrisci.meal.MealType type, LocalDate date) {
+    public int getMealCountForType(long userId, MealType type, LocalDate date) {
         // PostgreSQL-specific implementation would go here
         return fallbackDatabase.getMealCountForType(userId, type, date);
     }
     
     @Override
-    public List<com.nutrisci.meal.MealType> getAvailableMealTypes(long userId, LocalDate date) {
+    public List<MealType> getAvailableMealTypes(long userId, LocalDate date) {
         // PostgreSQL-specific implementation would go here
         return fallbackDatabase.getAvailableMealTypes(userId, date);
     }

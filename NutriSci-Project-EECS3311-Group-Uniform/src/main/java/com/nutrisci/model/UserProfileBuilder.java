@@ -1,26 +1,20 @@
 package com.nutrisci.model;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 // Builder for creating User objects step-by-step with validation
 public class UserProfileBuilder {
-    private String name;
-    private String email;
-    private String password;
-    private Gender gender;
-    private LocalDate dateOfBirth;
-    private double height;
-    private double weight;
-    private Units units;
-    private Goal userGoal;
     private List<String> validationErrors;
+    private User user;
     
     // Initializes the builder with default values
     public UserProfileBuilder() {
-        this.units = Units.METRIC;
+        this.user = new User();
+        this.user.setUnits(Units.METRIC);
         this.validationErrors = new ArrayList<>();
     }
     // Sets and validates the user's name
@@ -30,7 +24,8 @@ public class UserProfileBuilder {
         } else if (name.trim().length() < 2) {
             validationErrors.add("Name must be at least 2 characters long");
         } else {
-            this.name = name.trim();
+            this.user.setName(name.trim());
+            // this.name = name.trim();
         }
         return this;
     }
@@ -42,7 +37,8 @@ public class UserProfileBuilder {
         } else if (!isValidEmail(email)) {
             validationErrors.add("Email format is invalid");
         } else {
-            this.email = email.trim().toLowerCase();
+            this.user.setEmail(email.trim().toLowerCase());
+            // this.email = email.trim().toLowerCase();
         }
         return this;
     }
@@ -51,19 +47,26 @@ public class UserProfileBuilder {
         if (password == null || password.length() < 8) {
             validationErrors.add("Password must be at least 8 characters long");
         } else {
-            this.password = password;
+            // this.password = password;
+            this.user.setPassword(password);
         }
         return this;
     }
     // Sets basic user info (gender, dob, height, weight)
     // helped by AI
     public UserProfileBuilder setBasicInfo(Gender gender, LocalDate dateOfBirth, double height, double weight) {
-        this.gender = gender;
-        this.dateOfBirth = dateOfBirth;
-        this.height = height;
-        this.weight = weight;
+        // this.gender = gender;
+        // this.dateOfBirth = dateOfBirth;
+        // this.height = height;
+        // this.weight = weight;
+
+        this.user.setGender(gender);
+        this.user.setDateOfBirth(dateOfBirth);
+        this.user.setHeight(height);
+        this.user.setWeight(weight);
+
         if (dateOfBirth != null) {
-            int age = java.time.Period.between(dateOfBirth, LocalDate.now()).getYears();
+            int age = Period.between(dateOfBirth, LocalDate.now()).getYears();
             if (age < 13 || age > 120) {
                 validationErrors.add("Age must be between 13 and 120 years");
             }
@@ -82,7 +85,8 @@ public class UserProfileBuilder {
         if (goal == null) {
             validationErrors.add("Invalid goal type or value");
         } else {
-            this.userGoal = goal;
+            // this.userGoal = goal;
+            this.user.setGoal(goal);
         }
         return this;
     }
@@ -91,7 +95,8 @@ public class UserProfileBuilder {
         if (units == null) {
             validationErrors.add("Units cannot be null");
         } else {
-            this.units = units;
+            // this.units = units;
+            this.user.setUnits(units);
         }
         return this;
     }
@@ -100,13 +105,13 @@ public class UserProfileBuilder {
         if (!validationErrors.isEmpty()) {
             return null;
         }
-        User user = new User(name, email, password);
-        user.setGender(gender);
-        user.setDateOfBirth(dateOfBirth);
-        user.setHeight(height);
-        user.setWeight(weight);
-        user.setUnits(units);
-        user.setGoal(userGoal);
+        // User user = new User(name, email, password);
+        // user.setGender(gender);
+        // user.setDateOfBirth(dateOfBirth);
+        // user.setHeight(height);
+        // user.setWeight(weight);
+        // user.setUnits(units);
+        // user.setGoal(userGoal);
         return user;
     }
     // Returns a list of validation errors
@@ -129,15 +134,7 @@ public class UserProfileBuilder {
     }
     // Resets the builder to its initial state
     public void reset() {
-        this.name = null;
-        this.email = null;
-        this.password = null;
-        this.gender = null;
-        this.dateOfBirth = null;
-        this.height = 0;
-        this.weight = 0;
-        this.units = Units.METRIC;
-        this.userGoal = null;
+        this.user = new User();
         this.validationErrors.clear();
     }
 } 

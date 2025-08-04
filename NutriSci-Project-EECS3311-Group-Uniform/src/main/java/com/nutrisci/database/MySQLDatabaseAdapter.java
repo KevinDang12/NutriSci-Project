@@ -1,6 +1,7 @@
 package com.nutrisci.database;
 
 import com.nutrisci.meal.Meal;
+import com.nutrisci.meal.MealType;
 import com.nutrisci.meal.FoodItem;
 import com.nutrisci.model.User;
 import java.time.LocalDate;
@@ -92,17 +93,17 @@ public class MySQLDatabaseAdapter implements DatabaseAdapter {
     }
     
     @Override
-    public boolean canAddMealType(long userId, com.nutrisci.meal.MealType type, LocalDate date) {
+    public boolean canAddMealType(long userId, MealType type, LocalDate date) {
         return databaseManager.canAddMealType(userId, type, date);
     }
     
     @Override
-    public int getMealCountForType(long userId, com.nutrisci.meal.MealType type, LocalDate date) {
+    public int getMealCountForType(long userId, MealType type, LocalDate date) {
         return databaseManager.getMealCountForType(userId, type, date);
     }
     
     @Override
-    public List<com.nutrisci.meal.MealType> getAvailableMealTypes(long userId, LocalDate date) {
+    public List<MealType> getAvailableMealTypes(long userId, LocalDate date) {
         return databaseManager.getAvailableMealTypes(userId, date);
     }
     

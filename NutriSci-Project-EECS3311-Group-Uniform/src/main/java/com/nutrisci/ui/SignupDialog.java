@@ -8,7 +8,9 @@ import java.time.LocalDate;
 
 import com.nutrisci.database.DatabaseManager;
 import com.nutrisci.model.Gender;
+import com.nutrisci.model.Goal;
 import com.nutrisci.model.GoalType;
+import com.nutrisci.model.Units;
 import com.nutrisci.model.User;
 import com.nutrisci.util.UserSessionManager;
 
@@ -342,7 +344,7 @@ public class SignupDialog extends JDialog {
             newUser.setDateOfBirth(LocalDate.now().minusYears(signupData.age));
             newUser.setHeight(signupData.height);
             newUser.setWeight(signupData.weight);
-            newUser.setUnits(com.nutrisci.model.Units.METRIC);
+            newUser.setUnits(Units.METRIC);
             newUser.setGoal(signupData.goal);
             
             // Register user in database
@@ -440,7 +442,7 @@ public class SignupDialog extends JDialog {
         GoalType goalType = (GoalType) goalTypeComboBox.getSelectedItem();
         boolean increase = directionComboBox.getSelectedItem().equals("Increase");
         int percent = (Integer) percentComboBox.getSelectedItem();
-        signupData.goal = new com.nutrisci.model.Goal(goalType, increase, percent);
+        signupData.goal = new Goal(goalType, increase, percent);
 
         createSignupData(signupData);
     }

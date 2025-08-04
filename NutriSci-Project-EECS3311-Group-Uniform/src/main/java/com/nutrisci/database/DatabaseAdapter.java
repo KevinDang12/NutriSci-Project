@@ -1,6 +1,7 @@
 package com.nutrisci.database;
 
 import com.nutrisci.meal.Meal;
+import com.nutrisci.meal.MealType;
 import com.nutrisci.meal.FoodItem;
 import com.nutrisci.model.User;
 import java.time.LocalDate;
@@ -120,7 +121,7 @@ public interface DatabaseAdapter {
      * @param date The date
      * @return true if can add, false otherwise
      */
-    boolean canAddMealType(long userId, com.nutrisci.meal.MealType type, LocalDate date);
+    boolean canAddMealType(long userId, MealType type, LocalDate date);
     
     /**
      * Get meal count for a type on a date
@@ -129,7 +130,7 @@ public interface DatabaseAdapter {
      * @param date The date
      * @return Number of meals
      */
-    int getMealCountForType(long userId, com.nutrisci.meal.MealType type, LocalDate date);
+    int getMealCountForType(long userId, MealType type, LocalDate date);
     
     /**
      * Get available meal types for a user on a date
@@ -137,7 +138,7 @@ public interface DatabaseAdapter {
      * @param date The date
      * @return List of meal types
      */
-    List<com.nutrisci.meal.MealType> getAvailableMealTypes(long userId, LocalDate date);
+    List<MealType> getAvailableMealTypes(long userId, LocalDate date);
     
     /**
      * Close the database connection
