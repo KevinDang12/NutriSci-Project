@@ -122,10 +122,10 @@ public class GoalDialog extends JDialog {
         
         // Calculate total nutrition for today
         NutritionalCalculator calculator = new NutritionalCalculator();
-        NutritionalData totalNutrition = new NutritionalData(0, 0, 0, 0, 0);
+        NutritionalData totalNutrition = new NutritionalData();
 
         for (Meal meal : todaysMeals) {
-            totalNutrition = totalNutrition.add(calculator.calculateMealNutrition(meal.getFoodItems()));
+            totalNutrition.add(calculator.calculateMealNutrition(meal.getFoodItems()));
         }
         
         return totalNutrition;

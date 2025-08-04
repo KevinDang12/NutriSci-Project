@@ -9,46 +9,73 @@ public class NutritionalData {
     private double fiber;
 
     // Constructor for nutritional data
-    public NutritionalData(double calories, double protein, double carbs, double fat, double fiber){
-        this.calories = calories;
-        this.protein = protein;
-        this.carbs = carbs;
-        this.fat = fat;
-        this.fiber = fiber;
+    public NutritionalData(){
+        this.calories = 0;
+        this.protein = 0;
+        this.carbs = 0;
+        this.fat = 0;
+        this.fiber = 0;
     }
 
     // Adds another nutritional data object to this one
-    public NutritionalData add(NutritionalData other){
+    public void add(NutritionalData other){
         if (other == null) 
-            return this;
+            return;
 
-        return new NutritionalData(
-            this.calories + other.calories, 
-            this.protein + other.protein, 
-            this.carbs + other.carbs, 
-            this.fat + other.fat, 
-            this.fiber + other.fiber
-        );
+        this.calories += other.calories;
+        this.protein += other.protein;
+        this.carbs += other.carbs;
+        this.fat += other.fat;
+        this.fiber += other.fiber;
     }
 
     // Getter for calories
     public double getCalories() {
-        return calories;
+        return this.calories;
     }
+
+    // Setter for calories
+    public void setCalories(double calories) {
+        this.calories = calories;
+    }
+
     // Getter for protein
     public double getProtein() {
-        return protein;
+        return this.protein;
     }
+
+    // Setter for protein
+    public void setProtein(double protein) {
+        this.protein = protein;
+    }
+
     // Getter for carbs
     public double getCarbs() {
-        return carbs;
+        return this.carbs;
     }
+
+    // Setter for carbs
+    public void setCarbs(double carbs) {
+        this.carbs = carbs;
+    }
+
     // Getter for fat
     public double getFat() {
-        return fat;
+        return this.fat;
     }
+
+    // Setter for fat
+    public void setFat(double fat) {
+        this.fat = fat;
+    }
+
     // Getter for fiber
     public double getFiber() {
-        return fiber;
+        return this.fiber;
+    }
+
+    // Setter for fiber
+    public void setFiber(double fiber) {
+        this.fiber = fiber;
     }
 }

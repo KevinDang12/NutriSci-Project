@@ -21,7 +21,12 @@ public class NutritionalCalculator {
             totalFiber += item.getNutrientValue("FIBRE, TOTAL DIETARY");
         }
     
-        NutritionalData result = new NutritionalData(totalCalories, totalProtein, totalCarbs, totalFat, totalFiber);
+        NutritionalData result = new NutritionalData();
+        result.setCalories(totalCalories);
+        result.setProtein(totalProtein);
+        result.setCarbs(totalCarbs);
+        result.setFat(totalFat);
+        result.setFiber(totalFiber);
         return result;
     }
 

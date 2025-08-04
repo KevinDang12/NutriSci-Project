@@ -57,7 +57,9 @@ public class NutritionDataService {
             NutritionalData mealNutrition = calculator.calculateMealNutrition(meal.getFoodItems());
             
             if (mealTypeTotals.containsKey(mealType)) {
-                mealTypeTotals.put(mealType, mealTypeTotals.get(mealType).add(mealNutrition));
+                NutritionalData result = mealTypeTotals.get(mealType);
+                result.add(mealNutrition);
+                mealTypeTotals.put(mealType, result);
             } else {
                 mealTypeTotals.put(mealType, mealNutrition);
             }
@@ -99,7 +101,9 @@ public class NutritionDataService {
             NutritionalData mealNutrition = calculator.calculateMealNutrition(meal.getFoodItems());
             
             if (weekTotals.containsKey(weekKey)) {
-                weekTotals.put(weekKey, weekTotals.get(weekKey).add(mealNutrition));
+                NutritionalData result = weekTotals.get(weekKey);
+                result.add(mealNutrition);
+                weekTotals.put(weekKey, result);
             } else {
                 weekTotals.put(weekKey, mealNutrition);
             }

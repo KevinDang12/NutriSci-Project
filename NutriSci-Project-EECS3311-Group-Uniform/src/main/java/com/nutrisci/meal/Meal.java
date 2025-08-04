@@ -90,7 +90,15 @@ public abstract class Meal {
             totalFat += foodItem.getNutrientValue("fat");
             totalFiber += foodItem.getNutrientValue("fiber");
         }
-        return new NutritionalData(totalCalories, totalProtein, totalCarbs, totalFat, totalFiber);
+
+        NutritionalData result = new NutritionalData();
+        result.setCalories(totalCalories);
+        result.setProtein(totalProtein);
+        result.setCarbs(totalCarbs);
+        result.setFat(totalFat);
+        result.setFiber(totalFiber);
+
+        return result;
     }
 
     // Returns the total calories of the meal

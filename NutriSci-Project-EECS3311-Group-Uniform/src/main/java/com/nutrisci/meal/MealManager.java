@@ -221,7 +221,7 @@ public class MealManager {
      */
     public NutritionalData calculateDailyTotals(LocalDate date) {
         List<Meal> meals = getMealsForDate(date);
-        NutritionalData nutritionalData = new NutritionalData(0, 0, 0, 0, 0);
+        NutritionalData nutritionalData = new NutritionalData();
 
         for (Meal meal : meals) {
             nutritionalData.add(nutritionalCalculator.calculateMealNutrition(meal.getFoodItems()));
