@@ -24,6 +24,7 @@ public class MealBuilder {
         return this;
     }
 
+    // Set the id of the meal
     public MealBuilder setId(Long id) {
         this.mealBeingBuilt.id = id;
         return this;

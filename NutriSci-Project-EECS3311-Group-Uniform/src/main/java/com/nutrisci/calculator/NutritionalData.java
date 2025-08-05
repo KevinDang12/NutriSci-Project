@@ -22,11 +22,11 @@ public class NutritionalData {
         if (other == null) 
             return;
 
-        this.calories += other.calories;
-        this.protein += other.protein;
-        this.carbs += other.carbs;
-        this.fat += other.fat;
-        this.fiber += other.fiber;
+        this.calories += other.getCalories();
+        this.protein += other.getProtein();
+        this.carbs += other.getCarbs();
+        this.fat += other.getFat();
+        this.fiber += other.getFiber();
     }
 
     // Getter for calories
